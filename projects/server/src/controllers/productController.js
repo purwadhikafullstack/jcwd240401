@@ -17,3 +17,5 @@ const db = require("../models");
 // modify unit of measurement
 // modify img product
 // remove product (makesure branch not using it)
+// get product
+// get product per id

@@ -7,6 +7,8 @@ const db = require("../models");
 // restock branch product
 // reduce branch product
 // update branch product details (ETC)
+// get branch product
+// get branch product per id
 
 // sales report (SA & A)
 // stock history (A)
