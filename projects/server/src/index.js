@@ -40,8 +40,8 @@ app.get("/api/greetings", (req, res, next) => {
 });
 
 app.use("/api/auth", router.auth);
-app.use("/api/admin", router.admin);
-app.use("/api/user", router.user);
+app.use("/api/admins", router.admin);
+app.use("/api/users", router.user);
 
 // ===========================
 

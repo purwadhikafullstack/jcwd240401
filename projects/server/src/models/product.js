@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       description: DataTypes.STRING,
       weight: DataTypes.INTEGER,
-      unitOfMeasurement: DataTypes.ENUM,
+      unitOfMeasurement: DataTypes.ENUM("gr", "ml"),
       basePrice: DataTypes.INTEGER,
       storageInstruction: DataTypes.STRING,
       storagePeriod: DataTypes.STRING,

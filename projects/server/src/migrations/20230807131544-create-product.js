@@ -53,7 +53,7 @@ module.exports = {
       isRemoved: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: true,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,

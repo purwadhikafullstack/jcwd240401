@@ -16,7 +16,14 @@ module.exports = (sequelize, DataTypes) => {
       user_id: DataTypes.INTEGER,
       invoiceCode: DataTypes.STRING,
       orderDate: DataTypes.DATE,
-      orderStatus: DataTypes.ENUM,
+      orderStatus: DataTypes.ENUM(
+        "Waiting for payment",
+        "Waiting for payment confirmation",
+        "Processing",
+        "Delivering",
+        "Order completed",
+        "Canceled"
+      ),
       totalPrice: DataTypes.INTEGER,
       addressStreetName: DataTypes.STRING,
       addressCity: DataTypes.STRING,
