@@ -18,6 +18,13 @@ app.use(express.json());
 
 //#region API ROUTES
 
+// multer
+app.use("/src/Public/product", express.static("src/Public/product"));
+app.use("/src/Public/profile", express.static("src/Public/profile"));
+app.use("/src/Public/refund", express.static("src/Public/refund"));
+app.use("/src/Public/category", express.static("src/Public/category"));
+app.use("/src/Public/payment", express.static("src/Public/payment"));
+
 // ===========================
 // NOTE : Add your routes here
 
