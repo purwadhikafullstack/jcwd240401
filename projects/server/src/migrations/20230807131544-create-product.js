@@ -26,8 +26,12 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      unitOfMeasurement: {
+      weight: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      unitOfMeasurement: {
+        type: Sequelize.ENUM("gr", "ml"),
         allowNull: false,
       },
       basePrice: {
@@ -45,6 +49,11 @@ module.exports = {
       imgProduct: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      isRemoved: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       },
       createdAt: {
         allowNull: false,
