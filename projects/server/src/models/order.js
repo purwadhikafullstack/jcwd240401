@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Order.belongsToMany(models.Branch_Product, {
+        through: models.Order_Item,
+        foreignKey: "order_id",
+        otherKey: "branch_product_id",
+      });
+      Order.belongsTo(models.User, { foreignKey: "user_id" });
+      Order.belongsTo(models.Voucher, { foreignKey: "voucher_id" });
     }
   }
   Order.init(

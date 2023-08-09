@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Voucher.belongsTo(models.Voucher_Type, { foreignKey: "voucher_type_id" });
+      Voucher.belongsTo(models.Branch, { foreignKey: "branch_id" });
+      Voucher.belongsTo(models.User, { foreignKey: "user_id" });
     }
   }
   Voucher.init(

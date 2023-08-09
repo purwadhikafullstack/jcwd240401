@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Stock_History.belongsTo(models.Branch_Product, {
+        foreignKey: "branch_product_id",
+      });
     }
   }
   Stock_History.init(
