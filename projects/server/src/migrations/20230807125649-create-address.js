@@ -21,14 +21,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      province: {
-        type: Sequelize.STRING,
+      city_id: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-      },
-      city: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+        references: {
+          model: "Cities",
+          key: "city_id",
+        },
+      }, 
       latitude: {
         type: Sequelize.STRING,
         allowNull: false,
