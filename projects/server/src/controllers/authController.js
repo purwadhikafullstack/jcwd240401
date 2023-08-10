@@ -149,13 +149,11 @@ module.exports = {
                 transaction
             })
 
-            await transaction.commit()
-
             const link = `${process.env.BASE_PATH_FE}/set-password/${verificationToken}`
             const template = fs.readFileSync("./src/helpers/template/setaccount.html", "utf-8")
             const templateCompile = handlebars.compile(template)
             const registerEmail = templateCompile({link})
-
+            
             await transporter.sendMail({
                 from: "Groceer-e",
                 to: email,
@@ -163,7 +161,9 @@ module.exports = {
                 html: registerEmail
             })
 
-            res.status(200).send({
+            await transaction.commit()
+
+            return res.status(200).send({
                 message: "Successfully add admin branch",
                 admin: newAdmin,
                 branch: newBranch
