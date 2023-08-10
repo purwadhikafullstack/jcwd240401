@@ -1,16 +1,14 @@
 import { useState } from "react";
-import { BsBoxFill } from "react-icons/bs";
-import { ImBoxAdd } from "react-icons/im";
-import { FaCashRegister, FaListAlt, FaPaste } from "react-icons/fa";
 
-const CustomHeader = ({ tabContent, titleContent }) => {
+const CustomHeader = ({ tabContent, titleContent, setContent }) => {
   const [activeTab, setActiveTab] = useState("");
-  const handleTabClick = (tabId) => {
+  const handleTabClick = (tabId, content) => {
     setActiveTab(tabId);
+    setContent(content);
   };
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className=" text-2xl font-bold">{titleContent}</div>
+      <div className=" text-2xl font-bold text-maingreen">{titleContent}</div>
 
       <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul
@@ -24,7 +22,7 @@ const CustomHeader = ({ tabContent, titleContent }) => {
               <button
                 className={`inline-block px-4 py-2 border-b-2 h-9 ${
                   activeTab === data.name
-                    ? " border-maindarkgreen text-maindarkgreen"
+                    ? " border-maindarkgreen text-maingreen"
                     : "border-transparent"
                 }`}
                 id={`${data.name}-tab`}
@@ -32,7 +30,7 @@ const CustomHeader = ({ tabContent, titleContent }) => {
                 role="tab"
                 aria-controls={data.name}
                 aria-selected={activeTab === data.name ? "true" : "false"}
-                onClick={() => handleTabClick(data.name)}
+                onClick={() => handleTabClick(data.name, data.tab)}
               >
                 <span className="hidden sm:block">{data.name}</span>
                 <span className="text-darkgreen sm:hidden">{data.icon}</span>
