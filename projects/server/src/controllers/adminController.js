@@ -62,6 +62,24 @@ module.exports = {
     }
   },
   // get discount list (A)
+  async allDiscount(req, res) {
+    const branch_id = 1;
+    try {
+      const discountList = await db.Discount.findAll({
+        where: { branch_id },
+      });
+
+      return res.status(200).send({
+        message: "data successfully retrieved",
+        data: discountList,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "fatal error",
+        errors: error.message,
+      });
+    }
+  },
   // create voucher (A)
   // get voucher list (A)
 };

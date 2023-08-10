@@ -10,5 +10,6 @@ router.post(
   productController.createCategory
 );
 router.post("/discounts", adminController.createDiscount);
+router.get("/discounts", adminController.allDiscount);
 
 module.exports = router;
