@@ -62,7 +62,7 @@ module.exports = {
     }
   },
   // get discount list (A)
-  async allDiscount(req, res) {
+  async getAllDiscount(req, res) {
     const branch_id = 1;
     try {
       const discountList = await db.Discount.findAll({
@@ -81,5 +81,60 @@ module.exports = {
     }
   },
   // create voucher (A)
+  async createVoucher(req, res) {
+    const transaction = await db.sequelize.transaction();
+
+    try {
+      const currentDate = new Date();
+      const {
+        branch_id,
+        voucher_type_id,
+        amount,
+        minTransaction,
+        maxDiscount,
+        expiredDate,
+        isUsed,
+      } = req.body;
+
+      const isExist = await db.Voucher.findOne({
+        where: {
+          [db.Sequelize.Op.and]: [
+            { branch_id },
+            { voucher_type_id },
+            { amount },
+            { expiredDate: { [db.Sequelize.Op.lt]: currentDate } },
+            { minTransaction },
+            { maxDiscount },
+          ],
+        },
+      });
+
+      if (isExist) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "you still have a similiar discount available",
+          data: isExist,
+        });
+      }
+    } catch (error) {}
+  },
   // get voucher list (A)
+  async getAllVoucher(req, res) {
+    const branch_id = 1;
+    try {
+      const voucherList = await db.Voucher.findAll({
+        where: { branch_id },
+      });
+
+      return res.status(200).send({
+        message: "data successfully retrieved",
+        data: voucherList,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "fata error",
+        errors: error.message,
+      });
+    }
+  },
 };
