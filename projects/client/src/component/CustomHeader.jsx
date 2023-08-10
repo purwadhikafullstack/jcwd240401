@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const CustomHeader = ({ tabContent, titleContent, setContent }) => {
-  const [activeTab, setActiveTab] = useState("");
+  const [activeTab, setActiveTab] = useState(tabContent[0].name);
   const handleTabClick = (tabId, content) => {
     setActiveTab(tabId);
     setContent(content);
@@ -20,11 +20,10 @@ const CustomHeader = ({ tabContent, titleContent, setContent }) => {
           {tabContent.map((data) => (
             <li className="mr-2" role="presentation">
               <button
-                className={`inline-block px-4 py-2 border-b-4 ${
-                  activeTab === data.name
-                    ? "  border-maindarkgreen text-maingreen"
-                    : "border-transparent"
-                }`}
+                className={`inline-block px-4 py-2 border-b-4 ${activeTab === data.name
+                  ? "  border-maindarkgreen text-maingreen"
+                  : "border-transparent"
+                  }`}
                 id={`${data.name}-tab`}
                 type="button"
                 role="tab"
