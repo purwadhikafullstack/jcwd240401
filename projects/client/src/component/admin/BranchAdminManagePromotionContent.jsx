@@ -27,11 +27,11 @@ export default function BranchAdminManagePromotionContent() {
     },
   ];
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col w-9/12 py-4">
       <div>
         <CustomHeader titleContent={title} tabContent={tabList} setContent={setContent}/>
       </div>
-      <div>{content}</div>
+      <div className=" py-4">{content}</div>
     </div>
   );
 }
