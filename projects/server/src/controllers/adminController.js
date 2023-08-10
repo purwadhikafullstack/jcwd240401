@@ -80,6 +80,23 @@ module.exports = {
       });
     }
   },
+  // get discount type list (A)
+  async getAllDiscountType(req, res) {
+    try {
+      const discountTypelist = await db.Discount_Type.findAll();
+
+      return res.status(200).send({
+        message: "data successfully retrieved",
+        data: discountTypelist,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "fatal error",
+        error: error.message,
+      });
+    }
+  },
+
   // create voucher (A)
   async createVoucher(req, res) {
     const transaction = await db.sequelize.transaction();
