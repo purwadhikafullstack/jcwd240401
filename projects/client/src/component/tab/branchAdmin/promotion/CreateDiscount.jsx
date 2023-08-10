@@ -1,7 +1,6 @@
-import React from 'react'
+import React, { useEffect } from "react";
 
 export default function CreateDiscount() {
-    return (
-        <div>CreateDiscount</div>
-    )
+  useEffect(() => {}, []);
+  return <div>CreateDiscount</div>;
 }

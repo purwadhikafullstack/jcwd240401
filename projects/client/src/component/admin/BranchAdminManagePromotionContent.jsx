@@ -1,7 +1,37 @@
-import React from 'react'
+import React from "react";
+import { useState } from "react";
+
+import CustomHeader from "../CustomHeader";
+import CreateDiscount from "../tab/branchAdmin/promotion/CreateDiscount";
+import AllDiscount from "../tab/branchAdmin/promotion/AllDiscount";
+import CreateVoucher from "../tab/branchAdmin/promotion/CreateVoucher";
+import AllVoucher from "../tab/branchAdmin/promotion/AllVoucher";
 
 export default function BranchAdminManagePromotionContent() {
-    return (
-        <div>BranchAdminManagePromotionContent</div>
-    )
+  const [content, setContent] = useState(<AllDiscount />);
+  const title = "Manage Promotion";
+  const tabList = [
+    { name: "My Discount", icon: "", isActive: false, tab: <AllDiscount /> },
+    {
+      name: "Create Discount",
+      icon: "",
+      isActive: false,
+      tab: <CreateDiscount />,
+    },
+    { name: "My Voucher", icon: "", isActive: false, tab: <AllVoucher /> },
+    {
+      name: "Create Voucher",
+      icon: "",
+      isActive: false,
+      tab: <CreateVoucher />,
+    },
+  ];
+  return (
+    <div className="flex flex-col justify-center items-center">
+      <div>
+        <CustomHeader titleContent={title} tabContent={tabList} setContent={setContent}/>
+      </div>
+      <div>{content}</div>
+    </div>
+  );
 }
