@@ -32,14 +32,14 @@ module.exports = {
             })
             if (!userData) {
                 return res.status(400).send({
-                    message: "Login failed. Please input your registered email"
+                    message: "Login failed. Please input your registered email and password"
                 })
             }
 
             const isValid = await bcrypt.compare(password, userData.password)
             if(!isValid) {
                 return res.status(400).send({
-                    message: "Login failed. Incorrect password"
+                    message: "Login failed. Please input your registered email and password"
                 })
             }
 
