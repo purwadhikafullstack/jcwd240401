@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SearchBar({ id, value, type, onChange }) {
+export default function SearchBar({ id, value, type, onChange, placeholder }) {
   return (
     <div className="relative">
       <input
@@ -8,7 +8,8 @@ export default function SearchBar({ id, value, type, onChange }) {
         id={id}
         type={type}
         onChange={onChange}
-        className="h-10 border-none w-72 bg-gray-100 rounded-md p-2 pl-10 pr-10 focus:outline-none"
+        placeholder={placeholder}
+        className="h-10 border-none w-full bg-lightgrey rounded-md p-2 pl-10 pr-10 focus:outline-none"
       />
       <svg
         className="absolute left-3 top-2.5 h-5 w-5 text-gray-500"
