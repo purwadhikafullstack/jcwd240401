@@ -1,5 +1,6 @@
 import React from "react";
-import { HiOutlinePlusSm, HiOutlineMinusSm } from "react-icons/hi";
+import { HiOutlinePlusSm, HiOutlineMinusSm, HiTrash, HiOutlineCheckCircle, HiOutlinePlusCircle, HiOutlineMinusCircle } from "react-icons/hi";
+import { HiPlusCircle } from "react-icons/hi2"
 
 export default function Button({
     label,
@@ -21,15 +22,33 @@ export default function Button({
             hoverClass = "hover:font-bold hover:bg-slate-100";
             break;
         case "plus":
-            mainButtonClass = "bg-white text-[#2E6930] border-2 p-0 m-0 border-[#2E6930] text-base rounded-full w-[24px] h-[24px]";
+            mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
             hoverClass = !isDisabled && "hover:bg-slate-100";
-            icon = <HiOutlinePlusSm className="text-[#2E6930]" />;
+            icon = <HiOutlinePlusCircle className="text-[#2E6930]" />;
             iconClass = "grid justify-center";
             break;
         case "minus":
-            mainButtonClass = "bg-white text-[#2E6930] border-2 p-0 m-0 border-[#2E6930] text-base rounded-full w-[24px] h-[24px]";
+            mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
             hoverClass = !isDisabled && "hover:bg-slate-100";
-            icon = <HiOutlineMinusSm className="text-[#2E6930]" />;
+            icon = <HiOutlineMinusCircle className="text-[#2E6930]" />;
+            iconClass = "grid justify-center";
+            break;
+        case "added":
+            mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
+            hoverClass = !isDisabled && "hover:bg-slate-100";
+            icon = <HiOutlineCheckCircle className="text-[#2E6930]" />;
+            iconClass = "grid justify-center";
+            break;
+        case "toAdd":
+            mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
+            hoverClass = !isDisabled && "hover:bg-slate-100";
+            icon = <HiPlusCircle className="text-[#2E6930]" />;
+            iconClass = "grid justify-center";
+            break;
+        case "trash":
+            mainButtonClass = "grid text-xl sm:text-2xl w-[24px] h-[24px]";
+            hoverClass = !isDisabled && "hover:bg-slate-100";
+            icon = <HiTrash className="text-reddanger" />;
             iconClass = "grid justify-center";
             break;
         default:

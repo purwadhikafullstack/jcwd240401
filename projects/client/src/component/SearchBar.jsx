@@ -2,7 +2,7 @@ import React from "react";
 
 export default function SearchBar({ id, value, type, onChange, placeholder }) {
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <input
         value={value}
         id={id}

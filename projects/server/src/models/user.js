@@ -12,7 +12,11 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.Address, { foreignKey: "user_id" });
       User.hasMany(models.Order, { foreignKey: "user_id" });
       User.hasOne(models.Branch, { foreignKey: "user_id" });
-      User.hasMany(models.Voucher, { foreignKey: "user_id" });
+      User.belongsToMany(models.Voucher, {
+        through: models.User_Voucher,
+        foreignKey: "user_id",
+        otherKey: "voucher_id",
+      });
       User.belongsToMany(models.Branch_Product, {
         through: models.Cart,
         foreignKey: "user_id",

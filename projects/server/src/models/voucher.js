@@ -11,12 +11,15 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Voucher.belongsTo(models.Voucher_Type, { foreignKey: "voucher_type_id" });
       Voucher.belongsTo(models.Branch, { foreignKey: "branch_id" });
-      Voucher.belongsTo(models.User, { foreignKey: "user_id" });
+      Voucher.belongsToMany(models.User, {
+        through: models.User_Voucher,
+        foreignKey: "voucher_id",
+        otherKey: "user_id",
+      });
     }
   }
   Voucher.init(
     {
-      user_id: DataTypes.INTEGER,
       branch_id: DataTypes.INTEGER,
       voucher_type_id: DataTypes.INTEGER,
       expiredDate: DataTypes.DATE,
@@ -24,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       amount: DataTypes.INTEGER,
       minTransaction: DataTypes.INTEGER,
       maxDiscount: DataTypes.INTEGER,
-      isUsed: DataTypes.BOOLEAN,
+      isReferral: DataTypes.BOOLEAN,
     },
     {
       sequelize,
