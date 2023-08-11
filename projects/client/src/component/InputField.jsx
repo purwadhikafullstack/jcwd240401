@@ -8,7 +8,7 @@ export default function InputField({
 }) {
     return (
         <>
-            <input value={value} id={id} type={type} onChange={onChange} className="h-10 border-none w-72 bg-gray-100 rounded-md p-2 focus:outline-none" />
+            <input value={value} id={id} type={type} onChange={onChange} className="h-10 border-none w-full bg-lightgrey rounded-md p-2 focus:outline-none" />
         </>
     )
 }
