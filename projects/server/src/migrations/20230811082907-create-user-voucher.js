@@ -2,50 +2,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Vouchers", {
+    await queryInterface.createTable("User_Vouchers", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      branch_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Branches",
+          model: "Users",
           key: "id",
         },
       },
-      voucher_type_id: {
+      voucher_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Voucher_Types",
+          model: "Vouchers",
           key: "id",
         },
       },
-      expiredDate: {
-        type: Sequelize.DATE,
-        defaultValue: null,
-      },
-      usedLimit: {
-        type: Sequelize.INTEGER,
-        defaultValue: null,
-      },
-      amount: {
-        type: Sequelize.INTEGER,
-        defaultValue: null,
-      },
-      minTransaction: {
-        type: Sequelize.INTEGER,
-        defaultValue: null,
-      },
-      maxDiscount: {
-        type: Sequelize.INTEGER,
-        defaultValue: null,
-      },
-      isReferral: {
+      isUsed: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
@@ -60,6 +40,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Vouchers");
+    await queryInterface.dropTable("User_Vouchers");
   },
 };
