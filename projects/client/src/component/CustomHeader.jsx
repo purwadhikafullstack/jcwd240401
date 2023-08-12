@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const CustomHeader = ({ tabContent, titleContent, setContent }) => {
-  const [activeTab, setActiveTab] = useState(tabContent[0].name);
+  const [activeTab, setActiveTab] = useState(`${tabContent[0].name}`);
   const handleTabClick = (tabId, content) => {
     setActiveTab(tabId);
     setContent(content);
