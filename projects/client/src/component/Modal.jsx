@@ -3,7 +3,7 @@ import { HiOutlinePlusSm } from "react-icons/hi";
 import { useState } from "react";
 import Button from "./Button";
 
-export default function Modal({ isDisabled, modalTitle, toggleName, content }) {
+export default function Modal({ isDisabled, modalTitle, toggleName, content, buttonCondition, buttonLabelOne, buttonLabelTwo, onClickButton }) {
     const [openModal, setOpenModal] = useState(false);
 
     const handleOpenModal = () => {
@@ -13,11 +13,17 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content }) {
     const handleCloseModal = () => {
         setOpenModal(false);
     };
+
+    const handleButtonTwo = () => {
+        onClickButton()
+        setOpenModal(false)
+    }
+
     return (
         <>
             <Button
                 label={toggleName}
-                condition="positive"
+                condition={buttonCondition}
                 onClick={handleOpenModal}
             ></Button>
             {openModal && (
@@ -25,7 +31,7 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content }) {
                     id="staticModal"
                     tabIndex={-1}
                     aria-hidden="true"
-                    className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900"
+                    className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900 z-50"
                 >
                     <div className="relative w-full max-w-2xl max-h-full mx-3">
                         {/* Modal content */}
@@ -69,16 +75,17 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content }) {
                             <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                                 <Button
                                     data-modal-hide="staticModal"
-                                    label="Cancel"
+                                    label={buttonLabelOne}
                                     type="button"
                                     condition="negative"
                                     onClick={handleCloseModal}
                                 />
                                 <Button
-                                    label="Save"
+                                    label={buttonLabelTwo}
                                     data-modal-hide="staticModal"
                                     type="button"
                                     condition="positive"
+                                    onClick={handleButtonTwo}
                                 />
                             </div>
                         </div>

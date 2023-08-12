@@ -15,6 +15,7 @@ import BranchAdminManageOrder from "./page/admin/BranchAdminManageOrder";
 import BranchAdminReport from "./page/admin/BranchAdminReport";
 import Login from "./page/Login";
 import UserRegister from "./page/user/UserRegister";
+import BranchAdminSetAccount from "./page/admin/BranchAdminSetAccount";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<UserRegister />} />
         <Route path="/admin" element={<AdminHome />} />
+        <Route path="/set-password/:verificationToken" element={<BranchAdminSetAccount />} />
         <Route path="/admin/manage-branch" element={<SuperAdminManageBranch />} />
         <Route path="/admin/manage-product" element={<SuperAdminManageProduct />} />
         <Route path="/admin/manage-category" element={<SuperAdminManageCategory />} />

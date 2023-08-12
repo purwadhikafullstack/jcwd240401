@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 
-export default function Dropdown({ options }) {
+export default function Dropdown({ options, onChange, placeholder}) {
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleDropdown = () => {
+  const toggleDropdown = (event) => {
+    event.preventDefault()
     setIsOpen(!isOpen);
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option, event) => {
     setSelectedOption(option);
-    setIsOpen(false);
+    onChange(option)
+    setIsOpen(false)
+    event.stopPropagation()
   };
 
   return (
@@ -19,10 +22,10 @@ export default function Dropdown({ options }) {
         <button
           id="dropdownDefaultButton"
           data-dropdown-toggle="dropdown"
-          className="w-full text-darkgrey bg-lightgrey focus:ring-1 focus:outline-none focus:ring-[#2E6930] rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-between dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          onClick={toggleDropdown}
+          className={`${selectedOption ? 'text-black' : 'text-darkgrey'} w-full font-inter bg-lightgrey focus:ring-1 focus:outline-none focus:ring-[#2E6930] rounded-lg px-5 py-2.5 text-center inline-flex items-center justify-between`}
+          onClick={(event) => toggleDropdown(event)}
         >
-          {selectedOption}
+          {selectedOption ? selectedOption : placeholder}
           <svg
             className={`${isOpen ? "" : "-rotate-90"
               } w-2.5 h-2.5 ml-2.5`}
@@ -46,8 +49,8 @@ export default function Dropdown({ options }) {
           {options.map((option, index) => (
             <li
               key={index}
-              className="px-4 py-2 hover:bg-[#F0F0F0] cursor-pointer"
-              onClick={() => handleOptionClick(option)}
+              className="px-4 py-2 font-inter hover:bg-maingreen hover:text-white cursor-pointer"
+              onClick={(event) => handleOptionClick(option, event)}
               value={selectedOption}
             >
               {option}

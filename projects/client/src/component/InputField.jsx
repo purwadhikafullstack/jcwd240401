@@ -4,11 +4,12 @@ export default function InputField({
     id,
     value,
     type,
-    onChange
+    onChange,
+    onBlur
 }) {
     return (
         <>
-            <input value={value} id={id} type={type} onChange={onChange} className="h-10 border-none w-full bg-lightgrey rounded-md p-2 focus:outline-none" />
+            <input value={value} id={id} type={type} onChange={onChange} className="h-10 font-inter border-none w-full bg-lightgrey rounded-md p-2 focus:outline-none" />
         </>
     )
 }
