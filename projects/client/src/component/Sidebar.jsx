@@ -29,7 +29,7 @@ export default function Sidebar(props) {
         { to: "/admin/branch/report", name: "Reports" },
     ]
 
-    const user_id = props.RoleId
+    const user_id = props.roleId
     const role_id = 1
 
     const routes = user_id === role_id ? superAdminRoutes : adminRoutes
