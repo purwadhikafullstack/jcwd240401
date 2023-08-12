@@ -33,26 +33,44 @@ module.exports = {
       if (isExist) {
         await transaction.rollback();
         return res.status(400).send({
-          message: "you still have a similiar discount available",
+          message: "you still have a similar discount available",
           data: isExist,
         });
       }
 
-      const newDiscount = await db.Discount.create(
-        {
-          branch_id,
-          discount_type_id,
-          amount,
-          expiredDate,
-        },
-        { transaction: transaction }
-      );
+      //if buy one get one
+      if (discount_type_id == 1) {
+        const newDiscount = await db.Discount.create(
+          {
+            branch_id,
+            discount_type_id: 1,
+            amount: 1,
+            expiredDate,
+          },
+          { transaction: transaction }
+        );
 
-      await transaction.commit();
-      res.status(200).send({
-        message: "new discount created",
-        data: newDiscount,
-      });
+        await transaction.commit();
+        return res.status(200).send({
+          message: "new discount created",
+          data: newDiscount,
+        });
+      } else {
+        const newDiscount = await db.Discount.create(
+          {
+            branch_id,
+            discount_type_id,
+            amount,
+            expiredDate,
+          },
+          { transaction }
+        );
+        await transaction.commit();
+        return res.status(200).send({
+          message: "new discount created",
+          data: newDiscount,
+        });
+      }
     } catch (error) {
       await transaction.rollback();
       return res.status(500).send({
@@ -67,6 +85,12 @@ module.exports = {
     try {
       const discountList = await db.Discount.findAll({
         where: { branch_id },
+        include: [
+          {
+            model: db.Discount_Type,
+            attributes: ["type"],
+          },
+        ],
       });
 
       return res.status(200).send({
@@ -106,11 +130,12 @@ module.exports = {
       const {
         branch_id,
         voucher_type_id,
+        expiredDate,
+        usedLimit,
         amount,
         minTransaction,
         maxDiscount,
-        expiredDate,
-        isUsed,
+        isReferral,
       } = req.body;
 
       const isExist = await db.Voucher.findOne({
@@ -122,6 +147,8 @@ module.exports = {
             { expiredDate: { [db.Sequelize.Op.lt]: currentDate } },
             { minTransaction },
             { maxDiscount },
+            { isReferral },
+            { usedLimit },
           ],
         },
       });
@@ -129,11 +156,36 @@ module.exports = {
       if (isExist) {
         await transaction.rollback();
         return res.status(400).send({
-          message: "you still have a similiar discount available",
+          message: "you still have a similar voucher available",
           data: isExist,
         });
       }
-    } catch (error) {}
+
+      const newVoucher = await db.Voucher.create(
+        {
+          branch_id,
+          voucher_type_id,
+          amount,
+          expiredDate,
+          minTransaction,
+          maxDiscount,
+          isReferral,
+          usedLimit,
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res.status(200).send({
+        message: "new voucher created",
+        data: newVoucher,
+      });
+    } catch (error) {
+      await transaction.rollback();
+      return res.status(500).send({
+        message: "fatal errors",
+        errors: error.message,
+      });
+    }
   },
   // get voucher list (A)
   async getAllVoucher(req, res) {
