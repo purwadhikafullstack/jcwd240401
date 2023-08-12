@@ -57,14 +57,14 @@ module.exports = {
                 }
             })
 
-            res.status(200).send({
+            return res.status(200).send({
                 message: "You are logged in!",
                 data: loggedInUser,
                 accessToken: token
             })
 
         }catch(error){
-            res.status(500).send({
+            return res.status(500).send({
                 message: "Server Error",
                 error: error.message
             })
@@ -103,6 +103,13 @@ module.exports = {
                     exclude: ["id"]
                 }
             })
+
+            if(!selectedCity){
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "There is no city in the selected province"
+                })
+            }
 
             const branchExist = await db.Branch.findOne({
                 where: {
@@ -171,7 +178,7 @@ module.exports = {
 
         }catch(error){
             await transaction.rollback()
-            res.status(500).send({
+            return res.status(500).send({
                 message: "Server error",
                 error: error.message
             })
@@ -206,12 +213,12 @@ module.exports = {
             }
             await userData.save()
 
-            res.status(200).send({
+            return res.status(200).send({
                 message: "Successfully set password"
             })
 
         }catch(error){
-            res.status(500).send({
+            return res.status(500).send({
                 messasge: "Server error",
                 error: error.message
             })
@@ -235,12 +242,58 @@ module.exports = {
                     }
                 ]
             })
-            res.status(200).send({
+            return res.status(200).send({
                 message: "Successfully get all branch",
                 data: allBranch
             })
         } catch(error){
-            res.status(500).send({
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async allProvince(req,res) {
+        try{
+            const provinces = await db.Province.findAll()
+
+            return res.status(200).send({
+                messages: "All Provinces",
+                data: provinces
+            })
+        } catch(error){
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async allCityByProvince(req,res) {
+        try{
+            const province = req.query.province ? req.query.province : ""
+
+            const selectedProvince = await db.Province.findOne({
+                where: {
+                    province_name: province
+                }
+            })
+            
+            let cities = []
+            if(province){
+            cities = await db.City.findAll({
+                where: {
+                    province_id: selectedProvince.province_id
+                }
+            })}else{
+                cities = await db.City.findAll()
+            }
+
+            return res.status(200).send({
+                messages: "All Cities",
+                data: cities
+            })
+        } catch(error){
+            return res.status(500).send({
                 message: "Server error",
                 error: error.message
             })

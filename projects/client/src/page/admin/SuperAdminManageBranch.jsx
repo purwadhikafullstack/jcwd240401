@@ -1,15 +1,40 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {useFormik} from 'formik'
 import axios from 'axios'
 import { registerSchema } from '../../helpers/validationSchema'
 import AlertPopUp from '../../component/AlertPopUp'
 import InputField from '../../component/InputField'
-import Button from '../../component/Button'
 import Sidebar from '../../component/Sidebar'
+import Dropdown from '../../component/Dropdown'
+import Modal from '../../component/Modal'
 
 export default function SuperAdminManageBranch() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
+    const [provinceData, setProvinceData] = useState([])
+    const [cityData, setCityData] = useState([])
+    const [selectedProvince, setSelectedProvince] = useState("")
+    const [selectedCity, setSelectedCity] = useState("")
+    const [showAlert, setShowAlert] = useState(false)
+
+    useEffect(() => {
+        try{
+            axios.get("http://localhost:8000/api/auth/all-province").then((response) => {setProvinceData(response.data?.data)})
+        }catch(error){
+            console.log(error)
+        }
+    }, [])
+
+    useEffect(() => {
+        try{
+            axios.get(`http://localhost:8000/api/auth/all-city?province=${selectedProvince}`).then((response) => {setCityData(response.data?.data)})
+        }catch(error){
+            console.log(error)
+        }
+    }, [selectedProvince])
+
+    const provinceOptions = provinceData.map((province) => province.province_name)
+    const cityOptions = selectedProvince ? cityData.map((city) => city.city_name) : []
 
     const onSubmit = async(values, actions) => {
         try{
@@ -19,16 +44,22 @@ export default function SuperAdminManageBranch() {
             if (response.status === 200){
                 actions.resetForm()
                 setErrorMessage("")
+                setSelectedProvince("")
+                setSelectedCity("")
+                handleShowAlert()
                 setSuccessMessage(response.data?.message)
             }
         }catch(error){
             if(error.response.status === 500){
-                setErrorMessage("Login failed: Server error")
+                setErrorMessage("Add admin failed: Server error")
             }else if(error.response?.data?.message === "There's already an admin with this email"){
                 setErrorMessage("There's already an admin with this email")
             }else if(error.response?.data?.message === "There's already a branch in this city"){
                 setErrorMessage("There's already a branch in this city")
+            }else if(error.response?.data?.message === "There is no city in the selected province"){
+                setErrorMessage("There is no city in the selected province")
             }
+            handleShowAlert()
         }
     }
     const {values, errors, touched, handleChange, handleBlur, handleSubmit} = useFormik({
@@ -43,50 +74,64 @@ export default function SuperAdminManageBranch() {
         onSubmit
     })
 
+    const handleShowAlert = () => {
+        setShowAlert(true)
+        setTimeout(() => {
+            setShowAlert(false)
+        }, 4000)
+    }
+
+    const handleHideAlert = () => {
+        setShowAlert(false)
+    }
+
     return (
         <>
-        <div className="grid grid-cols-4">
-            <Sidebar className="col-span-1" />
-            <div className='col-span-3 flex justify-center items-center'>
-
-        <div className='w-full h-screen flex justify-center items-center'>
-            <div className="w-1/2 flex flex-col gap-2">
-                <div className="w-full">
-                    {errorMessage ? (<AlertPopUp condition={"fail"} content={errorMessage}/>) : (null)}
-                    {successMessage ? (<AlertPopUp condition={"success"} content={successMessage} />) : (null)}
+        <div className="flex flex-col items-center lg:grid lg:grid-cols-4">
+            <Sidebar RoleId={1} />
+            <div className='lg:col-span-3 flex justify-center items-center w-full'>
+                <div className='w-full h-screen flex justify-center items-center'>
+                    <div className="lg:w-1/2 w-72 flex flex-col gap-2">
+                        <div className="w-full">
+                            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
+                        </div>
+                        <form onSubmit={(e) => {e.preventDefault(); handleSubmit(e)}} autoComplete="off" className="w-full flex flex-col gap-2">
+                            <div className="w-full">
+                                <label htmlFor="name" className="font-inter">Name</label>
+                                <InputField value={values.name} id={"name"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
+                                {errors.name && touched.name && <p className="text-reddanger text-sm font-inter">{errors.name}</p>}
+                            </div>
+                            <div className="w-full">
+                                <label htmlFor="email" className="font-inter">Email</label>
+                                <InputField value={values.email} id={"email"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
+                                {errors.email && touched.email && <p className="text-reddanger text-sm font-inter">{errors.email}</p>}
+                            </div>
+                            <div className="w-full">
+                                <label htmlFor="phone" className="font-inter">Phone</label>
+                                <InputField value={values.phone} id={"phone"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
+                                {errors.phone && touched.phone && <p className="text-reddanger text-sm font-inter">{errors.phone}</p>}
+                            </div>
+                            <div className="w-full flex flex-col">
+                                <label htmlFor="province" className="font-inter">Province</label>
+                                <Dropdown options={provinceOptions} id="province" placeholder={"Choose a province"} onChange={(value) => {
+                                    setSelectedProvince(value);
+                                    handleChange("province")(value)
+                                }}/>
+                                {errors.province && touched.province && <p className="text-reddanger text-sm font-inter">{errors.province}</p>}
+                            </div>
+                            <div className="w-full flex flex-col">
+                            <label htmlFor="city" className="font-inter">City</label>
+                                <Dropdown options={cityOptions} id="city" placeholder={"Choose a city"} onChange={(value) => {
+                                    setSelectedCity(value)
+                                    handleChange("city")(value)}}/>
+                                {errors.city && touched.city && <p className="text-reddanger text-sm font-inter">{errors.city}</p>}
+                            </div>
+                            <div className="mt-10">
+                                <Modal modalTitle={"Add Branch Admin"} toggleName={"Add Branch Admin"} content={`Are you sure to add ${values.name} (${values.email}) as branch admin at ${values.city}, ${values.province}?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} onClickButton={handleSubmit}/>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <form onSubmit={handleSubmit} autoComplete="off" className="w-full flex flex-col gap-2">
-                    <div className="w-full">
-                        <label htmlFor="name" className="font-inter">Name</label>
-                        <InputField value={values.name} id={"name"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
-                        {errors.name && touched.name && <p className="text-reddanger text-sm font-inter">{errors.name}</p>}
-                    </div>
-                    <div className="w-full">
-                        <label htmlFor="email" className="font-inter">Email</label>
-                        <InputField value={values.email} id={"email"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
-                        {errors.email && touched.email && <p className="text-reddanger text-sm font-inter">{errors.email}</p>}
-                    </div>
-                    <div className="w-full">
-                        <label htmlFor="phone" className="font-inter">Phone</label>
-                        <InputField value={values.phone} id={"phone"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
-                        {errors.phone && touched.phone && <p className="text-reddanger text-sm font-inter">{errors.phone}</p>}
-                    </div>
-                    <div className="w-full">
-                        <label htmlFor="province" className="font-inter">Province</label>
-                        <InputField value={values.province} id={"province"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
-                        {errors.province && touched.province && <p className="text-reddanger text-sm font-inter">{errors.province}</p>}
-                    </div>
-                    <div className="w-full">
-                        <label htmlFor="city" className="font-inter">City</label>
-                        <InputField value={values.city} id={"city"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
-                        {errors.city && touched.city && <p className="text-reddanger text-sm font-inter">{errors.city}</p>}
-                    </div>
-                    <div className="mt-10">
-                        <Button label={"Add Branch Admin"} condition={"positive"} onClick={handleSubmit}/>
-                    </div>
-                </form>
-            </div>
-        </div>
             </div>
         </div>
         </>
