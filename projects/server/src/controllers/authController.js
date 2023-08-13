@@ -229,6 +229,10 @@ module.exports = {
             const allBranch = await db.Branch.findAll({
                 include: [
                     {
+                        model: db.User,
+                        attributes: ["name", "phone"]
+                    },
+                    {
                         model: db.City,
                         include: [
                             {
