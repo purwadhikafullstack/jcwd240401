@@ -34,7 +34,7 @@ export default function Sidebar(props) {
 
     const routes = user_id === role_id ? superAdminRoutes : adminRoutes
   return (
-    <div className="flex flex-col items-center lg:h-screen lg:w-full lg:bg-cover lg:bg-center lg:border-lightgrey lg:border-r-2" style={{backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover`}}>
+    <div className="flex flex-col items-center lg:h-full lg:w-full lg:bg-cover lg:bg-center lg:border-lightgrey lg:border-r-2" style={{backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover`}}>
         <div className="hidden lg:block lg:my-6">
             <img src={logo} alt="logo"/>
         </div>
