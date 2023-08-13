@@ -193,6 +193,12 @@ module.exports = {
     try {
       const voucherList = await db.Voucher.findAll({
         where: { branch_id },
+        include: [
+          {
+            model: db.Voucher_Type,
+            attributes: ["type"],
+          },
+        ],
       });
 
       return res.status(200).send({
@@ -203,6 +209,24 @@ module.exports = {
       return res.status(500).send({
         message: "fata error",
         errors: error.message,
+      });
+    }
+  },
+
+  //get voucher type list (A)
+  // get discount type list (A)
+  async getAllVoucherType(req, res) {
+    try {
+      const voucherTypelist = await db.Voucher_Type.findAll();
+
+      return res.status(200).send({
+        message: "data successfully retrieved",
+        data: voucherTypelist,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "fatal error",
+        error: error.message,
       });
     }
   },

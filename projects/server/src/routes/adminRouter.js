@@ -13,5 +13,7 @@ router.post("/discounts", adminController.createDiscount);
 router.get("/discounts", adminController.getAllDiscount);
 router.get("/discount-types", adminController.getAllDiscountType);
 router.post("/vouchers", adminController.createVoucher);
+router.get("/vouchers", adminController.getAllVoucher);
+router.get("/voucher-types", adminController.getAllVoucherType);
 
 module.exports = router;
