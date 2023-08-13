@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { getAllVoucherType } from "../../../../api/promotion";
-import DropdownNew from "../../../DropdownNew";
+import CustomDropdown from "../../../CustomDropdown";
 import InputField from "../../../InputField";
 import axios from "axios";
 import Button from "../../../Button";
@@ -62,7 +62,7 @@ export default function CreateVoucher() {
             <label htmlFor="email" className="font-inter">
               Voucher type:
             </label>
-            <DropdownNew
+            <CustomDropdown
               options={dataAllVoucherType}
               onChange={handleChangeDropdown}
               placeholder={"--choose voucher type--"}

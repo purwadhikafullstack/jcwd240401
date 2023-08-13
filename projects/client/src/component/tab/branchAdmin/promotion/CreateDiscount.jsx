@@ -5,7 +5,7 @@ import axios from "axios";
 import getAllDiscountType from "../../../../api/promotion";
 import InputField from "../../../InputField";
 import Button from "../../../Button";
-import DropdownNew from "../../../DropdownNew";
+import CustomDropdown from "../../../CustomDropdown";
 
 export default function CreateDiscount() {
   const [dataAllDiscountType, setDataAllDiscountType] = useState([]);
@@ -59,7 +59,7 @@ export default function CreateDiscount() {
             <label htmlFor="email" className="font-inter">
               Discount type:
             </label>
-            <DropdownNew
+            <CustomDropdown
               options={dataAllDiscountType}
               onChange={handleChangeDropdown}
               placeholder={"--choose discount type--"}
