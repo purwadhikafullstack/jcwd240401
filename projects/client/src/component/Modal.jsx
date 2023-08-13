@@ -1,12 +1,12 @@
 import React from "react";
-import { HiOutlinePlusSm } from "react-icons/hi";
 import { useState } from "react";
 import Button from "./Button";
 
-export default function Modal({ isDisabled, modalTitle, toggleName, content, buttonCondition, buttonLabelOne, buttonLabelTwo, onClickButton }) {
+export default function Modal({ isDisabled, modalTitle, toggleName, content, buttonCondition, buttonLabelOne, buttonLabelTwo, onClickButton, buttonTypeOne, buttonTypeTwo, buttonTypeToggle, onSubmit }) {
     const [openModal, setOpenModal] = useState(false);
 
-    const handleOpenModal = () => {
+    const handleOpenModal = (e) => {
+        e.preventDefault();
         setOpenModal(true);
     };
 
@@ -14,17 +14,13 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content, but
         setOpenModal(false);
     };
 
-    const handleButtonTwo = () => {
-        onClickButton()
-        setOpenModal(false)
-    }
-
     return (
         <>
             <Button
                 label={toggleName}
                 condition={buttonCondition}
                 onClick={handleOpenModal}
+                buttonType={buttonTypeToggle}
             ></Button>
             {openModal && (
                 <div
@@ -76,16 +72,24 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content, but
                                 <Button
                                     data-modal-hide="staticModal"
                                     label={buttonLabelOne}
-                                    type="button"
+                                    buttonType={buttonTypeOne}
                                     condition="negative"
                                     onClick={handleCloseModal}
                                 />
                                 <Button
                                     label={buttonLabelTwo}
                                     data-modal-hide="staticModal"
-                                    type="button"
+                                    buttonType={buttonTypeTwo}
                                     condition="positive"
-                                    onClick={handleButtonTwo}
+                                    onClick={() => {
+                                        handleCloseModal();
+                                        if (onClickButton) {
+                                            onClickButton();
+                                        };
+                                        if (onSubmit) {
+                                            onSubmit()
+                                        }
+                                    }}
                                 />
                             </div>
                         </div>

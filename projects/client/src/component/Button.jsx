@@ -1,5 +1,5 @@
 import React from "react";
-import { HiOutlinePlusSm, HiOutlineMinusSm, HiTrash, HiOutlineCheckCircle, HiOutlinePlusCircle, HiOutlineMinusCircle } from "react-icons/hi";
+import { HiTrash, HiOutlineCheckCircle, HiOutlinePlusCircle, HiOutlineMinusCircle } from "react-icons/hi";
 import { HiPlusCircle } from "react-icons/hi2"
 
 export default function Button({
@@ -7,6 +7,7 @@ export default function Button({
     onClick,
     isDisabled,
     condition,
+    buttonType
 }) {
     let mainButtonClass, hoverClass, icon, iconClass;
 
@@ -59,7 +60,7 @@ export default function Button({
 
     return (
         <button
-            type="button"
+            type={buttonType}
             disabled={isDisabled}
             onClick={onClick}
             className={`${mainButtonClass} ${!isDisabled && hoverClass}`}
