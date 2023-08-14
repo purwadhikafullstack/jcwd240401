@@ -1,14 +1,18 @@
-import { Children } from "react";
 import Footer from "../Footer";
+import Sidebar from "../Sidebar";
 
 export default function LayoutAdmin(props) {
   return (
-    <div className=" grid grid-rows-7 min-h-screen">
-      <div className=" row-span-2 col-span-1 min-h-screen">navbar</div>
-      <div className=" row-span-2 col-span-2 flex justify-center w-full min-h-screen">
-        {props.children}
+    <div className="grid min-h-screen w-full">
+      <div className="min-h-screen flex gap-2">
+        <div className="lg:basis-1/6 shadow-md grid">
+          <Sidebar roleId="1" />
+        </div>
+        <div className="flex-grow flex justify-center">
+          {props.children}
+        </div>
       </div>
-      <div className=" row-span-1 col-span-3">
+      <div className="">
         <Footer />
       </div>
     </div>

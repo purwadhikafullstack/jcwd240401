@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Branch.belongsTo(models.City, { foreignKey: "city_id" });
       Branch.hasMany(models.Voucher, { foreignKey: "branch_id" });
+      Branch.belongsTo(models.User, {foreignKey: "user_id"})
       Branch.belongsToMany(models.Product, {
         through: models.Branch_Product,
         foreignKey: "branch_id",
