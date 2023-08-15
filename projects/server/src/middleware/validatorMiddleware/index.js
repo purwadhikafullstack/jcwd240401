@@ -69,6 +69,10 @@ module.exports = {
         return true;
       })
       .withMessage("password does not match"),
-  ])
-
+  ]),
+  validateCreateDiscount: validate([
+    body("discount_type_id")
+      .notEmpty()
+      .withMessage("discount type is required"),
+  ]),
 };
