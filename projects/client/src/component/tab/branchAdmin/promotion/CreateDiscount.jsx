@@ -4,8 +4,8 @@ import axios from "axios";
 
 import getAllDiscountType from "../../../../api/promotion";
 import InputField from "../../../InputField";
-import Button from "../../../Button";
 import CustomDropdown from "../../../CustomDropdown";
+import Modal from "../../../Modal";
 
 export default function CreateDiscount() {
   const [dataAllDiscountType, setDataAllDiscountType] = useState([]);
@@ -65,22 +65,33 @@ export default function CreateDiscount() {
               placeholder={"--choose discount type--"}
             />
           </div>
-          <div>
-            <label htmlFor="email" className="font-inter">
-              Discount amount:
-            </label>
-            <InputField onChange={handleChangeAmount} />
-          </div>
+          {createDiscount.discount_type_id == 2 || createDiscount.discount_type_id == 3 ? (
+            <div>
+              <label htmlFor="email" className="font-inter">
+                Discount amount:
+              </label>
+              <InputField onChange={handleChangeAmount} />
+            </div>
+          ) : (
+            ""
+          )}
+
           <div>
             <label htmlFor="email" className="font-inter">
               Expired date
             </label>
             <InputField onChange={handleChangeExpiredDate} />
           </div>
-          <Button
-            condition={"positive"}
-            label={"submit"}
-            onClick={handleSubmit}
+          <Modal
+            modalTitle={"Create Discount"}
+            toggleName={"Create Discount"}
+            content={`Are you sure to create this category?`}
+            buttonCondition={"positive"}
+            buttonLabelOne={"Cancel"}
+            buttonLabelTwo={"Yes"}
+            buttonTypeOne={"button"}
+            buttonTypeTwo={"submit"}
+            onClickButton={handleSubmit}
           />
         </form>
       </div>

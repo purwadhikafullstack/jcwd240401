@@ -5,6 +5,7 @@ import CustomDropdown from "../../../CustomDropdown";
 import InputField from "../../../InputField";
 import axios from "axios";
 import Button from "../../../Button";
+import Modal from "../../../Modal";
 
 export default function CreateVoucher() {
   const [dataAllVoucherType, setDataAllVoucherType] = useState([]);
@@ -109,10 +110,21 @@ export default function CreateVoucher() {
             />
           </div>
           <div>
-            <Button
+            {/* <Button
               condition={"positive"}
               label={"submit"}
               onClick={handleSubmit}
+            /> */}
+            <Modal
+              modalTitle={"Create Voucher"}
+              toggleName={"Create Voucher"}
+              content={`Are you sure to create this Voucher?`}
+              buttonCondition={"positive"}
+              buttonLabelOne={"Cancel"}
+              buttonLabelTwo={"Yes"}
+              buttonTypeOne={"button"}
+              buttonTypeTwo={"submit"}
+              onClickButton={handleSubmit}
             />
           </div>
         </form>
