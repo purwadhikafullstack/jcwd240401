@@ -23,13 +23,15 @@ const fileFilter = (req, file, cb) => {
     case "image/jpg":
     case "image/png":
       if (file.size > 1 * 1000 * 1000) {
-        cb(new Error("File size exceeds 1MB"));
-        return;
+        req.fileValidationError.error = "File size exceeds 1MB";
+        cb(null, false);
+      } else {
+        cb(null, true);
       }
-      cb(null, true);
       break;
     default:
-      cb(new Error("File format is not matched"));
+      req.fileValidationError = "File format is not matched";
+      cb(null, false);
   }
 };
 
