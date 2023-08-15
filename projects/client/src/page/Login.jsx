@@ -2,14 +2,16 @@ import React, {useState} from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {useFormik} from 'formik'
 import axios from 'axios'
+import { HiEye } from 'react-icons/hi'
+import { useDispatch } from 'react-redux'
 import backgroundLogin from '../assets/BackgroundLeaves.jpg'
 import InputField from '../component/InputField'
 import Button from '../component/Button'
 import groceereLogo from '../assets/logo_Groceer-e.svg'
 import loginPic from '../assets/LoginPic.png'
-import { HiEye } from 'react-icons/hi'
 import { loginSchema } from '../helpers/validationSchema'
 import AlertPopUp from '../component/AlertPopUp'
+import { keep } from '../store/reducer/authSlice'
 
 export default function Login() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -18,6 +20,7 @@ export default function Login() {
     const [showAlert, setShowAlert] = useState(false)
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     
     const onSubmit = async(values, actions) => {
         try{
@@ -28,11 +31,21 @@ export default function Login() {
                 actions.resetForm()
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                localStorage.setItem("token", response.data?.accessToken)
+                const token = response.data?.accessToken
+                localStorage.setItem("token", token)
                 handleShowAlert()
-                setTimeout(() => {
-                    navigate("/admin")
-                }, 3000)
+                const payload = token.split(".")[1]
+                const decoded = JSON.parse(atob(payload))
+                dispatch(keep(decoded))
+                if(Number(decoded.role) === 1 || Number(decoded.role) === 2){
+                    setTimeout(() => {
+                        navigate("/admin")
+                    }, 2000)
+                } else {
+                    setTimeout(() => {
+                        navigate("/")
+                    }, 2000)
+                }
             }
         }catch(error){
             if(error.response.status === 500){

@@ -9,4 +9,6 @@ router.get("/admins/all-branch", authController.allBranch)
 router.get("/all-province", authController.allProvince)
 router.get("/all-city", authController.allCityByProvince)
 
+router.get("/nearest-branch", authController.nearestBranch)
+
 module.exports = router;

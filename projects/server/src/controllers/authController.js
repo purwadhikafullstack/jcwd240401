@@ -6,6 +6,7 @@ const crypto = require("crypto")
 const axios = require("axios")
 const handlebars = require("handlebars")
 const fs = require("fs")
+const geolib = require('geolib')
 // login
 // keep login
 
@@ -297,6 +298,62 @@ module.exports = {
                 data: cities
             })
         } catch(error){
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async keepLogin(req,res) {
+        const userId = req.user.id
+
+        try{
+            const userData = await db.findOne({
+                where: {
+                    id: userId
+                }
+            })
+            const payload = {id: userData.id, name: userData.name, status: userData.isVerify, role: userData.role_id, imgProfile: userData.imgProfile}
+            const refreshToken = jwt.sign(payload, secretKey)
+
+            return res.status(200).send({
+                refreshToken: refreshToken
+            })
+        }catch(error){
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async nearestBranch(req,res){
+        try{
+        const latitude = req.query.latitude ? req.query.latitude : "" 
+        const longitude = req.query.longitude ? req.query.longitude : ""
+
+        const userLocation = { latitude: latitude, longitude: longitude }
+
+        const branchData = await db.Branch.findAll()
+        let nearestBranchId = 0
+        let nearest = 100000
+
+        if(latitude && longitude){
+        branchData.map((branch) => {
+            const branchLocation = {latitude: branch.latitude, longitude: branch.longitude}
+            const distance = geolib.getDistance(userLocation, branchLocation)
+            if(distance < nearest){
+                nearest = distance
+                nearestBranchId = branch.id
+            }
+        })} else {
+            nearestBranchId = branchData[0].id
+        }
+
+        return res.status(200).send({
+            message: "This is your nearest branch",
+            brachId: nearestBranchId
+        })
+        }catch(error){
             return res.status(500).send({
                 message: "Server error",
                 error: error.message
