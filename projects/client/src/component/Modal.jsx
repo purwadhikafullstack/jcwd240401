@@ -17,6 +17,7 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content, but
     return (
         <>
             <Button
+                isDisabled={isDisabled}
                 label={toggleName}
                 condition={buttonCondition}
                 onClick={handleOpenModal}

@@ -9,7 +9,7 @@ export default function InputField({
 }) {
     return (
         <>
-            <input value={value} id={id} type={type} onChange={onChange} className="h-10 font-inter border-none w-full bg-lightgrey rounded-md p-2 focus:outline-none" />
+            <input value={value} id={id} type={type} onChange={onChange} className="h-10 font-inter border-none w-full bg-lightgrey rounded-md py-2 focus:outline-none px-4" />
         </>
     )
 }
