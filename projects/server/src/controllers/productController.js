@@ -9,21 +9,26 @@ const {
 const fs = require("fs");
 
 const validUnitOfMeasurementValues = ["gr", "ml"];
-
+const handleCatchError = async (res, transaction, error) => {
+  if (transaction) {
+    await transaction.rollback();
+  }
+  console.log(error);
+  return res.status(500).send({
+    message: "Internal Server Error",
+  });
+};
 module.exports = {
   // create category
   async createCategory(req, res) {
     const { name } = req.body;
     const imgFileName = req.file ? req.file.filename : null;
-
     if (!name || !imgFileName) {
       return res.status(400).send({
         message: "Both name and category image file are required",
       });
     }
-
     const transaction = await db.sequelize.transaction();
-
     try {
       await db.Category.create(
         {
@@ -32,16 +37,15 @@ module.exports = {
         },
         { transaction }
       );
-
       await transaction.commit();
-
       return res
         .status(201)
         .send({ message: "Successfully created new category" });
     } catch (error) {
-      console.log(error);
-      await transaction.rollback();
-      return res.status(500).send({ message: "Internal Server Error" });
+      handleCatchError(res, transaction, error);
+      // console.log(error);
+      // await transaction.rollback();
+      // return res.status(500).send({ message: "Internal Server Error" });
     }
   },
   // get all category
@@ -166,43 +170,69 @@ module.exports = {
 
       if (!getCategory) {
         await transaction.rollback();
-        return res.status(400).send({
+        return res.status(404).send({
           message: "Category not found",
         });
       }
 
       switch (action) {
         case "modify":
-          if (req.file) {
-            const realimgCategory = getCategory.getDataValue("imgCategory");
-            const oldFilename = getFileNameFromDbValue(realimgCategory);
-            if (oldFilename) {
-              fs.unlinkSync(getAbsolutePathPublicFileCategory(oldFilename));
+          try {
+            if (req.file) {
+              const realimgCategory = getCategory.getDataValue("imgCategory");
+              const oldFilename = getFileNameFromDbValue(realimgCategory);
+              if (oldFilename) {
+                fs.unlinkSync(getAbsolutePathPublicFileCategory(oldFilename));
+              }
+              getCategory.imgCategory = setFromFileNameToDBValueCategory(
+                req.file.filename
+              );
             }
-            getCategory.imgCategory = setFromFileNameToDBValueCategory(
-              req.file.filename
-            );
+            if (name) {
+              getCategory.name = name;
+            }
+            await getCategory.save({ transaction });
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Sucessfully changed category details",
+              data: getCategory,
+            });
+          } catch (error) {
+            await transaction.rollback();
+            console.log(error);
+            return res.status(500).send({
+              message: "Internal Server Error",
+            });
           }
-
-          if (name) {
-            getCategory.name = name;
-          }
-
-          await getCategory.save({ transaction });
-
-          await transaction.commit();
-          return res.status(200).send({
-            message: "Sucessfully changed category details",
-            data: getCategory,
-          });
-
         case "remove":
-          getCategory.isRemoved = true;
-          await getCategory.save({ transaction });
-          await transaction.commit();
-          return res.status(200).send({
-            message: "Successfully delete category",
-          });
+          try {
+            const isUsed = await db.Product.findOne({
+              where: {
+                category_id: parseInt(req.params.id),
+                isRemoved: 0,
+              },
+            });
+
+            if (isUsed !== null) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "Unable to delete. Category in use by product/s.",
+              });
+            }
+
+            getCategory.isRemoved = true;
+            await getCategory.save({ transaction });
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Successfully delete category",
+            });
+          } catch (error) {
+            await transaction.rollback();
+            console.log(error);
+            return res.status(500).send({
+              message: "Internal Server Error",
+            });
+          }
 
         default:
           await transaction.rollback();
@@ -240,20 +270,24 @@ module.exports = {
           "Invalid unit of measurement value. Allowed values are 'gr' and 'ml'",
       });
     }
-    const isExist = await db.Product.findOne({
-      where: {
-        name,
-        weight,
-        unitOfMeasurement,
-      },
-    });
-    if (isExist) {
-      return res.status(400).send({ message: "Similar product already exist" });
-    }
 
     const transaction = await db.sequelize.transaction();
 
     try {
+      const isExist = await db.Product.findOne({
+        where: {
+          name,
+          weight,
+          unitOfMeasurement,
+        },
+      });
+      if (isExist) {
+        await transaction.rollback();
+        return res
+          .status(400)
+          .send({ message: "Similar product already exist" });
+      }
+
       const newProduct = await db.Product.create(
         {
           name,
@@ -318,77 +352,109 @@ module.exports = {
 
       if (!getProduct) {
         await transaction.rollback();
-        return res.status(400).send({
+        return res.status(404).send({
           message: "Product not found",
         });
       }
 
       switch (action) {
         case "modify":
-          if (req.file) {
-            const realimgProduct = getProduct.getDataValue("imgProduct");
-            const oldFilename = getFileNameFromDbValue(realimgProduct);
-            if (oldFilename) {
-              fs.unlinkSync(getAbsolutePathPublicFileProduct(oldFilename));
+          try {
+            const isExist = await db.Product.findOne({
+              where: {
+                name,
+                weight,
+                unitOfMeasurement,
+              },
+            });
+            if (isExist) {
+              await transaction.rollback();
+              return res
+                .status(400)
+                .send({ message: "Similar product already exist" });
             }
-            getProduct.imgProduct = setFromFileNameToDBValueProduct(
-              req.file.filename
-            );
-          }
-          if (name) {
-            getProduct.name = name;
-          }
-          if (description) {
-            getProduct.description = description;
-          }
-          if (weight) {
-            getProduct.weight = weight;
-          }
-          if (unitOfMeasurement) {
-            getProduct.unitOfMeasurement = unitOfMeasurement;
-          }
-          if (basePrice) {
-            getProduct.basePrice = basePrice;
-          }
-          if (categoryId) {
-            getProduct.category_id = categoryId;
-          }
-          if (storageInstruction) {
-            getProduct.storageInstruction = storageInstruction;
-          }
-          if (storagePeriod) {
-            getProduct.storagePeriod = storagePeriod;
-          }
+            if (req.file) {
+              const realimgProduct = getProduct.getDataValue("imgProduct");
+              const oldFilename = getFileNameFromDbValue(realimgProduct);
+              if (oldFilename) {
+                fs.unlinkSync(getAbsolutePathPublicFileProduct(oldFilename));
+              }
+              getProduct.imgProduct = setFromFileNameToDBValueProduct(
+                req.file.filename
+              );
+            }
+            if (name) {
+              getProduct.name = name;
+            }
+            if (description) {
+              getProduct.description = description;
+            }
+            if (weight) {
+              getProduct.weight = weight;
+            }
+            if (unitOfMeasurement) {
+              getProduct.unitOfMeasurement = unitOfMeasurement;
+            }
+            if (basePrice) {
+              getProduct.basePrice = basePrice;
+            }
+            if (categoryId) {
+              getProduct.category_id = categoryId;
+            }
+            if (storageInstruction) {
+              getProduct.storageInstruction = storageInstruction;
+            }
+            if (storagePeriod) {
+              getProduct.storagePeriod = storagePeriod;
+            }
 
-          await getProduct.save({ transaction });
+            await getProduct.save({ transaction });
 
-          await transaction.commit();
-          return res.status(200).send({
-            message: "Sucessfully changed product details",
-            data: getProduct,
-          });
-
-        case "remove":
-          const isUsed = await db.Branch_Product.findOne({
-            where: {
-              product_id: parseInt(req.params.id),
-            },
-          });
-
-          if (isUsed !== null) {
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Sucessfully changed product details",
+              data: getProduct,
+            });
+          } catch (error) {
             await transaction.rollback();
-            return res.status(400).send({
-              message: "Uable to delete. Product in use by branch/es.",
+            console.log(error);
+            return res.status(500).send({
+              message: "Internal Server Error",
             });
           }
+        case "remove":
+          try {
+            const isUsed = await db.Branch_Product.findOne({
+              where: {
+                product_id: parseInt(req.params.id),
+                [db.Sequelize.Op.or]: [
+                  { status: "ready" },
+                  { status: "restock" },
+                ],
+                isRemoved: 0,
+              },
+            });
 
-          getProduct.isRemoved = true;
-          await getProduct.save({ transaction });
-          await transaction.commit();
-          return res.status(200).send({
-            message: "Successfully delete product",
-          });
+            if (isUsed) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "Unable to delete. Product in use by branch/es.",
+              });
+            }
 
+            getProduct.isRemoved = true;
+            await getProduct.save({ transaction });
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Successfully delete product",
+            });
+          } catch (error) {
+            await transaction.rollback();
+            console.log(error);
+            return res.status(500).send({
+              message: "Internal Server Error",
+            });
+          }
         default:
           await transaction.rollback();
           return res.status(400).send({

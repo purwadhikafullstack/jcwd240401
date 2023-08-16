@@ -119,11 +119,13 @@ export default function ModifyProduct() {
         console.log("berhasil click submit")
         const formData = new FormData();
         if (file) { formData.append('file', file); }
-        if (name !== productDetails.name) { formData.append('name', name); }
+        if (name !== productDetails.name || weight !== productDetails.weight || unitOfMeasurement !== productDetails.unitOfMeasurement) {
+            formData.append('name', name);
+            formData.append('weight', weight);
+            formData.append('unitOfMeasurement', unitOfMeasurement);
+        }
         if (category_id !== productDetails.category_id) { formData.append('category_id', category_id); }
         if (description !== productDetails.description) { formData.append('description', description); }
-        if (weight !== productDetails.weight) { formData.append('weight', weight); }
-        if (unitOfMeasurement !== productDetails.unitOfMeasurement) { formData.append('unitOfMeasurement', unitOfMeasurement); }
         if (basePrice !== productDetails.basePrice) { formData.append('basePrice', basePrice); }
         if (storageInstruction !== productDetails.storageInstruction) { formData.append('storageInstruction', storageInstruction); }
         if (storagePeriod !== productDetails.storagePeriod) { formData.append('storagePeriod', storagePeriod); }
@@ -161,6 +163,9 @@ export default function ModifyProduct() {
                 console.log(errMsg)
                 setStatus({ success: false, errors: errMsg });
                 setErrorMessage(`${errMsg}`);
+            }
+            if (response?.status === 404) {
+                setErrorMessage("Product not found")
             }
             if (response?.status === 500) {
                 setErrorMessage("Create product failed: Server error")

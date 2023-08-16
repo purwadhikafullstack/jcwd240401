@@ -108,6 +108,7 @@ export default function CreateProduct() {
             handleShowAlert()
             resetForm()
         } finally {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             setSubmitting(false);
         }
     };

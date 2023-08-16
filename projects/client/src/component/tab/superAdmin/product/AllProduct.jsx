@@ -5,8 +5,12 @@ import { Pagination } from "flowbite-react";
 import Modal from '../../../Modal'
 import CustomDropDowm from '../../../CustomDropdown'
 import ProductModal from '../../../ModalProduct';
+import AlertPopUp from '../../../AlertPopUp';
 
 export default function AllProduct() {
+    const [errorMessage, setErrorMessage] = useState("")
+    const [successMessage, setSuccessMessage] = useState("")
+    const [showAlert, setShowAlert] = useState(false)
     const [allProduct, setAllProduct] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -37,6 +41,17 @@ export default function AllProduct() {
         } catch (error) {
             console.warn(error);
         }
+    }
+
+    const handleShowAlert = () => {
+        setShowAlert(true)
+        setTimeout(() => {
+            setShowAlert(false)
+        }, 4000)
+    }
+
+    const handleHideAlert = () => {
+        setShowAlert(false)
     }
 
     const getProduct = async () => {
@@ -90,9 +105,21 @@ export default function AllProduct() {
 
     const handleRemove = async (productId) => {
         try {
-            await axios.patch(`http://localhost:8000/api/admins/products/${productId}/remove`)
+            const response = await axios.patch(`http://localhost:8000/api/admins/products/${productId}/remove`)
+            if (response.status === 200) {
+                setSuccessMessage(response?.data?.message)
+                handleShowAlert()
+            }
         } catch (error) {
-            console.warn(error);
+            if (error?.response?.status === 404) {
+                setErrorMessage("Product not found")
+                console.log(error);
+            }
+            if (error?.response?.status === 400) {
+                setErrorMessage(error?.response?.data?.message)
+                console.log(error?.response?.data?.message);
+            }
+            handleShowAlert()
         } finally {
             getProduct();
         }
@@ -110,6 +137,7 @@ export default function AllProduct() {
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
+            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Enter here to search category by name..." />
                 <CustomDropDowm options={allCategory} onChange={handleCategory} placeholder={"Filter by Category"} />
