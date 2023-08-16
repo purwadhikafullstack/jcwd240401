@@ -47,6 +47,20 @@ const checkValidCategory = async (value, { req }) => {
   }
 };
 
+const checkValidProduct = async (value, { req }) => {
+  try {
+    const product = await db.Product.findOne({
+      where: { id: value, isRemoved: 0 },
+    });
+    if (!product) {
+      throw new Error("Selected product is not found/removed");
+    }
+    return true;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 module.exports = {
   validateLogin: validate([
     body("email").notEmpty().withMessage("Email is required"),

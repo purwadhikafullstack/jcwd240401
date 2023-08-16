@@ -112,6 +112,9 @@ export default function ModifyCategory() {
                 setStatus({ success: false, errors: errMsg });
                 setErrorMessage(`${errMsg}`);
             }
+            if (response?.status === 404) {
+                setErrorMessage("Category not found")
+            }
             if (response?.status === 500) {
                 setErrorMessage("Create category failed: Server error")
             }

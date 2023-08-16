@@ -28,7 +28,6 @@ export default function CreateCategory() {
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
         const { name, file } = values;
-        console.log("berhasil click submit")
         const formData = new FormData();
         formData.append('name', name);
         formData.append('file', file);
@@ -66,6 +65,7 @@ export default function CreateCategory() {
             handleShowAlert()
             resetForm()
         } finally {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             setSubmitting(false);
         }
     };

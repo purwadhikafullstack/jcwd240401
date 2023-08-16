@@ -4,8 +4,12 @@ import SearchBar from '../../../SearchBar'
 import { Pagination } from "flowbite-react";
 import Modal from '../../../Modal'
 import CustomDropDowm from '../../../CustomDropdown'
+import AlertPopUp from '../../../AlertPopUp';
 
 export default function AllCategory() {
+    const [errorMessage, setErrorMessage] = useState("")
+    const [successMessage, setSuccessMessage] = useState("")
+    const [showAlert, setShowAlert] = useState(false)
     const [allCategory, setAllCategory] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -16,9 +20,22 @@ export default function AllCategory() {
 
     const handleRemove = async (categoryId) => {
         try {
-            await axios.patch(`http://localhost:8000/api/admins/categories/${categoryId}/remove`)
+            const response = await axios.patch(`http://localhost:8000/api/admins/categories/${categoryId}/remove`)
+            if (response.status === 200) {
+                setSuccessMessage(response?.data?.message)
+                handleShowAlert()
+            }
         } catch (error) {
-            console.warn(error);
+            console.log(error)
+            if (error?.response?.status === 404) {
+                setErrorMessage("Category not found")
+                console.log(error);
+            }
+            if (error?.response?.status === 400) {
+                setErrorMessage(error?.response?.data?.message)
+                console.log(error?.response?.data?.message);
+            }
+            handleShowAlert()
         } finally {
             getCategory();
         }
@@ -72,8 +89,20 @@ export default function AllCategory() {
         }));
     };
 
+    const handleShowAlert = () => {
+        setShowAlert(true)
+        setTimeout(() => {
+            setShowAlert(false)
+        }, 4000)
+    }
+
+    const handleHideAlert = () => {
+        setShowAlert(false)
+    }
+
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
+            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className='flex gap-4 w-10/12 mx-auto my-6'>
                 <SearchBar value={filter.search} type="text" onChange={handleSearchValue} placeholder="Enter here to search category by name..." />
                 <CustomDropDowm options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />
