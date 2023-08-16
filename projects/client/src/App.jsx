@@ -1,9 +1,8 @@
 import axios from "axios";
-import logo from "./logo.svg";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import jwtDecode from "jwt-decode";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import Home from "./page/user/Home";
 import AdminHome from "./page/admin/AdminHome";
 import SuperAdminManageBranch from "./page/admin/SuperAdminManageBranch";
@@ -27,7 +26,6 @@ import NotFound from "./page/NotFound";
 
 function App() {
   const dispatch = useDispatch()
-  const profile = useSelector((state) => state.auth.profile)
 
   const keepLogin = async () => {
     let token = localStorage.getItem("token")

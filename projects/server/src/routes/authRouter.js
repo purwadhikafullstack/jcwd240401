@@ -4,9 +4,8 @@ const authValidator = require("../middleware/validatorMiddleware")
 const authMiddleware = require("../middleware/authMiddleware")
 
 router.post("/login", authValidator.validateLogin, authController.login)
-router.post("/admins/register", authValidator.validateRegisterAdmin, authController.registerAdmin)
+router.post("/admins/register", authMiddleware.verifyToken, authMiddleware.verifySuperAdmin, authValidator.validateRegisterAdmin, authController.registerAdmin)
 router.post("/admins/set-password", authValidator.validateSetPasswordAdmin, authController.setPassword)
-router.get("/admins/all-branch", authController.allBranch)
 router.get("/all-province", authController.allProvince)
 router.get("/all-city", authController.allCityByProvince)
 

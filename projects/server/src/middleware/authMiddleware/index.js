@@ -30,7 +30,7 @@ module.exports = {
         }
     },
     async verifySuperAdmin(req,res,next) {
-        if(req.user.role === 1){
+        if(req.user.role === "1"){
             return next()
         }
         return res.status(401).send({
@@ -38,7 +38,7 @@ module.exports = {
         })
     },
     async verifyAdmin(req,res,next) {
-        if(req.user.role === 2){
+        if(req.user.role === "2"){
             return next()
         }
         return res.status(401).send({

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import NavbarTop from '../../component/NavbarTop'
-import BottomNavbar from '../../component/BottomNavbar'
+import NavbarBottom from '../../component/NavbarBottom'
 
 export default function Home() {
     const [latitude, setLatitude] = useState("")
@@ -57,7 +57,7 @@ export default function Home() {
         <>
         <NavbarTop city={city} province={province}/>
         <div>Home</div>
-        <BottomNavbar />
+        <NavbarBottom />
         </>
     )
 }

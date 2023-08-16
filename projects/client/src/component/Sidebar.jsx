@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { HiMenu, HiX } from 'react-icons/hi';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import logo from '../assets/logo_Groceer-e.svg'
 import backgroundSideBar from '../assets/BackgroundLeaves.jpg'
 import { remove } from '../store/reducer/authSlice';
+import Modal from './Modal';
 
 export default function Sidebar(props) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,6 +22,8 @@ export default function Sidebar(props) {
         localStorage.removeItem("token")
         navigate("/login")
     }
+
+    const profile = useSelector((state) => state.auth.profile)
 
     const superAdminRoutes = [
         { to: "/admin", name: "Home" },
@@ -39,10 +42,10 @@ export default function Sidebar(props) {
         { to: "/admin/branch/report", name: "Reports" },
     ]
 
-    const user_id = props.roleId
+    const profileRole = Number(profile.role)
     const role_id = 1
 
-    const routes = user_id === role_id ? superAdminRoutes : adminRoutes
+    const routes = profileRole === role_id ? superAdminRoutes : adminRoutes
     return (
         <div className="flex flex-col items-center lg:h-screen lg:w-full lg:bg-cover lg:bg-center lg:px-4 z-50" style={{ backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover` }}>
             <div className="hidden lg:block lg:my-6">
@@ -55,7 +58,7 @@ export default function Sidebar(props) {
                             <li className={`px-2 py-2 w-full border-b border-lightgrey ${location.pathname === to ? `text-maingreen font-bold` : ``}`}>{name}</li>
                         </Link>
                     ))}
-                    <button onClick={handleLogout} className="px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left">Log Out</button>
+                    <Modal onClickButton={handleLogout} modalTitle={"Log Out"} toggleName={"Log Out"} content={"Are you sure you want to log out?"} buttonLabelOne={"Cancel"} buttonCondition={"logout"} buttonLabelTwo={"Yes"} className="px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left" />
                 </ul>
             </div>
             <div className={`lg:hidden fixed top-0 w-64 bg-cover bg-center font-inter text-darkgrey transform ${isMobileMenuOpen ? 'translate-x-0 left-0 h-screen shadow-md' : '-translate-x-full left-14 h-14'} transition-transform`} style={isMobileMenuOpen ? { backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover` } : null}>
@@ -69,7 +72,7 @@ export default function Sidebar(props) {
                             <li className={`px-2 py-2 border-b border-lightgrey ${location.pathname === to ? `text-maingreen font-bold` : ``}`}>{name}</li>
                         </Link>
                     ))}
-                    <button onClick={handleLogout} className="px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left">Log Out</button>
+                    <Modal onClickButton={handleLogout} modalTitle={"Log Out"} toggleName={"Log Out"} content={"Are you sure you want to log out?"} buttonLabelOne={"Cancel"} buttonCondition={"logout"} buttonLabelTwo={"Yes"} className="px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left" />
                 </ul>
             </div>
         </div>

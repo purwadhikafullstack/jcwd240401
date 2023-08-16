@@ -225,39 +225,6 @@ module.exports = {
             })
         }
     },
-    async allBranch(req,res){
-        try{
-            const allBranch = await db.Branch.findAll({
-                include: [
-                    {
-                        model: db.User,
-                        attributes: ["name", "phone"]
-                    },
-                    {
-                        model: db.City,
-                        include: [
-                            {
-                                model: db.Province,
-                                attributes: ["province_name"]
-                            }
-                        ],
-                        attributes: {
-                            exclude: ["city_id", "province_id"]
-                        }
-                    }
-                ]
-            })
-            return res.status(200).send({
-                message: "Successfully get all branch",
-                data: allBranch
-            })
-        } catch(error){
-            return res.status(500).send({
-                message: "Server error",
-                error: error.message
-            })
-        }
-    },
     async allProvince(req,res) {
         try{
             const provinces = await db.Province.findAll()
