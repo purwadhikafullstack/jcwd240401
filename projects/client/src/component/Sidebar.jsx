@@ -1,16 +1,26 @@
 import React, { useState } from 'react'
 import { HiMenu, HiX } from 'react-icons/hi';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import logo from '../assets/logo_Groceer-e.svg'
 import backgroundSideBar from '../assets/BackgroundLeaves.jpg'
+import { remove } from '../store/reducer/authSlice';
 
 export default function Sidebar(props) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation()
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
+
+    const handleLogout = () => {
+        dispatch(remove())
+        localStorage.removeItem("token")
+        navigate("/login")
+    }
 
     const superAdminRoutes = [
         { to: "/admin", name: "Home" },
@@ -45,7 +55,7 @@ export default function Sidebar(props) {
                             <li className={`px-2 py-2 w-full border-b border-lightgrey ${location.pathname === to ? `text-maingreen font-bold` : ``}`}>{name}</li>
                         </Link>
                     ))}
-                    <li className="px-2 py-2 w-full border-b border-lightgrey text-reddanger">Log Out</li>
+                    <button onClick={handleLogout} className="px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left">Log Out</button>
                 </ul>
             </div>
             <div className={`lg:hidden fixed top-0 w-64 bg-cover bg-center font-inter text-darkgrey transform ${isMobileMenuOpen ? 'translate-x-0 left-0 h-screen shadow-md' : '-translate-x-full left-14 h-14'} transition-transform`} style={isMobileMenuOpen ? { backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover` } : null}>
@@ -59,7 +69,7 @@ export default function Sidebar(props) {
                             <li className={`px-2 py-2 border-b border-lightgrey ${location.pathname === to ? `text-maingreen font-bold` : ``}`}>{name}</li>
                         </Link>
                     ))}
-                    <li className="px-2 py-2 w-9/12 border-b border-lightgrey text-reddanger">Log Out</li>
+                    <button onClick={handleLogout} className="px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left">Log Out</button>
                 </ul>
             </div>
         </div>

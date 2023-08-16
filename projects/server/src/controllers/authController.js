@@ -308,15 +308,19 @@ module.exports = {
         const userId = req.user.id
 
         try{
-            const userData = await db.findOne({
+            const userData = await db.User.findOne({
                 where: {
                     id: userId
                 }
             })
             const payload = {id: userData.id, name: userData.name, status: userData.isVerify, role: userData.role_id, imgProfile: userData.imgProfile}
-            const refreshToken = jwt.sign(payload, secretKey)
+            const refreshToken = jwt.sign(payload, secretKey, {
+                expiresIn: "1h"
+            })
 
             return res.status(200).send({
+                message: "This is your refresh token",
+                userId: userId,
                 refreshToken: refreshToken
             })
         }catch(error){
@@ -349,9 +353,32 @@ module.exports = {
             nearestBranchId = branchData[0].id
         }
 
+        const nearestBranchData = await db.Branch.findOne({
+            where: {
+                id: nearestBranchId
+            },
+            
+                include: [
+                    {
+                        model: db.City,
+                        include: [
+                            {
+                                model: db.Province,
+                                attributes: ["province_name"]
+                            }
+                        ],
+                        attributes: {
+                            exclude: ["city_id", "province_id"]
+                        }
+                    }
+                ]
+            }
+        )
+
         return res.status(200).send({
             message: "This is your nearest branch",
-            brachId: nearestBranchId
+            brachId: nearestBranchId,
+            branchData: nearestBranchData
         })
         }catch(error){
             return res.status(500).send({
