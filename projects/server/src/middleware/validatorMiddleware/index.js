@@ -21,8 +21,12 @@ const validate = (validations) => {
 
 module.exports = {
   validateLogin: validate([
-    body("email").notEmpty().withMessage("Email is required"),
-    body("password").notEmpty().withMessage("Password is required"),
+    body("email")
+    .notEmpty()
+    .withMessage("Email is required"),
+    body("password")
+    .notEmpty()
+    .withMessage("Password is required")
   ]),
   validateRegisterAdmin: validate([
     body("name")
@@ -35,19 +39,25 @@ module.exports = {
       .withMessage("incorrect email format")
       .notEmpty()
       .withMessage("email is required"),
-    body("phone").notEmpty().withMessage("phone number is required"),
-    body("province").notEmpty().withMessage("Branch province is required"),
-    body("city").notEmpty().withMessage("Branch city is required"),
+    body("phone")
+      .notEmpty()
+      .withMessage("phone number is required"),
+    body("province")
+      .notEmpty()
+      .withMessage("Branch province is required"),
+    body("city")
+      .notEmpty()
+      .withMessage("Branch city is required")
   ]),
   validateSetPasswordAdmin: validate([
     body("password")
       .isLength({ min: 8 })
       .withMessage("minimum password length is 8 characters")
       .isStrongPassword({
-        minSymbols: 0,
+          minSymbols: 0,
       })
       .withMessage(
-        "password must contain 1 uppercase, 1 lowercase and 1 number"
+          "password must contain 1 uppercase, 1 lowercase and 1 number"
       ),
     body("confirmPassword")
       .notEmpty()
