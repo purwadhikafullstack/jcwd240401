@@ -1,9 +1,11 @@
 const router = require("express").Router();
 const multer = require("multer");
 const { product: productController } = require("../controllers");
+const { admin: adminController } = require("../controllers")
 const categorymulterMiddleware = require("../middleware/multerMiddleware/category");
 const productmulterMiddleware = require("../middleware/multerMiddleware/product");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
+const amdinMiddleware = require("../middleware/authMiddleware")
 // const upload = multer({ fileFilter: fileFilter });
 
 // create category // masih bisa handle wrong file format, blm bisa size
@@ -53,5 +55,8 @@ router.get("/products", productController.allProduct);
 router.get("/no-pagination-products", productController.allProductNoPagination);
 // get one product
 router.get("/products/:id", productController.oneProductById);
+
+// get all branch
+router.get("/branch", amdinMiddleware.verifyToken, amdinMiddleware.verifySuperAdmin, adminController.allBranch)
 
 module.exports = router;

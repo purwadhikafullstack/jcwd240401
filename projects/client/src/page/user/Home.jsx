@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
+import NavbarTop from '../../component/NavbarTop'
+import NavbarBottom from '../../component/NavbarBottom'
 
 export default function Home() {
     const [latitude, setLatitude] = useState("")
@@ -11,7 +13,7 @@ export default function Home() {
         const askForLocationPermission = async () => {
         const permissionGranted = await new Promise((resolve) => {
         const consent = window.confirm(
-            "Do yo allow this app to access your location?"
+            "Do you allow this app to access your location? If not, your location will be our default branch location"
         );
         resolve(consent);
         });
@@ -40,8 +42,6 @@ export default function Home() {
         }
     }, []);
 
-    console.log(latitude, longitude)
-
     useEffect(() => {
         try{
             axios.get(`http://localhost:8000/api/auth/nearest-branch?latitude=${latitude}&longitude=${longitude}`).then((response) => setNearestBranch(response.data))
@@ -50,11 +50,14 @@ export default function Home() {
         }
     }, [latitude, longitude])
 
-    console.log(nearestBranch)
+    const city = nearestBranch.branchData?.City?.city_name
+    const province = nearestBranch.branchData?.City?.Province?.province_name
 
     return (
         <>
+        <NavbarTop city={city} province={province}/>
         <div>Home</div>
+        <NavbarBottom />
         </>
     )
 }

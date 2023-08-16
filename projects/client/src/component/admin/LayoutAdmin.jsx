@@ -6,7 +6,7 @@ export default function LayoutAdmin(props) {
     <div className="grid min-h-screen w-full">
       <div className="min-h-screen flex gap-2">
         <div className="lg:basis-1/6 shadow-md grid">
-          <Sidebar roleId="1" />
+          <Sidebar />
         </div>
         <div className="flex-grow flex justify-center">
           {props.children}
