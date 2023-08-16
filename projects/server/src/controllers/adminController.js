@@ -17,16 +17,13 @@ module.exports = {
     const transaction = await db.sequelize.transaction();
     try {
       const { branch_id, discount_type_id, amount, expiredDate } = req.body;
-      const currentDate = new Date();
 
       const isExist = await db.Discount.findOne({
         where: {
-          [db.Sequelize.Op.and]: [
-            { branch_id },
-            { discount_type_id },
-            { amount },
-            { expiredDate: { [db.Sequelize.Op.lt]: currentDate } },
-          ],
+          branch_id,
+          discount_type_id,
+          amount,
+          expiredDate,
         },
       });
 
@@ -140,16 +137,14 @@ module.exports = {
 
       const isExist = await db.Voucher.findOne({
         where: {
-          [db.Sequelize.Op.and]: [
-            { branch_id },
-            { voucher_type_id },
-            { amount },
-            { expiredDate: { [db.Sequelize.Op.lt]: currentDate } },
-            { minTransaction },
-            { maxDiscount },
-            { isReferral },
-            { usedLimit },
-          ],
+          branch_id,
+          voucher_type_id,
+          amount,
+          expiredDate,
+          minTransaction,
+          maxDiscount,
+          isReferral,
+          usedLimit,
         },
       });
 
