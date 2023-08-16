@@ -1,9 +1,10 @@
 import React, {useState} from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import {useFormik} from 'formik'
 import axios from 'axios'
 import { HiEye } from 'react-icons/hi'
 import { useDispatch } from 'react-redux'
+import jwtDecode from 'jwt-decode'
 import backgroundLogin from '../assets/BackgroundLeaves.jpg'
 import InputField from '../component/InputField'
 import Button from '../component/Button'
@@ -21,6 +22,8 @@ export default function Login() {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const location = useLocation()
+    const from = location.state?.from?.pathname || "/"
     
     const onSubmit = async(values, actions) => {
         try{
@@ -34,16 +37,15 @@ export default function Login() {
                 const token = response.data?.accessToken
                 localStorage.setItem("token", token)
                 handleShowAlert()
-                const payload = token.split(".")[1]
-                const decoded = JSON.parse(atob(payload))
+                const decoded = jwtDecode(token)
                 dispatch(keep(decoded))
-                if(Number(decoded.role) === 1 || Number(decoded.role) === 2){
+                if(Number(decoded.role) === 1 || Number(decoded.role) === 2 ){
                     setTimeout(() => {
                         navigate("/admin")
                     }, 2000)
                 } else {
                     setTimeout(() => {
-                        navigate("/")
+                        navigate(from, {replace: true})
                     }, 2000)
                 }
             }

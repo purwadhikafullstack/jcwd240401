@@ -15,6 +15,7 @@ export default function CreateBranch() {
     const [selectedProvince, setSelectedProvince] = useState("")
     const [selectedCity, setSelectedCity] = useState("")
     const [showAlert, setShowAlert] = useState(false)
+    const token = localStorage.getItem("token")
 
     useEffect(() => {
         try{
@@ -38,7 +39,9 @@ export default function CreateBranch() {
     const onSubmit = async(values, actions) => {
         try{
             const response = await axios.post("http://localhost:8000/api/auth/admins/register", values, {
-                headers: {"Content-Type" : "application/json"}
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
             })
             if (response.status === 200){
                 actions.resetForm()

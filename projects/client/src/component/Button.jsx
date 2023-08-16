@@ -54,6 +54,9 @@ export default function Button({
             icon = <HiTrash className="text-reddanger" />;
             iconClass = "grid justify-center";
             break;
+        case "logout":
+            mainButtonClass = "px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left";
+            break;
         default:
             mainButtonClass = "";
             hoverClass = "";
