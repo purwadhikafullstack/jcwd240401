@@ -1,4 +1,5 @@
 const db = require("../models");
+const dayjs = require("dayjs");
 
 module.exports = {
   // add branch product
@@ -79,20 +80,47 @@ module.exports = {
   // get discount list (A)
   async getAllDiscount(req, res) {
     const branch_id = 1;
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      expiredDate: req.query.sortDiscount || "ASC",
+    };
+    const where = { branch_id };
+    const order = [];
     try {
-      const discountList = await db.Discount.findAll({
-        where: { branch_id },
+      if (pagination.expiredDate) {
+        if (pagination.expiredDate.toUpperCase() === "DESC") {
+          order.push(["expiredDate", "DESC"]);
+        } else {
+          order.push(["expiredDate", "ASC"]);
+        }
+      }
+      const results = await db.Discount.findAll({
         include: [
           {
             model: db.Discount_Type,
             attributes: ["type"],
           },
         ],
+        where,
+        order,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
       });
+
+      const totalCount = results.count;
+      pagination.totalData = totalCount;
+
+      // if (results.rows.length === 0) {
+      //   return res.status(200).send({
+      //     message: "No discount found",
+      //   });
+      // }
 
       return res.status(200).send({
         message: "data successfully retrieved",
-        data: discountList,
+        pagination,
+        data: results,
       });
     } catch (error) {
       return res.status(500).send({
@@ -185,20 +213,41 @@ module.exports = {
   // get voucher list (A)
   async getAllVoucher(req, res) {
     const branch_id = 1;
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      expiredDate: req.query.sortVoucher || "ASC",
+    };
+    const where = { branch_id };
+    const order = [];
     try {
-      const voucherList = await db.Voucher.findAll({
-        where: { branch_id },
+      if (pagination.expiredDate) {
+        if (pagination.expiredDate.toUpperCase() === "DESC") {
+          order.push(["expiredDate", "DESC"]);
+        } else {
+          order.push(["expiredDate", "ASC"]);
+        }
+      }
+      const results = await db.Voucher.findAll({
         include: [
           {
             model: db.Voucher_Type,
             attributes: ["type"],
           },
         ],
+        where,
+        order,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
       });
+
+      const totalCount = results.count;
+      pagination.totalData = totalCount;
 
       return res.status(200).send({
         message: "data successfully retrieved",
-        data: voucherList,
+        pagination,
+        data: results,
       });
     } catch (error) {
       return res.status(500).send({
