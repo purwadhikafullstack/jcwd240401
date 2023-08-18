@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       discount_type_id: DataTypes.INTEGER,
       amount: DataTypes.INTEGER,
       expiredDate: DataTypes.DATE,
+      isExpired: DataTypes.BOOLEAN,
     },
     {
       sequelize,
