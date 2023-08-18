@@ -23,7 +23,7 @@ export default function AllBranch() {
                 }
             })
             .then((response) => {
-                setBranchData(response.data?.data?.rows)
+                setBranchData(response.data)
                 setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
             })
         }catch(error){
@@ -58,34 +58,34 @@ export default function AllBranch() {
                 <SearchBar value={filter.search} type="text" onChange={handleSearchValue} placeholder="Search branch by city or province" />
                 <CustomDropdown options={options} onChange={handleChangeDropdown} placeholder={"Sort by City"} />
             </div>
-            <div className="hidden lg:w-full lg:h-10 lg:bg-white lg:border-maingreen lg:border-b-2 lg:grid lg:grid-cols-9 lg:gap-3 lg:font-bold">
-                <div className="col-span-1 flex justify-center font-inter items-center text-maingreen">No</div>
-                <div className="col-span-2 flex justify-center font-inter items-center text-maingreen">City</div>
-                <div className="col-span-2 flex justify-center font-inter items-center text-maingreen">Province</div>
-                <div className="col-span-2 flex justify-center font-inter items-center text-maingreen">Branch Admin</div>
-                <div className="col-span-2 flex justify-center font-inter items-center text-maingreen">Contact</div>
-            </div>
-            {branchData.map((data, index) => (
-            <div className="hidden lg:w-full lg:h-full lg:grid lg:grid-cols-9 lg:gap-3">
-                <div className="col-span-1 flex justify-center text-center font-inter items-center">{index + 1}</div>
-                <div className="col-span-2 flex justify-center text-center font-inter items-center">{data.City?.city_name}</div>
-                <div className="col-span-2 flex justify-center text-center font-inter items-center">{data.City?.Province?.province_name}</div>
-                <div className="col-span-2 flex justify-center text-center font-inter items-center">{data.User?.name}</div>
-                <div className="col-span-2 flex justify-center text-center font-inter items-center">{data.User?.phone}</div>
-            </div>
-            ))}
-            <div className="lg:hidden w-full h-10 bg-white border-maingreen border-b-2 grid grid-cols-5 gap-3 font-bold">
-                <div className="col-span-1 flex justify-center font-inter items-center text-maingreen">No</div>
-                <div className="col-span-2 flex justify-center font-inter items-center text-maingreen">City</div>
-                <div className="col-span-2 flex justify-center font-inter items-center text-maingreen">Province</div>
-            </div>
-            {branchData.map((data, index) => (
-            <div className="lg:hidden w-full h-full grid grid-cols-5 gap-3">
-                <div className="col-span-1 flex justify-center text-center font-inter items-center">{index + 1}</div>
-                <div className="col-span-2 flex justify-center text-center font-inter items-center">{data.City?.city_name}</div>
-                <div className="col-span-2 flex justify-center text-center font-inter items-center">{data.City?.Province?.province_name}</div>
-            </div>
-            ))}
+            <div className='w-72 overflow-x-auto lg:w-full'>
+            <table className="border-collapse w-full text-xs sm:text-base">
+                <thead className="border-b-2 border-maingreen text-maingreen uppercase">
+                    <tr>
+                        <th className="py-2 px-4" style={{ width: '4%' }}>No</th>
+                        <th className="py-2 px-4" style={{ width: '24%%' }}>City</th>
+                        <th className="py-2 px-4" style={{ width: '24%' }}>Province</th>
+                        <th className="py-2 px-4" style={{ width: '24%' }}>Branch Admin</th>
+                        <th className="py-2 px-4" style={{ width: '24%' }}>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {branchData.data?.rows ? branchData.data?.rows.map((data, index) => (
+                        <tr>
+                            <td className="py-2 px-4 text-center" style={{ width: '4%'}}>{index + 1}</td>
+                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.City?.city_name}</td>
+                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.City?.Province?.province_name}</td>
+                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.User?.name}</td>
+                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.User?.phone}</td>
+                        </tr>
+                )) : (
+                <tr>
+                    <td colSpan="5" className='py-4 text-center'>{branchData.message}</td>
+                </tr>
+                )}
+                </tbody>
+            </table>
+            </div>                        
             <div className='flex justify-center'>
                 <Pagination
                     currentPage={currentPage}
