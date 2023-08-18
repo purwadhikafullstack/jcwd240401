@@ -23,8 +23,10 @@ export default function AllBranch() {
                 }
             })
             .then((response) => {
-                setBranchData(response.data)
+                setBranchData(response.data.data?.rows)
+                if(response.data.pagination) {
                 setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
+                }
             })
         }catch(error){
             console.log(error)
@@ -50,7 +52,7 @@ export default function AllBranch() {
         }));
     };
 
-    const options = [{ label: "Sort By City", value: "" }, { label: "City: A-Z", value: "ASC" }, { label: "City: Z-A", value: "DESC" }]
+    const options = [{ label: "Default", value: "" }, { label: "City: A-Z", value: "ASC" }, { label: "City: Z-A", value: "DESC" }]
 
     return (
         <div className="w-full flex flex-col justify-center items-center gap-4 font-inter">
@@ -70,17 +72,17 @@ export default function AllBranch() {
                     </tr>
                 </thead>
                 <tbody>
-                {branchData.data?.rows ? branchData.data?.rows.map((data, index) => (
+                {branchData ? branchData.map((data, index) => (
                         <tr>
-                            <td className="py-2 px-4 text-center" style={{ width: '4%'}}>{index + 1}</td>
-                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.City?.city_name}</td>
-                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.City?.Province?.province_name}</td>
-                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.User?.name}</td>
-                            <td className="py-2 px-4 text-center" style={{ width: '24%'}}>{data.User?.phone}</td>
+                            <td className="py-2 px-4" style={{ width: '4%'}}>{index + 1}</td>
+                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.City?.city_name}</td>
+                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.City?.Province?.province_name}</td>
+                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.User?.name}</td>
+                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.User?.phone}</td>
                         </tr>
                 )) : (
                 <tr>
-                    <td colSpan="5" className='py-4 text-center'>{branchData.message}</td>
+                    <td colSpan="5" className='py-4 text-center'>No Branch Found</td>
                 </tr>
                 )}
                 </tbody>

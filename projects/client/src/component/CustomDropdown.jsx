@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 export default function DropdownNew({ options, onChange, placeholder }) {
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+  const [selectedOption, setSelectedOption] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   console.log(options);
   const toggleDropdown = (event) => {
