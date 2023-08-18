@@ -45,7 +45,7 @@ export default function Dropdown({ options, onChange, placeholder}) {
         </button>
       </div>
       {isOpen && (
-        <ul className="absolute w-full mt-1 bg-gray-100 rounded-md border border-gray-300 z-50">
+        <ul className="absolute w-full mt-1 max-h-40 overflow-y-auto bg-gray-100 rounded-md border border-gray-300 z-50">
           {options.map((option, index) => (
             <li
               key={index}

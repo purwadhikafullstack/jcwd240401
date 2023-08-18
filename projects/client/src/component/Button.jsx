@@ -9,7 +9,9 @@ export default function Button({
     condition,
     buttonType
 }) {
-    let mainButtonClass, hoverClass, icon, iconClass;
+    let mainButtonClass, hoverClass, icon, iconClass, disabledStyle;
+
+    disabledStyle = isDisabled ? 'px-4 mr-2 py-2 rounded-lg text-white text-base w-full bg-darkgrey' : '';
 
     switch (condition) {
         case "positive":
@@ -52,6 +54,9 @@ export default function Button({
             icon = <HiTrash className="text-reddanger" />;
             iconClass = "grid justify-center";
             break;
+        case "logout":
+            mainButtonClass = "px-2 py-2 w-full border-b border-lightgrey text-reddanger text-left";
+            break;
         default:
             mainButtonClass = "";
             hoverClass = "";
@@ -63,7 +68,7 @@ export default function Button({
             type={buttonType}
             disabled={isDisabled}
             onClick={onClick}
-            className={`${mainButtonClass} ${!isDisabled && hoverClass}`}
+            className={`${!isDisabled && mainButtonClass} ${!isDisabled && hoverClass} ${isDisabled && disabledStyle}`}
         >
             {icon ? (
                 <div className={iconClass}>
