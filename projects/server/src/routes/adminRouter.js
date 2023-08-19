@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const multer = require("multer");
 const { product: productController } = require("../controllers");
-const { admin: adminController } = require("../controllers")
+const { admin: adminController } = require("../controllers");
 const categorymulterMiddleware = require("../middleware/multerMiddleware/category");
 const productmulterMiddleware = require("../middleware/multerMiddleware/product");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
-const amdinMiddleware = require("../middleware/authMiddleware")
+const authMiddleware = require("../middleware/authMiddleware");
 // const upload = multer({ fileFilter: fileFilter });
 
 // create category // masih bisa handle wrong file format, blm bisa size
@@ -57,6 +57,61 @@ router.get("/no-pagination-products", productController.allProductNoPagination);
 router.get("/products/:id", productController.oneProductById);
 
 // get all branch
-router.get("/branch", amdinMiddleware.verifyToken, amdinMiddleware.verifySuperAdmin, adminController.allBranch)
+router.get(
+  "/branch",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.allBranch
+);
+
+// create branch product
+router.post(
+  "/my-branch/branch-products",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.addBranchProduct
+);
+// modify / remove branch product
+router.patch(
+  "/my-branch/branch-products/:id/:action",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.modifyOrRemoveBranchProduct
+);
+// plus / minus branch product stock
+router.patch(
+  "/my-branch/branch-products/:id/stock/:action",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.plusOrMinusBranchProduct
+);
+// get all branch product
+router.get(
+  "/my-branch/branch-products",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.allBranchProduct
+);
+// get all branch product no pagination
+router.get(
+  "/my-branch/no-pagination-branch-products",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.allBranchProductNoPagination
+);
+// get branch product per Id
+router.get(
+  "/my-branch/branch-products/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.branchProductPerId
+);
+// get unadded products
+router.get(
+  "/my-branch/unadded-products",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  productController.allUnaddedProducts
+);
 
 module.exports = router;
