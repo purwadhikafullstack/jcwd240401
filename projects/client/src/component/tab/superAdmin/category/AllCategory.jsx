@@ -110,10 +110,10 @@ export default function AllCategory() {
             <div className='w-full'>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
-                        <thead>
-                            <tr className="bg-lightgrey text-darkgrey">
-                                <th className="py-2 px-4 font-normal hidden lg:table-cell" style={{ width: '25%' }}>Image</th>
-                                <th className="py-2 px-4 font-normal" style={{ width: '60%' }}>Name</th>
+                        <thead className="border-b-2 border-maingreen text-maingreen uppercase">
+                            <tr>
+                                <th className="py-2 px-4 hidden lg:table-cell" style={{ width: '25%' }}>Image</th>
+                                <th className="py-2 px-4" style={{ width: '60%' }}>Name</th>
                                 <th className="py-2 px-4" style={{ width: '15%' }}></th>
                             </tr>
                         </thead>
