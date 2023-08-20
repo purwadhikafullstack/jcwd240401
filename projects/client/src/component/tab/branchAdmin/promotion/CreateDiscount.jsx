@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Field, Formik } from "formik";
 import * as yup from "yup";
@@ -17,6 +16,7 @@ export default function CreateDiscount() {
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
   const fetchDataAllDiscountType = async () => {
     try {
       const response = await getAllDiscountType();
@@ -31,11 +31,19 @@ export default function CreateDiscount() {
   };
   const fetchDataAllBranchProduct = async () => {
     try {
+      let token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`
+        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log(response.data.data);
-      setDataBranchProduct(response.data.data);
+      setDataBranchProduct(response.data.data.rows);
+      setTotalPage(
+        Math.ceil(
+          response.data?.pagination?.totalData /
+            response.data?.pagination?.perPage
+        )
+      );
     } catch (error) {}
   };
   useEffect(() => {
@@ -219,7 +227,7 @@ export default function CreateDiscount() {
                     onPageChange={onPageChange}
                     showIcons
                     layout="pagination"
-                    totalPages={5}
+                    totalPages={totalPage}
                     nextLabel="Next"
                     previousLabel="Back"
                     className="mx-auto"

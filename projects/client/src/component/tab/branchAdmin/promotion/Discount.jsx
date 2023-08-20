@@ -1,0 +1,33 @@
+import React, { useState } from "react";
+import CustomAccordion from "../../../CustomAccordion";
+import AllDiscount from "./AllDiscount";
+import CreateDiscount from "./CreateDiscount";
+
+export default function Discount() {
+  const [activeTab, setActiveTab] = useState("");
+
+  const handleTabClick = (name) => {
+    setActiveTab((prevTab) => (prevTab === name ? '' : name));
+  };
+
+  return (
+    <>
+      <CustomAccordion
+        activeTab={activeTab}
+        tabId="all"
+        title="All Discount"
+        onClick={handleTabClick}
+      >
+        <AllDiscount />
+      </CustomAccordion>
+      <CustomAccordion
+        activeTab={activeTab}
+        tabId="create"
+        title="Create New Discount"
+        onClick={handleTabClick}
+      >
+        <CreateDiscount />
+      </CustomAccordion>
+    </>
+  );
+}

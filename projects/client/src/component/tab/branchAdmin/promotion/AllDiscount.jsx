@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { getAllDiscount } from "../../../../api/promotion";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../../CustomDropdown";
+import CustomAccordion from "../../../CustomAccordion";
+import CreateDiscount from "./CreateDiscount";
 
 export default function AllDiscount() {
   const [dataAllDiscount, setDataAllDiscount] = useState([]);
@@ -12,6 +14,7 @@ export default function AllDiscount() {
   const [filter, setFilter] = useState({
     sort: "",
   });
+  const [activeTab, setActiveTab] = useState("");
   const fetchDataAllDiscount = async () => {
     try {
       const response = await axios.get(
@@ -49,7 +52,9 @@ export default function AllDiscount() {
         >
           <td className="px-6 py-4">{data.Discount_Type.type}</td>
           <td className="px-6 py-4">{data.amount}</td>
-          <td className="px-6 py-4">{data.expiredDate}</td>
+          <td className="px-6 py-4">
+            {new Date(data.expiredDate).toLocaleDateString()}
+          </td>
         </tr>
       );
     });
@@ -70,10 +75,23 @@ export default function AllDiscount() {
     }));
   };
 
+  const tabList = [
+    {
+      title: "All Discount",
+      name: "all discount",
+      tab: <CreateDiscount />,
+    },
+  ];
+
   return (
     <div>
       <div className="relative overflow-x-auto">
-        <div>
+        <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
+          <CustomDropdown
+            options={options}
+            onChange={handleChangeDropdown}
+            placeholder={"Sort by expired date"}
+          />
           <CustomDropdown
             options={options}
             onChange={handleChangeDropdown}
