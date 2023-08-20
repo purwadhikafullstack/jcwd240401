@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CustomAccordion from "../../../CustomAccordion";
-import AllDiscount from "./AllDiscount";
-import CreateDiscount from "./CreateDiscount";
+import AllDiscount from "../../../accordion/promotion/AllDiscount";
+import CreateDiscount from "../../../accordion/promotion/CreateDiscount";
 
 export default function Discount() {
   const [activeTab, setActiveTab] = useState("");

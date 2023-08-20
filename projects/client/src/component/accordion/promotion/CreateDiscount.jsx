@@ -4,10 +4,10 @@ import { Field, Formik } from "formik";
 import * as yup from "yup";
 import { Pagination } from "flowbite-react";
 
-import getAllDiscountType from "../../../../api/promotion";
-import InputField from "../../../InputField";
-import Modal from "../../../Modal";
-import AlertPopUp from "../../../AlertPopUp";
+import getAllDiscountType from "../../../api/promotion";
+import InputField from "../../InputField";
+import Modal from "../../Modal";
+import AlertPopUp from "../../AlertPopUp";
 
 export default function CreateDiscount() {
   const [dataAllDiscountType, setDataAllDiscountType] = useState([]);

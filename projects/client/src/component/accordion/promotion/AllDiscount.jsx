@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
-import CustomDropdown from "../../../CustomDropdown";
+import CustomDropdown from "../../CustomDropdown";
 
 export default function AllDiscount() {
   const [dataAllDiscount, setDataAllDiscount] = useState([]);
