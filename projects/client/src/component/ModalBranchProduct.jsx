@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"
 
-export default function ModalProduct({ productId, onClose }) {
+export default function ModalBranchProduct({ branchProductId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
+    let token = localStorage.getItem("token")
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/products/${productId}`);
+            const response = await axios.get(`http://localhost:8000/api/admins/my-branch/branch-products/${branchProductId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             if (response.data) {
                 setSelectedProduct(response.data.data)
             }
@@ -30,7 +33,7 @@ export default function ModalProduct({ productId, onClose }) {
                     {/* Modal header */}
                     <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                            Product Details
+                            Branch Product Details
                         </h3>
                         <button
                             type="button"
@@ -60,15 +63,19 @@ export default function ModalProduct({ productId, onClose }) {
                     <div className="py-6 space-y-6 px-10">
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Description:
-                            <p className="text-black">{selectedProduct.description}</p>
+                            <p className="text-black">{selectedProduct?.Product?.description}</p>
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Storage Instruction:
-                            <p className="text-black">{selectedProduct.storageInstruction}</p>
+                            <p className="text-black">{selectedProduct?.Product?.storageInstruction}</p>
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Storage Period:
-                            <p className="text-black">{selectedProduct.storagePeriod}</p>
+                            <p className="text-black">{selectedProduct?.Product?.storagePeriod}</p>
+                        </div>
+                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                            Discount:
+                            <p className="text-black">{selectedProduct.discount_id ? selectedProduct.discount_id : "-"}</p>
                         </div>
                     </div>
                 </div>
