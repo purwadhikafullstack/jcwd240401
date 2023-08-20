@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Branch_Product.belongsToMany(models.User, {
         through: models.Cart,
-        foreignKey: "branh_product_id",
+        foreignKey: "branch_product_id",
         otherKey: "user_id",
       });
       Branch_Product.belongsTo(models.Branch, { foreignKey: "branch_id" });
