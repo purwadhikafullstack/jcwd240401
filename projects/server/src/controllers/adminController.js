@@ -1,83 +1,83 @@
 const db = require("../models");
 
 module.exports = {
-    async allBranch(req,res){
+  async allBranch(req, res) {
     const pagination = {
-        page: Number(req.query.page) || 1,
-        perPage: 12,
-        search: req.query.search,
-        city_id: req.query.sortOrder || "ASC",
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      search: req.query.search,
+      city_id: req.query.sortOrder || "ASC",
     };
-  
-        const where = {};
-        const order = [];
-        try {
-            if (pagination.city_id) {
-                if (pagination.city_id.toUpperCase() === "DESC") {
-                    order.push(["city_id", "DESC"]);
-                } else {
-                    order.push(["city_id", "ASC"]);
-                }
-            }
-        if (pagination.search) {
-            where[db.Sequelize.Op.or] = [{
-                "$City.city_name$": {
-                    [db.Sequelize.Op.like]: `%${pagination.search}%`
-              },
-            }, {
-                "$City.Province.province_name$": {
-                    [db.Sequelize.Op.like]: `%${pagination.search}%`
-                }
-            }]
-        }
-  
-        const results = await db.Branch.findAndCountAll({
-            include: [
-                {
-                  model: db.User,
-                  attributes: ["name", "phone"],
-                },
-                {
-                  model: db.City,
-                  include: [
-                    {
-                      model: db.Province,
-                      attributes: ["province_name"],
-                    },
-                  ],
-                  attributes: {
-                    exclude: ["city_id"],
-                  },
-                },
-            ],
-            where,
-            order,
-            limit: pagination.perPage,
-            offset: (pagination.page - 1) * pagination.perPage,
-        });
-  
-        const totalCount = results.count;
-        pagination.totalData = totalCount;
-  
-        if (results.rows.length === 0) {
-          return res.status(200).send({
-            message: "No branch found",
-          });
-        }
-  
-        return res.status(200).send({
-          message: "Successfully retrieved branch",
-          pagination,
-          data: results,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).send({ message: "Internal Server Error" });
-    }
-},
-}
 
-module.exports = {
+    const where = {};
+    const order = [];
+    try {
+      if (pagination.city_id) {
+        if (pagination.city_id.toUpperCase() === "DESC") {
+          order.push(["city_id", "DESC"]);
+        } else {
+          order.push(["city_id", "ASC"]);
+        }
+      }
+      if (pagination.search) {
+        where[db.Sequelize.Op.or] = [
+          {
+            "$City.city_name$": {
+              [db.Sequelize.Op.like]: `%${pagination.search}%`,
+            },
+          },
+          {
+            "$City.Province.province_name$": {
+              [db.Sequelize.Op.like]: `%${pagination.search}%`,
+            },
+          },
+        ];
+      }
+
+      const results = await db.Branch.findAndCountAll({
+        include: [
+          {
+            model: db.User,
+            attributes: ["name", "phone"],
+          },
+          {
+            model: db.City,
+            include: [
+              {
+                model: db.Province,
+                attributes: ["province_name"],
+              },
+            ],
+            attributes: {
+              exclude: ["city_id"],
+            },
+          },
+        ],
+        where,
+        order,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
+
+      const totalCount = results.count;
+      pagination.totalData = totalCount;
+
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No branch found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Successfully retrieved branch",
+        pagination,
+        data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: "Internal Server Error" });
+    }
+  },
   // add branch product
   // modify origin branch product
   // modify discount branch product
@@ -93,7 +93,8 @@ module.exports = {
   async createDiscount(req, res) {
     const transaction = await db.sequelize.transaction();
     try {
-      const { branch_id, discount_type_id, amount, expiredDate } = req.body;
+      const { branch_id, discount_type_id, amount, expiredDate, products } =
+        req.body;
 
       const isExist = await db.Discount.findOne({
         where: {
@@ -124,10 +125,22 @@ module.exports = {
           { transaction: transaction }
         );
 
+        // selected
+        const results = products.forEach(async (data) => {
+          const updateProductDiscount = await db.Branch_Product.findOne({
+            where: {
+              product_id: data,
+            },
+          });
+          updateProductDiscount.discount_id = newDiscount.id;
+          await updateProductDiscount.save();
+        });
+
         await transaction.commit();
         return res.status(200).send({
           message: "new discount created",
           data: newDiscount,
+          totalProduct: `${products.length} product(s)`,
         });
       } else {
         const newDiscount = await db.Discount.create(
@@ -139,10 +152,23 @@ module.exports = {
           },
           { transaction }
         );
+
+        // selected
+
+        const results = products.forEach(async (data) => {
+          const updateProductDiscount = await db.Branch_Product.findOne({
+            where: {
+              product_id: data,
+            },
+          });
+          updateProductDiscount.discount_id = newDiscount.id;
+          await updateProductDiscount.save();
+        });
         await transaction.commit();
         return res.status(200).send({
           message: "new discount created",
           data: newDiscount,
+          totalProduct: `${products.length} product(s)`,
         });
       }
     } catch (error) {

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Field, Formik } from "formik";
 import * as yup from "yup";
+import { Pagination } from "flowbite-react";
 
 import getAllDiscountType from "../../../../api/promotion";
 import InputField from "../../../InputField";
@@ -11,9 +12,11 @@ import AlertPopUp from "../../../AlertPopUp";
 
 export default function CreateDiscount() {
   const [dataAllDiscountType, setDataAllDiscountType] = useState([]);
+  const [dataBranchProduct, setDataBranchProduct] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const fetchDataAllDiscountType = async () => {
     try {
       const response = await getAllDiscountType();
@@ -26,9 +29,19 @@ export default function CreateDiscount() {
       console.log(error);
     }
   };
+  const fetchDataAllBranchProduct = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`
+      );
+      console.log(response.data.data);
+      setDataBranchProduct(response.data.data);
+    } catch (error) {}
+  };
   useEffect(() => {
     fetchDataAllDiscountType();
-  }, []);
+    fetchDataAllBranchProduct();
+  }, [currentPage]);
 
   const handleShowAlert = (condition) => {
     if (condition) {
@@ -40,6 +53,11 @@ export default function CreateDiscount() {
     if (!condition) {
       setShowAlert(false);
     }
+  };
+
+  const onPageChange = (page) => {
+    setDataBranchProduct([]);
+    setCurrentPage(page);
   };
 
   const handleSubmit = async (values, { setStatus }) => {
@@ -96,6 +114,7 @@ export default function CreateDiscount() {
             amount: "",
             expiredDate: "",
             branch_id: 1,
+            products: [],
           }}
           validationSchema={createDiscountSchema}
           onSubmit={handleSubmit}
@@ -171,6 +190,41 @@ export default function CreateDiscount() {
                     {props.errors.expiredDate}
                   </div>
                 )}
+              </div>
+              <div>
+                <label htmlFor="products" className="font-inter">
+                  choose products
+                  <span className="text-xs text-reddanger">* required</span>
+                </label>
+                <br />
+                {dataBranchProduct.map((data) => (
+                  <div>
+                    <div role="group" aria-labelledby="checkbox-group">
+                      <label>
+                        <Field
+                          type="checkbox"
+                          name="products"
+                          value={data.product_id}
+                          className={" rounded-sm m-2"}
+                        />
+                        {data.Product.name} {data.Product.weight}
+                        {data.Product.unitOfMeasurement}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-center">
+                  <Pagination
+                    currentPage={currentPage}
+                    onPageChange={onPageChange}
+                    showIcons
+                    layout="pagination"
+                    totalPages={5}
+                    nextLabel="Next"
+                    previousLabel="Back"
+                    className="mx-auto"
+                  />
+                </div>
               </div>
               <Modal
                 modalTitle={"Create Discount"}

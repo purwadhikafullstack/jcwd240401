@@ -19,12 +19,12 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        type: "Discount persentage",
+        type: "Discount by percentage",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        type: "Discount nominal",
+        type: "Discount by nominal",
         createdAt: new Date(),
         updatedAt: new Date(),
       },

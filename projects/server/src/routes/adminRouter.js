@@ -59,19 +59,25 @@ router.get("/products/:id", productController.oneProductById);
 
 // get all branch
 router.get("/branch", amdinMiddleware.verifyToken, amdinMiddleware.verifySuperAdmin, adminController.allBranch)
+//create discount
 router.post(
   "/discounts",
   promoValidator.validateCreateDiscount,
   adminController.createDiscount
 );
+// get all discounts
 router.get("/discounts", adminController.getAllDiscount);
+//get all discount types
 router.get("/discount-types", adminController.getAllDiscountType);
+//create voucher
 router.post(
   "/vouchers",
   promoValidator.validateCreateVoucher,
   adminController.createVoucher
 );
+// get all vouchers
 router.get("/vouchers", adminController.getAllVoucher);
+// get all voucher types
 router.get("/voucher-types", adminController.getAllVoucherType);
 
 module.exports = router;
