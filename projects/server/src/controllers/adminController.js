@@ -603,19 +603,23 @@ module.exports = {
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
-      expiredDate: req.query.sortDiscount || "ASC",
+      createDate: req.query.sortDiscount || "ASC",
+      discount_type_id: req.query.filterDiscountType || "",
     };
     const where = { branch_id };
     const order = [];
     try {
-      if (pagination.expiredDate) {
-        if (pagination.expiredDate.toUpperCase() === "DESC") {
-          order.push(["expiredDate", "DESC"]);
+      if (pagination.createDate) {
+        if (pagination.createDate.toUpperCase() === "DESC") {
+          order.push(["createdAt", "DESC"]);
         } else {
-          order.push(["expiredDate", "ASC"]);
+          order.push(["createdAt", "ASC"]);
         }
       }
-      const results = await db.Discount.findAll({
+      if (pagination.discount_type_id) {
+        where.discount_type_id = pagination.discount_type_id;
+      }
+      const results = await db.Discount.findAndCountAll({
         include: [
           {
             model: db.Discount_Type,
@@ -631,11 +635,11 @@ module.exports = {
       const totalCount = results.count;
       pagination.totalData = totalCount;
 
-      // if (results.rows.length === 0) {
-      //   return res.status(200).send({
-      //     message: "No discount found",
-      //   });
-      // }
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No discount found",
+        });
+      }
 
       return res.status(200).send({
         message: "data successfully retrieved",

@@ -1,11 +1,8 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { getAllDiscount } from "../../../../api/promotion";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../../CustomDropdown";
-import CustomAccordion from "../../../CustomAccordion";
-import CreateDiscount from "./CreateDiscount";
 
 export default function AllDiscount() {
   const [dataAllDiscount, setDataAllDiscount] = useState([]);
@@ -13,21 +10,21 @@ export default function AllDiscount() {
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState({
     sort: "",
+    discount_type_id: "",
   });
-  const [activeTab, setActiveTab] = useState("");
   const fetchDataAllDiscount = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filter.sort}`
+        `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filter.sort}&filterDiscountType=${filter.discount_type_id}`
       );
-      setDataAllDiscount(response.data.data);
+      setDataAllDiscount(response.data.data.rows);
       console.log(response.data);
-      // setTotalPages(
-      //   Math.ceil(
-      //     response.data?.pagination?.totalData /
-      //       response.data?.pagination?.perPage
-      //   )
-      // );
+      setTotalPages(
+        Math.ceil(
+          response.data?.pagination?.totalData /
+            response.data?.pagination?.perPage
+        )
+      );
     } catch (error) {
       console.log(error);
     }
@@ -55,6 +52,9 @@ export default function AllDiscount() {
           <td className="px-6 py-4">
             {new Date(data.expiredDate).toLocaleDateString()}
           </td>
+          <td className="px-6 py-4">
+            {new Date(data.createdAt).toLocaleDateString()}
+          </td>
         </tr>
       );
     });
@@ -64,24 +64,23 @@ export default function AllDiscount() {
 
   const options = [
     { label: "Sort By expired date", value: "" },
-    { label: "expired date: newest", value: "ASC" },
-    { label: "expired date: oldest", value: "DESC" },
+    { label: "expired date: oldest", value: "ASC" },
+    { label: "expired date: newest", value: "DESC" },
   ];
 
-  const handleChangeDropdown = (obj) => {
+  const options2 = [
+    { label: "Filter by discount type", value: "" },
+    { label: "Buy one get one", value: 1 },
+    { label: "Discount by percentage", value: 2 },
+    { label: "Discount by nominal", value: 3 },
+  ];
+
+  const handleChangeDropdown = (obj, name) => {
     setFilter((prevFilter) => ({
       ...prevFilter,
-      sort: obj.value,
+      [name]: obj.value,
     }));
   };
-
-  const tabList = [
-    {
-      title: "All Discount",
-      name: "all discount",
-      tab: <CreateDiscount />,
-    },
-  ];
 
   return (
     <div>
@@ -89,13 +88,13 @@ export default function AllDiscount() {
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <CustomDropdown
             options={options}
-            onChange={handleChangeDropdown}
+            onChange={(e) => handleChangeDropdown(e, "sort")}
             placeholder={"Sort by expired date"}
           />
           <CustomDropdown
-            options={options}
-            onChange={handleChangeDropdown}
-            placeholder={"Sort by expired date"}
+            options={options2}
+            onChange={(e) => handleChangeDropdown(e, "discount_type_id")}
+            placeholder={"filter by discount type"}
           />
         </div>
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -110,6 +109,10 @@ export default function AllDiscount() {
               <th scope="col" className="px-6 py-3">
                 Expired date
               </th>
+
+              <th scope="col" className="px-6 py-3">
+                Created date
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -122,7 +125,7 @@ export default function AllDiscount() {
             onPageChange={onPageChange}
             showIcons
             layout="pagination"
-            totalPages={5}
+            totalPages={totalPages}
             nextLabel="Next"
             previousLabel="Back"
             className="mx-auto"
