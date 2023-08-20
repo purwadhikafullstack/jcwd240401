@@ -507,6 +507,93 @@ module.exports = {
       });
     }
   },
+  // stock history (A)
+  async getStockHistory(req, res) {
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      branch_product_id: req.query.filterBranchProduct || "",
+      status: req.query.filterStatus || "",
+      date: req.query.sortDate,
+    };
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+
+      const where = {};
+      const branchProductWhere = {
+        branch_id: user.Branch.id,
+        isRemoved: 0,
+      };
+      const order = [];
+      if (pagination.branch_product_id) {
+        where.branch_product_id = pagination.branch_product_id;
+      }
+      if (pagination.status) {
+        where.status = pagination.status;
+      }
+      if (pagination.date) {
+        if (pagination.date.toUpperCase() === "DESC") {
+          order.push(["createdAt", "DESC"]);
+        } else {
+          order.push(["createdAt", "ASC"]);
+        }
+      }
+      const results = await db.Stock_History.findAndCountAll({
+        where,
+        attributes: [
+          "id",
+          "branch_product_id",
+          "totalQuantity",
+          "quantity",
+          "status",
+          "createdAt",
+          "updatedAt",
+        ],
+        include: [
+          {
+            model: db.Branch_Product,
+            attributes: ["id"],
+            where: branchProductWhere,
+            include: { model: db.Product, where: { isRemoved: 0 } },
+          },
+        ],
+
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+        order,
+      });
+      console.log(results);
+      const totalCount = results.count;
+      pagination.totalData = totalCount;
+
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No branch products found",
+        });
+      }
+      res.status(200).send({
+        message: "Successfully retrieved branch products",
+        pagination,
+        data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
 };
 // get branch product
 // get branch product per id

@@ -113,5 +113,12 @@ router.get(
   authMiddleware.verifyAdmin,
   productController.allUnaddedProducts
 );
+// get all stock history
+router.get(
+  "/stock-history",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getStockHistory
+);
 
 module.exports = router;
