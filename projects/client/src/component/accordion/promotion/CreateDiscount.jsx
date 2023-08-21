@@ -44,7 +44,9 @@ export default function CreateDiscount() {
             response.data?.pagination?.perPage
         )
       );
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     fetchDataAllDiscountType();

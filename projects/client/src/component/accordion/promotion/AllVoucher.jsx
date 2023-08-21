@@ -2,8 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Pagination } from "flowbite-react";
-import { getAllVoucher } from "../../../../api/promotion";
-import CustomDropdown from "../../../CustomDropdown";
+import CustomDropdown from "../../CustomDropdown";
 
 export default function AllVoucher() {
   const [dataAllVoucher, setDataAllVoucher] = useState([]);
@@ -11,13 +10,20 @@ export default function AllVoucher() {
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState({
     sort: "",
+    voucher_type_id: "",
   });
   const fetchDataAllVoucher = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filter.sort}`
+        `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filter.sort}&filterVoucherType=${filter.voucher_type_id}`
       );
-      setDataAllVoucher(response.data.data);
+      setDataAllVoucher(response.data.data.rows);
+      setTotalPages(
+        Math.ceil(
+          response.data?.pagination?.totalData /
+            response.data?.pagination?.perPage
+        )
+      );
     } catch (error) {
       console.log(error);
     }
@@ -44,7 +50,12 @@ export default function AllVoucher() {
           <td className="px-6 py-4">{data.usedLimit}</td>
           <td className="px-6 py-4">{data.minTransaction}</td>
           <td className="px-6 py-4">{data.maxDiscount}</td>
-          <td className="px-6 py-4">{data.expiredDate}</td>
+          <td className="px-6 py-4">
+            {new Date(data.expiredDate).toLocaleDateString()}
+          </td>
+          <td className="px-6 py-4">
+            {new Date(data.createdAt).toLocaleDateString()}
+          </td>
         </tr>
       );
     });
@@ -57,21 +68,45 @@ export default function AllVoucher() {
     { label: "expired date: oldest", value: "DESC" },
   ];
 
-  const handleChangeDropdown = (obj) => {
+  const options2 = [
+    {
+      label: "filter by voucher type",
+      value: "",
+    },
+    {
+      label: "free shipping",
+      value: 1,
+    },
+    {
+      label: "by percentage",
+      value: 2,
+    },
+    {
+      label: "by nominal",
+      value: 3,
+    },
+  ];
+
+  const handleChangeDropdown = (obj, name) => {
     setFilter((prevFilter) => ({
       ...prevFilter,
-      sort: obj.value,
+      [name]: obj.value,
     }));
   };
 
   return (
     <div>
       <div className="relative overflow-x-auto">
-        <div>
+        <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <CustomDropdown
             options={options}
-            onChange={handleChangeDropdown}
+            onChange={(e) => handleChangeDropdown(e, "sort")}
             placeholder={"Sort by expired date"}
+          />
+          <CustomDropdown
+            options={options2}
+            onChange={(e) => handleChangeDropdown(e, "voucher_type_id")}
+            placeholder={"filter by discount type"}
           />
         </div>
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -95,6 +130,9 @@ export default function AllVoucher() {
               <th scope="col" className="px-6 py-3">
                 Expired date
               </th>
+              <th scope="col" className="px-6 py-3">
+                Create date
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -108,7 +146,7 @@ export default function AllVoucher() {
           onPageChange={onPageChange}
           showIcons
           layout="pagination"
-          totalPages={5}
+          totalPages={totalPages}
           nextLabel="Next"
           previousLabel="Back"
           className="mx-auto"

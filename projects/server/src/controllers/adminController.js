@@ -740,19 +740,23 @@ module.exports = {
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
-      expiredDate: req.query.sortVoucher || "ASC",
+      createDate: req.query.sortVoucher || "ASC",
+      voucher_type_id: req.query.filterVoucherType,
     };
     const where = { branch_id };
     const order = [];
     try {
-      if (pagination.expiredDate) {
-        if (pagination.expiredDate.toUpperCase() === "DESC") {
-          order.push(["expiredDate", "DESC"]);
+      if (pagination.createDate) {
+        if (pagination.createDate.toUpperCase() === "DESC") {
+          order.push(["createdAt", "DESC"]);
         } else {
-          order.push(["expiredDate", "ASC"]);
+          order.push(["createdAt", "ASC"]);
         }
       }
-      const results = await db.Voucher.findAll({
+      if (pagination.voucher_type_id) {
+        where.voucher_type_id = pagination.voucher_type_id;
+      }
+      const results = await db.Voucher.findAndCountAll({
         include: [
           {
             model: db.Voucher_Type,
@@ -764,9 +768,14 @@ module.exports = {
         limit: pagination.perPage,
         offset: (pagination.page - 1) * pagination.perPage,
       });
-
       const totalCount = results.count;
       pagination.totalData = totalCount;
+
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No vouchers found",
+        });
+      }
 
       return res.status(200).send({
         message: "data successfully retrieved",
@@ -775,7 +784,7 @@ module.exports = {
       });
     } catch (error) {
       return res.status(500).send({
-        message: "fata error",
+        message: "fatal error",
         errors: error.message,
       });
     }

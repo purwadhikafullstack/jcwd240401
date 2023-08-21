@@ -4,12 +4,16 @@ import axios from "axios";
 import * as yup from "yup";
 import { Field, Formik } from "formik";
 
-import { getAllVoucherType } from "../../../../api/promotion";
-import InputField from "../../../InputField";
-import Modal from "../../../Modal";
+import { getAllVoucherType } from "../../../api/promotion";
+import InputField from "../../InputField";
+import Modal from "../../Modal";
+import AlertPopUp from "../../AlertPopUp";
 
 export default function CreateVoucher() {
   const [dataAllVoucherType, setDataAllVoucherType] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
   const fetchDataAllVoucherType = async () => {
     try {
@@ -27,8 +31,40 @@ export default function CreateVoucher() {
     fetchDataAllVoucherType();
   }, []);
 
-  const handleSubmit = (values) => {
-    axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`, values);
+  const handleShowAlert = (condition) => {
+    if (condition) {
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
+    }
+    if (!condition) {
+      setShowAlert(false);
+    }
+  };
+
+  const handleSubmit = async (values, { setStatus }) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`,
+        values
+      );
+      if (response.status === 200) {
+        setErrorMessage("");
+        setSuccessMessage(response.data?.message);
+        handleShowAlert("open");
+      }
+      console.log(successMessage, "ini pesan");
+    } catch (error) {
+      const response = error.message;
+      if (response.data.message === "An error occurs") {
+        const { msg } = response.data?.errors[0];
+        if (msg) {
+          setStatus({ success: false, msg });
+          setErrorMessage(`${msg}`);
+        }
+      }
+    }
   };
 
   const createVoucherSchema = yup.object().shape({
@@ -56,6 +92,13 @@ export default function CreateVoucher() {
   });
   return (
     <div className="flex flex-col">
+      {showAlert && (
+        <AlertPopUp
+          condition={errorMessage ? "fail" : "success"}
+          content={errorMessage ? errorMessage : successMessage}
+          setter={() => handleShowAlert(false)}
+        />
+      )}
       <div>
         <Formik
           initialValues={{
