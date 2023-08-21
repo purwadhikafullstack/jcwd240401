@@ -215,8 +215,20 @@ export default function CreateDiscount() {
                           type="checkbox"
                           name="products"
                           value={data.product_id}
-                          className={" rounded-sm m-2"}
-                          
+                          className=" form-checkbox text-maindarkgreen rounded-sm mr-1 "
+                          checked={props.values.products.includes(
+                            data.product_id
+                          )} // Check if product_id is in the array
+                          onChange={() => {
+                            // Toggle the product_id in the array
+                            const updatedProducts =
+                              props.values.products.includes(data.product_id)
+                                ? props.values.products.filter(
+                                    (id) => id !== data.product_id
+                                  )
+                                : [...props.values.products, data.product_id];
+                            props.setFieldValue("products", updatedProducts);
+                          }}
                         />
                         {data.Product.name} {data.Product.weight}
                         {data.Product.unitOfMeasurement}

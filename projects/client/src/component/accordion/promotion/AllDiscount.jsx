@@ -63,9 +63,9 @@ export default function AllDiscount() {
   };
 
   const options = [
-    { label: "Sort By expired date", value: "" },
-    { label: "expired date: oldest", value: "ASC" },
-    { label: "expired date: newest", value: "DESC" },
+    { label: "Sort By create date", value: "" },
+    { label: "create date: oldest", value: "ASC" },
+    { label: "create date: newest", value: "DESC" },
   ];
 
   const options2 = [

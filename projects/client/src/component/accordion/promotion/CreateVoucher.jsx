@@ -14,6 +14,7 @@ export default function CreateVoucher() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const fetchDataAllVoucherType = async () => {
     try {
@@ -245,7 +246,9 @@ export default function CreateVoucher() {
                     <Field
                       type="radio"
                       name="isReferral"
+                      value={true}
                       checked={props.values.isReferral === true}
+                      onChange={() => props.setFieldValue('isReferral', true)}
                       className=" checked:bg-maingreen"
                       id="yes"
                     />
@@ -255,7 +258,9 @@ export default function CreateVoucher() {
                     <Field
                       type="radio"
                       name="isReferral"
+                      value={false}
                       checked={props.values.isReferral === false}
+                      onChange={() => props.setFieldValue('isReferral', false)}
                       className=" checked:bg-maingreen"
                       id="no"
                     />

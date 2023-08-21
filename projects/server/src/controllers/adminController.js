@@ -603,7 +603,7 @@ module.exports = {
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
-      createDate: req.query.sortDiscount || "ASC",
+      createDate: req.query.sortDiscount || "DESC",
       discount_type_id: req.query.filterDiscountType || "",
     };
     const where = { branch_id };
@@ -740,7 +740,7 @@ module.exports = {
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
-      createDate: req.query.sortVoucher || "ASC",
+      createDate: req.query.sortVoucher || "DESC",
       voucher_type_id: req.query.filterVoucherType,
     };
     const where = { branch_id };

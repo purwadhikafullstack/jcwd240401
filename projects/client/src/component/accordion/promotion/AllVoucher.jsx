@@ -30,7 +30,7 @@ export default function AllVoucher() {
   };
   useEffect(() => {
     fetchDataAllVoucher();
-  }, [currentPage, filter]);
+  }, [currentPage, filter, dataAllVoucher]);
 
   const onPageChange = (page) => {
     setDataAllVoucher([]);
@@ -63,9 +63,9 @@ export default function AllVoucher() {
   };
 
   const options = [
-    { label: "Sort By expired date", value: "" },
-    { label: "expired date: newest", value: "ASC" },
-    { label: "expired date: oldest", value: "DESC" },
+    { label: "Sort By create date", value: "" },
+    { label: "create date: newest", value: "DESC" },
+    { label: "create date: oldest", value: "ASC" },
   ];
 
   const options2 = [
