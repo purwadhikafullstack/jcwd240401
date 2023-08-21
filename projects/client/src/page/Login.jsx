@@ -111,7 +111,7 @@ export default function Login() {
                             <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur}/>
                             {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                             <div className="w-full flex gap-4 mt-2 justify-end items-center">
-                                <span className="text-sm text-maingreen font-inter">Forgot Password?</span>
+                                <Link to="/forgot-password" className="text-sm text-maingreen font-inter">Forgot Password?</Link>
                                 <HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} />
                             </div>
                         </div>
