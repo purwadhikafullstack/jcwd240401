@@ -15,7 +15,6 @@ export default function CreateVoucher() {
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
-
   const fetchDataAllVoucherType = async () => {
     try {
       const response = await getAllVoucherType();
@@ -46,9 +45,11 @@ export default function CreateVoucher() {
 
   const handleSubmit = async (values, { setStatus }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`,
-        values
+        values,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.status === 200) {
         setErrorMessage("");
@@ -248,7 +249,7 @@ export default function CreateVoucher() {
                       name="isReferral"
                       value={true}
                       checked={props.values.isReferral === true}
-                      onChange={() => props.setFieldValue('isReferral', true)}
+                      onChange={() => props.setFieldValue("isReferral", true)}
                       className=" checked:bg-maingreen"
                       id="yes"
                     />
@@ -260,7 +261,7 @@ export default function CreateVoucher() {
                       name="isReferral"
                       value={false}
                       checked={props.values.isReferral === false}
-                      onChange={() => props.setFieldValue('isReferral', false)}
+                      onChange={() => props.setFieldValue("isReferral", false)}
                       className=" checked:bg-maingreen"
                       id="no"
                     />

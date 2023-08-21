@@ -33,7 +33,7 @@ export default function AllVoucher() {
   };
   useEffect(() => {
     fetchDataAllVoucher();
-  }, [currentPage, filter, dataAllVoucher]);
+  }, [currentPage, filter]);
 
   const onPageChange = (page) => {
     setDataAllVoucher([]);

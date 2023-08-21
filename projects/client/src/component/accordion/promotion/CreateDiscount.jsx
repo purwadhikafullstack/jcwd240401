@@ -37,7 +37,6 @@ export default function CreateDiscount() {
         `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log(response.data.data);
       setDataBranchProduct(response.data.data.rows);
       setTotalPage(
         Math.ceil(
