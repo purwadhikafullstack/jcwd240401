@@ -33,7 +33,7 @@ export default function CreateDiscount() {
     try {
       let token = localStorage.getItem("token");
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log(response.data.data);
@@ -103,8 +103,8 @@ export default function CreateDiscount() {
       .required("amount is required"),
     expiredDate: yup
       .date()
-      .min(new Date(), "Birth date can't be in the past")
-      .required("Birth date is required"),
+      .min(new Date(), "expired date can't be in the past")
+      .required("expired date is required"),
   });
 
   return (
@@ -216,6 +216,7 @@ export default function CreateDiscount() {
                           name="products"
                           value={data.product_id}
                           className={" rounded-sm m-2"}
+                          
                         />
                         {data.Product.name} {data.Product.weight}
                         {data.Product.unitOfMeasurement}

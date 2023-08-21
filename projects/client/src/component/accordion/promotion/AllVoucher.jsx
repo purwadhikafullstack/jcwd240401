@@ -109,36 +109,38 @@ export default function AllVoucher() {
             placeholder={"filter by discount type"}
           />
         </div>
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Voucher Type
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Amount
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Usage limit
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Minimal transaction
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Max Discount
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Expired date
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Create date
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <TableRow />
-          </tbody>
-        </table>
+        <div className="w-72 overflow-x-auto lg:w-full">
+          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
+              <tr>
+                <th scope="col" className="px-6 py-3">
+                  Voucher Type
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Amount
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Usage limit
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Minimal transaction
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Max Discount
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Expired date
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Create date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <TableRow />
+            </tbody>
+          </table>
+        </div>
       </div>
       <div className="flex justify-center">
         <Pagination

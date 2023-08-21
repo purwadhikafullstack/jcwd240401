@@ -97,6 +97,7 @@ export default function AllDiscount() {
             placeholder={"filter by discount type"}
           />
         </div>
+        <div className="w-72 overflow-x-auto lg:w-full">
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
             <tr>
@@ -119,6 +120,7 @@ export default function AllDiscount() {
             <TableRow />
           </tbody>
         </table>
+        </div>
         <div className="flex justify-center">
           <Pagination
             currentPage={currentPage}
