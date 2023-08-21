@@ -18,6 +18,7 @@ export default function CreateDiscount() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const fetchDataAllDiscountType = async () => {
+    
     try {
       const response = await getAllDiscountType();
       let options = response.data.data.map((d) => ({
@@ -71,10 +72,12 @@ export default function CreateDiscount() {
   };
 
   const handleSubmit = async (values, { setStatus }) => {
+    let token = localStorage.getItem("token");
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/admins/discounts`,
-        values
+        values,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.status === 200) {
         setErrorMessage("");
@@ -108,7 +111,7 @@ export default function CreateDiscount() {
   });
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-5/6 mx-auto">
       {showAlert && (
         <AlertPopUp
           condition={errorMessage ? "fail" : "success"}
@@ -207,8 +210,8 @@ export default function CreateDiscount() {
                   <span className="text-xs text-reddanger">* required</span>
                 </label>
                 <br />
-                {dataBranchProduct.map((data) => (
-                  <div>
+                <div className="grid grid-cols-1 lg:grid-cols-2">
+                  {dataBranchProduct.map((data) => (
                     <div role="group" aria-labelledby="checkbox-group">
                       <label>
                         <Field
@@ -230,12 +233,12 @@ export default function CreateDiscount() {
                             props.setFieldValue("products", updatedProducts);
                           }}
                         />
-                        {data.Product.name} {data.Product.weight}
-                        {data.Product.unitOfMeasurement}
+                        {data.Product.name} [ {data.Product.weight}
+                        {data.Product.unitOfMeasurement} / pack ]
                       </label>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
                 <div className="flex justify-center">
                   <Pagination
                     currentPage={currentPage}

@@ -1,8 +1,12 @@
 import axios from "axios";
 
 export default function getAllDiscountTypes() {
+  const token = localStorage.getItem("token");
   return axios.get(
-    `${process.env.REACT_APP_API_BASE_URL}/admins/discount-types`
+    `${process.env.REACT_APP_API_BASE_URL}/admins/discount-types`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
   );
 }
 
@@ -15,7 +19,11 @@ export function getAllVoucher() {
 }
 
 export function getAllVoucherType() {
+  const token = localStorage.getItem("token");
   return axios.get(
-    `${process.env.REACT_APP_API_BASE_URL}/admins/voucher-types`
+    `${process.env.REACT_APP_API_BASE_URL}/admins/voucher-types`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
   );
 }

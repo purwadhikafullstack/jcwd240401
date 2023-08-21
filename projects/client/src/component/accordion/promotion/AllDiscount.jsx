@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
+import dayjs from "dayjs";
 
 export default function AllDiscount() {
   const [dataAllDiscount, setDataAllDiscount] = useState([]);
@@ -13,12 +14,13 @@ export default function AllDiscount() {
     discount_type_id: "",
   });
   const fetchDataAllDiscount = async () => {
+    const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filter.sort}&filterDiscountType=${filter.discount_type_id}`
+        `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filter.sort}&filterDiscountType=${filter.discount_type_id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setDataAllDiscount(response.data.data.rows);
-      console.log(response.data);
       setTotalPages(
         Math.ceil(
           response.data?.pagination?.totalData /
@@ -40,6 +42,7 @@ export default function AllDiscount() {
 
   //table data
   const arrayData = [];
+  const now = dayjs();
   const TableRow = () => {
     dataAllDiscount?.forEach((data, index) => {
       arrayData.push(
@@ -48,12 +51,21 @@ export default function AllDiscount() {
           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
         >
           <td className="px-6 py-4">{data.Discount_Type.type}</td>
-          <td className="px-6 py-4">{data.amount}</td>
+          <td className="px-6 py-4">
+            {data.discount_type_id == 1 ? "-" : data.amount}
+          </td>
           <td className="px-6 py-4">
             {new Date(data.expiredDate).toLocaleDateString()}
           </td>
           <td className="px-6 py-4">
             {new Date(data.createdAt).toLocaleDateString()}
+          </td>
+          <td className="px-6 py-4">
+            {new Date(data.expiredDate) <= now.toDate() ? (
+              <span className=" text-reddanger">expired</span>
+            ) : (
+              <span className=" text-maingreen">on going</span>
+            )}
           </td>
         </tr>
       );
@@ -83,8 +95,8 @@ export default function AllDiscount() {
   };
 
   return (
-    <div>
-      <div className="relative overflow-x-auto">
+    <div className="w-5/6 mx-auto">
+      <div className="relative">
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <CustomDropdown
             options={options}
@@ -98,28 +110,28 @@ export default function AllDiscount() {
           />
         </div>
         <div className="w-72 overflow-x-auto lg:w-full">
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Discount type
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Amount
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Expired date
-              </th>
+          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
+              <tr>
+                <th scope="col" className="px-6 py-3">
+                  Discount type
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Amount
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Expired date
+                </th>
 
-              <th scope="col" className="px-6 py-3">
-                Created date
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <TableRow />
-          </tbody>
-        </table>
+                <th scope="col" className="px-6 py-3">
+                  Created date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <TableRow />
+            </tbody>
+          </table>
         </div>
         <div className="flex justify-center">
           <Pagination

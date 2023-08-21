@@ -14,7 +14,7 @@ export default function CreateVoucher() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [checked, setChecked] = useState(false);
+
 
   const fetchDataAllVoucherType = async () => {
     try {
@@ -92,7 +92,7 @@ export default function CreateVoucher() {
       .required("amount is required"),
   });
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-5/6 mx-auto">
       {showAlert && (
         <AlertPopUp
           condition={errorMessage ? "fail" : "success"}

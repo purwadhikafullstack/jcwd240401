@@ -511,6 +511,17 @@ module.exports = {
   async createDiscount(req, res) {
     const transaction = await db.sequelize.transaction();
     try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
       const { branch_id, discount_type_id, amount, expiredDate, products } =
         req.body;
 
@@ -535,7 +546,7 @@ module.exports = {
       if (discount_type_id == 1) {
         const newDiscount = await db.Discount.create(
           {
-            branch_id,
+            branch_id: user.Branch.id,
             discount_type_id: 1,
             amount: 1,
             expiredDate,
@@ -563,7 +574,7 @@ module.exports = {
       } else {
         const newDiscount = await db.Discount.create(
           {
-            branch_id,
+            branch_id: user.Branch.id,
             discount_type_id,
             amount,
             expiredDate,

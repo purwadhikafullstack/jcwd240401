@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
+import dayjs from "dayjs";
 
 export default function AllVoucher() {
   const [dataAllVoucher, setDataAllVoucher] = useState([]);
@@ -13,9 +14,11 @@ export default function AllVoucher() {
     voucher_type_id: "",
   });
   const fetchDataAllVoucher = async () => {
+    const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filter.sort}&filterVoucherType=${filter.voucher_type_id}`
+        `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filter.sort}&filterVoucherType=${filter.voucher_type_id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setDataAllVoucher(response.data.data.rows);
       setTotalPages(
@@ -39,6 +42,7 @@ export default function AllVoucher() {
 
   const arrayData = [];
   const TableRow = () => {
+    const now = dayjs();
     dataAllVoucher?.forEach((data, index) => {
       arrayData.push(
         <tr
@@ -55,6 +59,13 @@ export default function AllVoucher() {
           </td>
           <td className="px-6 py-4">
             {new Date(data.createdAt).toLocaleDateString()}
+          </td>
+          <td className="px-6 py-4">
+            {new Date(data.expiredDate) <= now.toDate() ? (
+              <span className=" text-reddanger">expired</span>
+            ) : (
+              <span className=" text-maingreen">on going</span>
+            )}
           </td>
         </tr>
       );
@@ -95,8 +106,8 @@ export default function AllVoucher() {
   };
 
   return (
-    <div>
-      <div className="relative overflow-x-auto">
+    <div className="w-5/6 mx-auto">
+      <div className="relative">
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <CustomDropdown
             options={options}
@@ -114,7 +125,7 @@ export default function AllVoucher() {
             <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
               <tr>
                 <th scope="col" className="px-6 py-3">
-                  Voucher Type
+                  Type
                 </th>
                 <th scope="col" className="px-6 py-3">
                   Amount
@@ -123,7 +134,7 @@ export default function AllVoucher() {
                   Usage limit
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Minimal transaction
+                  Min transaction
                 </th>
                 <th scope="col" className="px-6 py-3">
                   Max Discount
