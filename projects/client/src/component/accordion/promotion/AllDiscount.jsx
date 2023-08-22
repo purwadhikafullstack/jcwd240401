@@ -1,9 +1,10 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Pagination } from "flowbite-react";
+import { Pagination, Table } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
 import dayjs from "dayjs";
+import rupiah from "../../../helpers/rupiah";
 
 export default function AllDiscount() {
   const [dataAllDiscount, setDataAllDiscount] = useState([]);
@@ -20,13 +21,15 @@ export default function AllDiscount() {
         `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filter.sort}&filterDiscountType=${filter.discount_type_id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setDataAllDiscount(response.data.data.rows);
-      setTotalPages(
-        Math.ceil(
-          response.data?.pagination?.totalData /
-            response.data?.pagination?.perPage
-        )
-      );
+      if (response.data) {
+        const { data: responseData, pagination } = response.data;
+        if (responseData) {
+          setDataAllDiscount(responseData.rows);
+          setTotalPages(Math.ceil(pagination.totalData / pagination.perPage));
+        } else {
+          setDataAllDiscount([]);
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -43,8 +46,10 @@ export default function AllDiscount() {
   //table data
   const arrayData = [];
   const now = dayjs();
+
   const TableRow = () => {
     dataAllDiscount?.forEach((data, index) => {
+      console.log(new Date(data.expiredDate), now.toDate(), "ini tanggal");
       arrayData.push(
         <tr
           key={data.id}
@@ -52,7 +57,11 @@ export default function AllDiscount() {
         >
           <td className="px-6 py-4">{data.Discount_Type.type}</td>
           <td className="px-6 py-4">
-            {data.discount_type_id == 1 ? "-" : data.amount}
+            {data.discount_type_id == 1
+              ? "-"
+              : data.discount_type_id == 2
+              ? `${data.amount}%`
+              : rupiah(data.amount)}
           </td>
           <td className="px-6 py-4">
             {new Date(data.expiredDate).toLocaleDateString()}
@@ -129,7 +138,15 @@ export default function AllDiscount() {
               </tr>
             </thead>
             <tbody>
-              <TableRow />
+              {dataAllDiscount.length != 0 ? (
+                <TableRow />
+              ) : (
+                <tr>
+                  <td colSpan="7" className="py-4 text-center  text-base">
+                    no discounts found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

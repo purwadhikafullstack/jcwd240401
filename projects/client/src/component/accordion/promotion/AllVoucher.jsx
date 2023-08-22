@@ -4,6 +4,7 @@ import axios from "axios";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
 import dayjs from "dayjs";
+import rupiah from "../../../helpers/rupiah";
 
 export default function AllVoucher() {
   const [dataAllVoucher, setDataAllVoucher] = useState([]);
@@ -20,13 +21,15 @@ export default function AllVoucher() {
         `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filter.sort}&filterVoucherType=${filter.voucher_type_id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setDataAllVoucher(response.data.data.rows);
-      setTotalPages(
-        Math.ceil(
-          response.data?.pagination?.totalData /
-            response.data?.pagination?.perPage
-        )
-      );
+      if (response.data) {
+        const { data: responseData, pagination } = response.data;
+        if (responseData) {
+          setDataAllVoucher(responseData.rows);
+          setTotalPages(Math.ceil(pagination.totalData / pagination.perPage));
+        } else {
+          setDataAllVoucher([]);
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -43,6 +46,7 @@ export default function AllVoucher() {
   const arrayData = [];
   const TableRow = () => {
     const now = dayjs();
+
     dataAllVoucher?.forEach((data, index) => {
       arrayData.push(
         <tr
@@ -50,10 +54,20 @@ export default function AllVoucher() {
           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
         >
           <td className="px-6 py-4">{data.Voucher_Type.type}</td>
-          <td className="px-6 py-4">{data.amount}</td>
-          <td className="px-6 py-4">{data.usedLimit}</td>
-          <td className="px-6 py-4">{data.minTransaction}</td>
-          <td className="px-6 py-4">{data.maxDiscount}</td>
+          <td className="px-6 py-4">
+            {data.voucher_type_id == 1
+              ? "-"
+              : data.voucher_type_id == 2
+              ? `${data.amount}%`
+              : rupiah(data.amount)}
+          </td>
+          <td className="px-6 py-4">{!data.usedLimit && "-"}</td>
+          <td className="px-6 py-4">
+            {data.minTransaction ? rupiah(data.minTransaction) : "-"}
+          </td>
+          <td className="px-6 py-4">
+            {data.maxDiscount ? rupiah(data.maxDiscount) : "-"}
+          </td>
           <td className="px-6 py-4">
             {new Date(data.expiredDate).toLocaleDateString()}
           </td>
@@ -148,7 +162,15 @@ export default function AllVoucher() {
               </tr>
             </thead>
             <tbody>
-              <TableRow />
+              {dataAllVoucher.length != 0 ? (
+                <TableRow />
+              ) : (
+                <tr>
+                  <td colSpan="7" className="py-4 text-center  text-base">
+                    no vouchers found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
