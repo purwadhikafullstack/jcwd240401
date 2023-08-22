@@ -112,10 +112,16 @@ module.exports = {
 
       const status = quantity <= 5 ? "restock" : "ready";
 
-      const newBranchProduct = await user.Branch.addProduct(product, {
-        through: { quantity, origin, status },
-        transaction,
-      });
+      const newBranchProduct = await db.Branch_Product.create(
+        {
+          branch_id: user.Branch.id,
+          product_id: product_id,
+          quantity: quantity,
+          origin: origin,
+          status: status,
+        },
+        { transaction }
+      );
 
       await transaction.commit();
 

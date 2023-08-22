@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import * as yup from "yup";
+import { Formik, Form } from "formik";
+import axios from "axios";
+
 import Modal from '../../../Modal';
 import AlertPopUp from '../../../AlertPopUp';
 import CustomDropdown from '../../../CustomDropdown';
-import axios from "axios"
-import { Formik, Form } from "formik"
 import InputField from '../../../InputField';
 
 export default function ModifyCategory() {
@@ -25,14 +26,14 @@ export default function ModifyCategory() {
 
     const getOneCategory = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/categories/${selectedCategoryId}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}`);
             if (response.data) {
                 const data = response.data.data;
                 console.log(data)
                 if (data) {
                     setCategoryDetails({
                         name: data.name,
-                        file: `http://localhost:8000${data.imgCategory}`,
+                        file: `${process.env.REACT_APP_BASE_URL}${data.imgCategory}`,
                     })
                 } else {
                     setCategoryDetails({ name: "", file: "" });
@@ -45,7 +46,7 @@ export default function ModifyCategory() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -81,7 +82,7 @@ export default function ModifyCategory() {
         }
 
         try {
-            const response = await axios.patch(`http://localhost:8000/api/admins/categories/${selectedCategoryId}/modify`, formData, {
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}/modify`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -171,7 +172,7 @@ export default function ModifyCategory() {
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className="flex flex-col gap-2 py-4 font-inter border-b-2 pb-10">
                 <div className="">
-                    Selected Category
+                    Selected Category: <span className="text-xs text-reddanger">* required</span>
                 </div>
                 <CustomDropdown options={allCategory} onChange={handleChangeDropdown} placeholder={"--select a category to modify--"} />
             </div>

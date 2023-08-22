@@ -1,23 +1,14 @@
 const router = require("express").Router();
-const multer = require("multer");
 const { product: productController } = require("../controllers");
 const { admin: adminController } = require("../controllers");
 const categorymulterMiddleware = require("../middleware/multerMiddleware/category");
 const productmulterMiddleware = require("../middleware/multerMiddleware/product");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
-// const upload = multer({ fileFilter: fileFilter });
 
-// create category // masih bisa handle wrong file format, blm bisa size
 router.post(
   "/category",
-  categorymulterMiddleware.single("file"),
-  function (req, res, next) {
-    if (req.fileValidationError) {
-      return res.status(400).json({ error: req.fileValidationError });
-    }
-    next();
-  },
+  categorymulterMiddleware,
   validatorMiddleware.createCategory,
   productController.createCategory
 );
@@ -32,21 +23,21 @@ router.get("/categories/:id", productController.oneCategoryById);
 //modify / remove category
 router.patch(
   "/categories/:id/:action",
-  categorymulterMiddleware.single("file"),
+  categorymulterMiddleware,
   validatorMiddleware.updateCategory,
   productController.modifyOrRemoveCategory
 );
 // create product
 router.post(
   "/product",
-  productmulterMiddleware.single("file"),
+  productmulterMiddleware,
   validatorMiddleware.createProduct,
   productController.createProduct
 );
 // modify / remove product
 router.patch(
   "/products/:id/:action",
-  productmulterMiddleware.single("file"),
+  productmulterMiddleware,
   validatorMiddleware.updateProduct,
   productController.modifyOrRemoveProduct
 );
