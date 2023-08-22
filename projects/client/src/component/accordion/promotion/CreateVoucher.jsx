@@ -44,21 +44,23 @@ export default function CreateVoucher() {
   };
 
   const handleSubmit = async (values, { setStatus }) => {
+    let token = localStorage.getItem("token");
+
     try {
-      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`,
         values,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (response.status === 200) {
+      console.log(response, "ini");
+      if (response.status === 201) {
         setErrorMessage("");
         setSuccessMessage(response.data?.message);
         handleShowAlert("open");
       }
-      console.log(successMessage, "ini pesan");
     } catch (error) {
-      const response = error.message;
+      const response = error.response;
+      console.log(error.response.status, "ini ");
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
         if (msg) {
@@ -66,31 +68,61 @@ export default function CreateVoucher() {
           setErrorMessage(`${msg}`);
         }
       }
+
+      if (response.status === 400) {
+        setErrorMessage(`${response.data.message}`);
+      }
+      console.log(errorMessage, "ini error mesek");
+      if (response.data.error) {
+        const errMsg = response.data.error;
+        console.log(errMsg);
+        setStatus({ success: false, errors: errMsg });
+        setErrorMessage(`${errMsg}`);
+        handleShowAlert("open");
+      }
+      if (response.status === 500) {
+        setErrorMessage("Create voucher failed: Server error");
+        handleShowAlert("open");
+      }
+      handleShowAlert("open");
     }
   };
 
   const createVoucherSchema = yup.object().shape({
-    voucher_type_id: yup.number().required("voucher type is required"),
-    amount: yup
-      .number()
-      .typeError("amount must be a number")
-      .min(1, "amount must be greater than zero")
-      .required("amount is required"),
-    maxDiscount: yup
-      .number()
-      .typeError("amount must be a number")
-      .min(1, "amount must be greater than zero")
-      .required("amount is required"),
-    minTransaction: yup
-      .number()
-      .typeError("amount must be a number")
-      .min(1, "amount must be greater than zero")
-      .required("amount is required"),
-    usedLimit: yup
-      .number()
-      .typeError("amount must be a number")
-      .min(1, "amount must be greater than zero")
-      .required("amount is required"),
+    isReferral: yup.boolean(),
+    // voucher_type_id: yup
+    //   .number()
+    //   .when("isReferral", (isReferral, createVoucherSchema) => {
+    //     if (isReferral == true)
+    //       return createVoucherSchema.required("voucher type is required");
+
+    //     return createVoucherSchema;
+    //   }),
+    // amount: yup.number().typeError("amount must be a number"),
+    // amount: yup
+    //   .number()
+    //   .typeError("amount must be a number")
+    //   .when("voucher_type_id", (voucher_type_id, createVoucherSchema) => {
+    //     if (voucher_type_id == "2")
+    //       return createVoucherSchema
+    //         .min(1, "amount must be greater than 1")
+    //         .max(100, "amount cannot be greater than 100");
+
+    //     if (voucher_type_id == "3")
+    //       return createVoucherSchema.min(1, "amount must be greater than 1");
+
+    //     return createVoucherSchema;
+    //   }),
+    // minTransaction: yup
+    //   .number()
+    //   .when("isReferral", (isReferral, createVoucherSchema) => {
+    //     if (isReferral == false)
+    //       return createVoucherSchema
+    //         .min(0, "amount must be greater than zero")
+    //         .required("amount is required");
+    //   }),
+
+
   });
   return (
     <div className="flex flex-col w-5/6 mx-auto">
@@ -104,8 +136,7 @@ export default function CreateVoucher() {
       <div>
         <Formik
           initialValues={{
-            voucher_type_id: 0,
-            branch_id: 1,
+            voucher_type_id: "",
             isReferral: false,
             usedLimit: "",
             amount: "",
@@ -119,6 +150,38 @@ export default function CreateVoucher() {
           {(props) => (
             <form>
               <div className="w-full">
+                <div>
+                  <label htmlFor="isReferral" className="font-inter">
+                    referral code?
+                    <span className="text-xs text-reddanger">* required</span>
+                  </label>
+                </div>
+                <div>
+                  <label>
+                    <Field
+                      type="radio"
+                      name="isReferral"
+                      value={true}
+                      checked={props.values.isReferral === true}
+                      onChange={() => props.setFieldValue("isReferral", true)}
+                      className=" checked:bg-maingreen"
+                      id="yes"
+                    />
+                    Yes
+                  </label>
+                  <label>
+                    <Field
+                      type="radio"
+                      name="isReferral"
+                      value={false}
+                      checked={props.values.isReferral === false}
+                      onChange={() => props.setFieldValue("isReferral", false)}
+                      className=" checked:bg-maingreen"
+                      id="no"
+                    />
+                    No
+                  </label>
+                </div>
                 <label htmlFor="voucher_type_id" className="font-inter">
                   Voucher type
                   <span className="text-xs text-reddanger">* required</span>
@@ -146,6 +209,7 @@ export default function CreateVoucher() {
                     )}
                 </div>
               </div>
+
               {props.values.voucher_type_id == 2 ||
               props.values.voucher_type_id == 3 ? (
                 <div>
@@ -184,91 +248,63 @@ export default function CreateVoucher() {
                   </div>
                 </div>
               ) : null}
-              <div>
-                <label htmlFor="minTransaction" className="font-inter">
-                  min. Transaction
-                  <span className="text-xs text-reddanger">* required</span>
-                </label>
-                <InputField
-                  value={props.values.minTransaction}
-                  id="minTransaction"
-                  name="minTransaction"
-                  onChange={props.handleChange}
-                />
-                {props.errors.minTransaction &&
-                  props.touched.minTransaction && (
-                    <div className="text-sm text-reddanger top-12">
-                      {props.errors.minTransaction}
-                    </div>
-                  )}
-              </div>
+              {!props.values.isReferral && (
+                <>
+                  <div>
+                    <label htmlFor="minTransaction" className="font-inter">
+                      min. Transaction
+                      <span className="text-xs text-reddanger">* required</span>
+                    </label>
+                    <InputField
+                      value={props.values.minTransaction}
+                      id="minTransaction"
+                      name="minTransaction"
+                      onChange={props.handleChange}
+                    />
+                    {props.errors.minTransaction &&
+                      props.touched.minTransaction && (
+                        <div className="text-sm text-reddanger top-12">
+                          {props.errors.minTransaction}
+                        </div>
+                      )}
+                  </div>
 
-              <div>
-                <label htmlFor="usedLimit" className="font-inter">
-                  Usage limit
-                  <span className="text-xs text-reddanger">* required</span>
-                </label>
-                <InputField
-                  value={props.values.usedLimit}
-                  id="usedLimit"
-                  name="usedLimit"
-                  onChange={props.handleChange}
-                />
-                {props.errors.usedLimit && props.touched.usedLimit && (
-                  <div className="text-sm text-reddanger top-12">
-                    {props.errors.usedLimit}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label htmlFor="expiredDate" className="font-inter">
-                  Expired date
-                  <span className="text-xs text-reddanger">* required</span>
-                </label>
-                <Field
-                  type="date"
-                  id="expiredDate"
-                  name="expiredDate"
-                  className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
-                />
-                {props.errors.expiredDate && props.touched.expiredDate && (
-                  <div className="text-sm text-reddanger top-12">
-                    {props.errors.expiredDate}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label htmlFor="isReferral" className="font-inter">
-                  referral code?
-                  <span className="text-xs text-reddanger">* required</span>
-                </label>
-                <div>
-                  <label>
-                    <Field
-                      type="radio"
-                      name="isReferral"
-                      value={true}
-                      checked={props.values.isReferral === true}
-                      onChange={() => props.setFieldValue("isReferral", true)}
-                      className=" checked:bg-maingreen"
-                      id="yes"
+                  <div>
+                    <label htmlFor="usedLimit" className="font-inter">
+                      Usage limit
+                      <span className="text-xs text-reddanger">* required</span>
+                    </label>
+                    <InputField
+                      value={props.values.usedLimit}
+                      id="usedLimit"
+                      name="usedLimit"
+                      onChange={props.handleChange}
                     />
-                    Yes
-                  </label>
-                  <label>
+                    {props.errors.usedLimit && props.touched.usedLimit && (
+                      <div className="text-sm text-reddanger top-12">
+                        {props.errors.usedLimit}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="expiredDate" className="font-inter">
+                      Expired date
+                      <span className="text-xs text-reddanger">* required</span>
+                    </label>
                     <Field
-                      type="radio"
-                      name="isReferral"
-                      value={false}
-                      checked={props.values.isReferral === false}
-                      onChange={() => props.setFieldValue("isReferral", false)}
-                      className=" checked:bg-maingreen"
-                      id="no"
+                      type="date"
+                      id="expiredDate"
+                      name="expiredDate"
+                      className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
                     />
-                    No
-                  </label>
-                </div>
-              </div>
+                    {props.errors.expiredDate && props.touched.expiredDate && (
+                      <div className="text-sm text-reddanger top-12">
+                        {props.errors.expiredDate}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
 
               <div>
                 <Modal

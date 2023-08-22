@@ -18,7 +18,6 @@ export default function CreateDiscount() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const fetchDataAllDiscountType = async () => {
-    
     try {
       const response = await getAllDiscountType();
       let options = response.data.data.map((d) => ({
@@ -83,9 +82,9 @@ export default function CreateDiscount() {
         setSuccessMessage(response.data?.message);
         handleShowAlert("open");
       }
-      console.log(successMessage, "ini pesan");
     } catch (error) {
-      const response = error.message;
+      const response = error.response;
+      console.log(response.data);
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
         if (msg) {
@@ -93,6 +92,19 @@ export default function CreateDiscount() {
           setErrorMessage(`${msg}`);
         }
       }
+      console.log(errorMessage, "ini error mesek");
+      if (response.data.error) {
+        const errMsg = response.data.error;
+        console.log(errMsg);
+        setStatus({ success: false, errors: errMsg });
+        setErrorMessage(`${errMsg}`);
+        handleShowAlert("open");
+      }
+      if (response.status === 500) {
+        setErrorMessage("Create discount failed: Server error");
+        handleShowAlert("open");
+      }
+      handleShowAlert("open");
     }
   };
 
@@ -101,12 +113,25 @@ export default function CreateDiscount() {
     amount: yup
       .number()
       .typeError("amount must be a number")
-      .min(1, "amount must be greater than zero")
-      .required("amount is required"),
+      .when("discount_type_id", (discount_type_id, createDiscountSchema) => {
+        if (discount_type_id == 2)
+          return createDiscountSchema
+            .min(1, "amount must be greater than 1")
+            .max(100, "amount cannot be greater than 100")
+            .required("amount is required");
+        if (discount_type_id == 3)
+          return createDiscountSchema
+            .min(1, "amount must be greater than 1")
+            .required("amount is required");
+        return createDiscountSchema;
+      }),
+
     expiredDate: yup
       .date()
-      .min(new Date(), "expired date can't be in the past")
+      .typeError("expired date must be a date format")
+      .min(new Date(), "expired date can't be in the past or today")
       .required("expired date is required"),
+    products: yup.array().min(1, "you have to add atleast one product"),
   });
 
   return (
@@ -125,7 +150,6 @@ export default function CreateDiscount() {
             discount_type_id: "",
             amount: "",
             expiredDate: "",
-            branch_id: 1,
             products: [],
           }}
           validationSchema={createDiscountSchema}
@@ -237,6 +261,11 @@ export default function CreateDiscount() {
                       </label>
                     </div>
                   ))}
+                  {props.errors.products && (
+                    <div className="text-reddanger top-12">
+                      {props.errors.products}
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-center">
                   <Pagination
