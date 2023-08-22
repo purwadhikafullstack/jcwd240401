@@ -35,7 +35,21 @@ module.exports = {
                 where: {
                     id: userId,
                     isMain: true
-                }
+                },
+                include: [
+                    {
+                        model: db.City,
+                        include: [
+                            {
+                                model: db.Province,
+                                attributes: ["province_name"]
+                            }
+                        ],
+                        attributes: {
+                            exclude: ["city_id", "province_id"]
+                        }
+                    }
+                ]
             })
             if(!userData){
                 return res.status(400).send({

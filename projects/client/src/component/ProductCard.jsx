@@ -24,7 +24,7 @@ export default function ProductCard() {
                 </p>
             </div>
             <div className="row-span-2 font-inter w-40 p-2 bg-inherit rounded-b-md relative">
-                <div className="text-sm relative">price</div>
+                <div className="text-sm relative line-through">price</div>
                 <div className="absolute z-20 right-0 bottom-0 p-1">
                     <Button condition={"plus"}/>
                 </div>
