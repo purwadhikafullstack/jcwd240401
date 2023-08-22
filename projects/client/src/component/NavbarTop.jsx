@@ -14,20 +14,33 @@ export default function NavbarTop({city, province}) {
     const profile = useSelector((state) => state.auth.profile)
     const navigate = useNavigate()
 
-    useEffect(() => {
+    const getAddress = async() => {
         try{
-            axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/address`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/address`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
-            }).then((response) => {
+            })
+
+            if(response.data){
                 setCityAddress(response.data.data?.City?.city_name)
                 setProvinceAddress(response.data.data?.City?.Province?.province_name)
-            })
+            }
         }catch(error){
-            console.log(error)
+            console.error(error)
+            if(error.response){
+                console.error(error.response.message)
+            }
         }
-    })
+    }
+    useEffect(() => {
+        if(token && profile.role === "3"){
+            getAddress()
+        }else{
+            setCityAddress("")
+            setProvinceAddress("")
+        }
+    },[token, profile])
 
     const routes = [
         {name: "Home"},

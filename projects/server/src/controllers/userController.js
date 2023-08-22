@@ -33,7 +33,7 @@ module.exports = {
         try{
             const userData = await db.Address.findOne({
                 where: {
-                    id: userId,
+                    user_id: userId,
                     isMain: true
                 },
                 include: [

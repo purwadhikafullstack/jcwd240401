@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import Carousel from 'flowbite-react'
+import {Carousel} from 'flowbite-react'
 import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
@@ -26,41 +26,39 @@ export default function Home() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (token && profile.role === "3"){
-            return
-        }
-
-        const askForLocationPermission = async () => {
-        const permissionGranted = await new Promise((resolve) => {
-        const consent = window.confirm(
-            "Do you allow this app to access your location? If not, your location will be our default branch location"
-        );
-        resolve(consent);
-        });
-
-        if (permissionGranted) {
-            navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setLatitude(position.coords.latitude);
-                setLongitude(position.coords.longitude);
-                setError(null);
-            },
-            (error) => {
-                console.error("Error getting geolocation:", error.message);
-                setError("Error getting geolocation. Please allow location access.");
+        if (!token){
+            const askForLocationPermission = async () => {
+            const permissionGranted = await new Promise((resolve) => {
+            const consent = window.confirm(
+                "Do you allow this app to access your location? If not, your location will be our default branch location"
+            );
+            resolve(consent)
+            })
+    
+            if (permissionGranted) {
+                navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLatitude(position.coords.latitude);
+                    setLongitude(position.coords.longitude);
+                    setError(null);
+                },
+                (error) => {
+                    console.error("Error getting geolocation:", error.message)
+                    setError("Error getting geolocation. Please allow location access.")
+                }
+            )
+            } else {
+                setError("Location access denied.");
             }
-        );
-        } else {
-            setError("Location access denied.");
+            }
+    
+            if ("geolocation" in navigator) {
+                askForLocationPermission();
+            } else {
+                setError("Geolocation is not supported by your browser.")
+            }
         }
-    };
-
-        if ("geolocation" in navigator) {
-            askForLocationPermission();
-        } else {
-            setError("Geolocation is not supported by your browser.");
-        }
-    }, [token, profile]);
+    }, [token]);
 
     useEffect(() => {
         if (token && profile.role === "3"){
@@ -100,7 +98,13 @@ export default function Home() {
             <div className="w-6/12 my-10">
                 <SearchBar placeholder={"Search Product"}/>
             </div>
-            <div className="w-6/12 h-64 mb-10 bg-greensuccess">Carousel</div>
+            <div className="w-6/12 h-64 mb-10">
+                <Carousel>
+                    <div className="w-full h-full">
+                        <img src={productImg} alt="product image carousel" />
+                    </div>
+                </Carousel>
+            </div>
             <div className="w-6/12 h-auto flex gap-4 overflow-x-auto mb-10">
                 {categories.data?.map((category) => (
                     <div key={category.id} className='relative inline-block p-2 rounded-md' style={{backgroundImage: `url(http://localhost:8000${category.imgCategory})`, backgroundSize:'cover'}}>

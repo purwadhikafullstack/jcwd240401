@@ -7,6 +7,8 @@ const {
   getAbsolutePathPublicFileProduct,
 } = require("../helpers/fileConverter");
 const fs = require("fs");
+const geolib = require('geolib')
+
 
 const validUnitOfMeasurementValues = ["gr", "ml"];
 const handleCatchError = async (res, transaction, error) => {
@@ -663,5 +665,101 @@ module.exports = {
       });
     }
   },
+  async productsFromNearestBranch(req,res) {
+    const latitude = req.query.latitude ? req.query.latitude : "" 
+    const longitude = req.query.longitude ? req.query.longitude : ""
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      search: req.query.search || "",
+      category: req.query.filterCategory || "",
+      name: req.query.sortName,
+      price: req.query.sortPrice,
+    };
+    try{
+      const where = {};
+      const order = [];
+
+      where.isRemoved = 0;
+
+      if (pagination.search) {
+        where["$Product.name$"] = {
+          [db.Sequelize.Op.like]: `%${pagination.search}%`,
+        };
+      }
+      if (pagination.category) {
+        where["$Product.category_id$"] = pagination.category;
+      }
+      if (pagination.name) {
+        if (pagination.name.toUpperCase() === "DESC") {
+          order.push([{model: db.Product, as: "Product"}, "name", "DESC"]);
+        } else {
+          order.push([{model: db.Product, as: "Product"}, "name", "ASC"]);
+        }
+      }
+      if (pagination.price) {
+        if (pagination.price.toUpperCase() === "DESC") {
+          order.push([{model: db.Product, as: "Product"}, "basePrice", "DESC"]);
+        } else {
+          order.push([{model: db.Product, as: "Product"}, "basePrice", "ASC"]);
+        }
+      }
+
+      const userLocation = { latitude: latitude, longitude: longitude }
+
+      const branchData = await db.Branch.findAll()
+      let nearestBranchId = 0
+      let nearest = 50000
+
+      if(latitude && longitude){
+        branchData.map((branch) => {
+          const branchLocation = {latitude: branch.latitude, longitude: branch.longitude}
+          const distance = geolib.getDistance(userLocation, branchLocation)
+          if(distance < nearest){
+            nearest = distance
+            nearestBranchId = branch.id
+          } else {
+            nearestBranchId = branchData[0].id
+          }
+        })
+      } else {
+        nearestBranchId = branchData[0].id
+      }
+
+      const branchProductData = await db.Branch_Product.findAndCountAll({
+        where: {
+          branch_id: nearestBranchId
+        },
+        include: [
+          {
+            model: db.Product,
+            where: where,
+            include: { model: db.Category, where: { isRemoved: 0 } },
+          },
+        ],
+        order: order,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage, 
+      })
+      const totalCount = branchProductData.count;
+      pagination.totalData = totalCount;
+
+      if (branchProductData.rows.length === 0) {
+        return res.status(200).send({
+          message: "No products found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Success get branch product",
+        data: branchProductData
+      })
+    }catch(error){
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message
+      })
+    }
+  }
 };
 // get branch category
