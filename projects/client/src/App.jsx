@@ -23,6 +23,9 @@ import PrivateBranchAdminWrapper from "./wrapper/PrivateBranchAdminWrapper";
 import Unauthorized from "./page/Unauthorized";
 import { keep } from "./store/reducer/authSlice";
 import NotFound from "./page/NotFound";
+import ForgotPassword from "./page/ForgotPassword";
+import VerifyAccount from "./page/user/VerifyAccount";
+import ResetPassword from "./page/ResetPassword";
 
 function App() {
   const dispatch = useDispatch()
@@ -58,8 +61,11 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<UserRegister />} />
+        <Route path="/verify-account/:verificationToken" element={<VerifyAccount />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/set-password/:verificationToken" element={<BranchAdminSetAccount />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:resetPasswordToken" element={<ResetPassword />} />
 
         <Route element={<PrivateAdminWrapper allowedRoles={[1,2]} />}>
           <Route path="/admin" element={<AdminHome />} />

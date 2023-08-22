@@ -107,16 +107,18 @@ export default function Login() {
                             {errors.email && touched.email && <p className="text-reddanger text-sm font-inter">{errors.email}</p>}
                         </div>
                         <div className="w-full">
-                            <label htmlFor="password" className="font-inter">Password</label>
-                            <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur}/>
+                            <div className='relative'>
+                                <label htmlFor="password" className="font-inter relative">Password</label>
+                                <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
+                                <div className='absolute bottom-2 right-2'><HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} /></div>
+                            </div>
                             {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                             <div className="w-full flex gap-4 mt-2 justify-end items-center">
-                                <span className="text-sm text-maingreen font-inter">Forgot Password?</span>
-                                <HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} />
+                                <Link to="/forgot-password" className="text-sm text-maingreen font-inter">Forgot Password?</Link>
                             </div>
                         </div>
                         <div className="mt-10">
-                            <Button label={"Log In"} condition={"positive"} onClick={handleSubmit}/>
+                            <Button label={"Log In"} condition={"positive"} onClick={handleSubmit} buttonType={"submit"}/>
                         </div>
                     </form>
                     <div className="w-full flex gap-4 justify-center items-center">
