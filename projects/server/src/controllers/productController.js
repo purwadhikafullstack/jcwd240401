@@ -279,6 +279,7 @@ module.exports = {
           name,
           weight,
           unitOfMeasurement,
+          isRemoved: 0,
         },
       });
       if (isExist) {
@@ -428,6 +429,7 @@ module.exports = {
               where: {
                 product_id: parseInt(req.params.id),
                 [db.Sequelize.Op.or]: [
+                  { status: "empty" },
                   { status: "ready" },
                   { status: "restock" },
                 ],
@@ -438,7 +440,7 @@ module.exports = {
             if (isUsed) {
               await transaction.rollback();
               return res.status(400).send({
-                message: "Unable to delete. Product in use by branch/es.",
+                message: "Unable to delete. Product in use by branch/es",
               });
             }
 
@@ -600,9 +602,58 @@ module.exports = {
         });
       }
 
-      res.send({
+      res.status(200).send({
         message: "Successfully retrieved product",
         data: product,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
+  // get all product exclude branch product per branch
+  async allUnaddedProducts(req, res) {
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+      const branchProducts = await db.Branch_Product.findAll({
+        attributes: ["product_id"],
+        where: {
+          branch_id: user.Branch.id,
+          isRemoved: false,
+        },
+      });
+      const userProductIds = branchProducts.map(
+        (branchProduct) => branchProduct.product_id
+      );
+      const unaddedProducts = await db.Product.findAll({
+        where: {
+          isRemoved: false,
+          id: {
+            [db.Sequelize.Op.notIn]: userProductIds,
+          },
+        },
+      });
+      if (unaddedProducts.length === 0) {
+        return res
+          .status(200)
+          .send({ message: "All products are added to your branch" });
+      }
+      return res.status(200).send({
+        message: "Successfully retrieved the unadded products",
+        data: unaddedProducts,
       });
     } catch (error) {
       console.log(error);

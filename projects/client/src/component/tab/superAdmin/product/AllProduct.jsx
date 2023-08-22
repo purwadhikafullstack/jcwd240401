@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import axios from "axios"
-import SearchBar from '../../../SearchBar'
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import SearchBar from '../../../SearchBar';
 import { Pagination } from "flowbite-react";
-import Modal from '../../../Modal'
-import CustomDropDowm from '../../../CustomDropdown'
-import ProductModal from '../../../ModalProduct';
+import Modal from '../../../Modal';
+import CustomDropDowm from '../../../CustomDropdown';
+import ModalProduct from '../../../ModalProduct';
 import AlertPopUp from '../../../AlertPopUp';
 
 export default function AllProduct() {
@@ -29,10 +29,13 @@ export default function AllProduct() {
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
+                    const optionOne = { label: "All Category", value: "" }
                     let options = data.map((d) => ({
                         label: d.name,
                         value: d.id,
                     }));
+
+                    options.unshift(optionOne)
                     setAllCategory(options);
                 } else {
                     setAllCategory([]);
@@ -139,7 +142,7 @@ export default function AllProduct() {
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
-                <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Enter here to search category by name..." />
+                <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Enter here to search product by name..." />
                 <CustomDropDowm options={allCategory} onChange={handleCategory} placeholder={"Filter by Category"} />
                 <CustomDropDowm options={nameOptions} onChange={handleName} placeholder={"Sort by Name"} />
                 <CustomDropDowm options={priceOptions} onChange={handlePrice} placeholder={"Sort by Price"} />
@@ -147,18 +150,18 @@ export default function AllProduct() {
             <div className='w-full'>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
-                        <thead>
-                            <tr className="bg-lightgrey text-darkgrey">
-                                <th className="py-2 px-4 font-normal" style={{ width: '40%' }}>Product</th>
-                                <th className="py-2 px-4 font-normal hidden lg:table-cell" style={{ width: '40%%' }}>Description</th>
-                                <th className="py-2 px-4 font-normal" style={{ width: '15%' }}>Base Price</th>
+                        <thead className="border-b-2 border-maingreen text-maingreen uppercase">
+                            <tr>
+                                <th className="py-2 px-4" style={{ width: '40%' }}>Product</th>
+                                <th className="py-2 px-4 hidden lg:table-cell" style={{ width: '40%%' }}>Description</th>
+                                <th className="py-2 px-4" style={{ width: '15%' }}>Base Price</th>
                                 <th className="py-2 px-4" style={{ width: '5%' }}></th>
                             </tr>
                         </thead>
                         <tbody>
                             {allProduct.length !== 0 && allProduct.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-100 border-b-2 border-gray-200">
-                                    <td className="py-2 px-4" style={{ width: '40%' }} >
+                                    <td className="py-2 px-4 cursor-pointer" style={{ width: '40%' }} onClick={() => setSelectedProduct(item.id)}>
                                         <div className='grid grid-cols-2 justify-center text-sm'>
                                             <div>
                                                 <img
@@ -181,20 +184,20 @@ export default function AllProduct() {
                                             <span className="text-sm">...</span>
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '15%' }}>{`Rp ${item.basePrice.toLocaleString("id-ID")}`}</td>
+                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{`Rp ${item.basePrice.toLocaleString("id-ID")}`}</td>
                                     <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger'><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allProduct.length === 0 && (
                                 <tr>
-                                    <td colSpan="4" className="py-4 text-center">No Category Found</td>
+                                    <td colSpan="4" className="py-4 text-center">No Product Found</td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
                 {selectedProduct && (
-                    <ProductModal
+                    <ModalProduct
                         productId={selectedProduct}
                         onClose={() => setSelectedProduct(null)}
                     />
