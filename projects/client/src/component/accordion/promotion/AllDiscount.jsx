@@ -61,7 +61,7 @@ export default function AllDiscount() {
             {new Date(data.createdAt).toLocaleDateString()}
           </td>
           <td className="px-6 py-4">
-            {new Date(data.expiredDate) <= now.toDate() ? (
+            {new Date(data.expiredDate) < now.toDate() ? (
               <span className=" text-reddanger">expired</span>
             ) : (
               <span className=" text-maingreen">on going</span>
