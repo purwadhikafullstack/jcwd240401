@@ -522,12 +522,12 @@ module.exports = {
       if (!user) {
         return res.status(401).send({ message: "User not found" });
       }
-      const { branch_id, discount_type_id, amount, expiredDate, products } =
+      const {  discount_type_id, amount, expiredDate, products } =
         req.body;
 
       const isExist = await db.Discount.findOne({
         where: {
-          branch_id,
+          branch_id:user.Branch.id,
           discount_type_id,
           amount,
           expiredDate,
@@ -699,7 +699,18 @@ module.exports = {
     const transaction = await db.sequelize.transaction();
 
     try {
-      const currentDate = new Date();
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+
       const {
         branch_id,
         voucher_type_id,
@@ -711,45 +722,255 @@ module.exports = {
         isReferral,
       } = req.body;
 
-      const isExist = await db.Voucher.findOne({
-        where: {
-          branch_id,
-          voucher_type_id,
-          amount,
-          expiredDate,
-          minTransaction,
-          maxDiscount,
-          isReferral,
-          usedLimit,
-        },
-      });
+      switch (voucher_type_id) {
+        case "1":
+          if (isReferral) {
+            await db.Voucher.update(
+              { isReferral: false },
+              {
+                where: {
+                  isReferral: true,
+                },
+              }
+            );
 
-      if (isExist) {
-        await transaction.rollback();
-        return res.status(400).send({
-          message: "you still have a similar voucher available",
-          data: isExist,
-        });
+            const newVoucher = await db.Voucher.create(
+              {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                isReferral,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+            return res.status(201).send({
+              message: "new voucher created",
+              data: newVoucher,
+            });
+          } else {
+            if (!minTransaction || !usedLimit || !expiredDate) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "please fill the required field",
+              });
+            }
+            const isExist = await db.Voucher.findOne({
+              where: {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                minTransaction,
+                usedLimit,
+              },
+            });
+
+            if (isExist) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "you still have a similar voucher available",
+                data: isExist,
+              });
+            }
+
+            const newVoucher = await db.Voucher.create(
+              {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                isReferral,
+                minTransaction,
+                usedLimit,
+                expiredDate,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+            return res.status(201).send({
+              message: "new voucher created",
+              data: newVoucher,
+            });
+          }
+          break;
+
+        case "2":
+          if (isReferral) {
+            if (!amount || !maxDiscount) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "please fill the required field",
+              });
+            }
+            await db.Voucher.update(
+              { isReferral: false },
+              {
+                where: {
+                  isReferral: true,
+                },
+              }
+            );
+
+            const newVoucher = await db.Voucher.create(
+              {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                isReferral,
+                amount,
+                maxDiscount,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+            return res.status(201).send({
+              message: "new voucher created",
+              data: newVoucher,
+            });
+          } else {
+            if (
+              !amount ||
+              !maxDiscount ||
+              !minTransaction ||
+              !usedLimit ||
+              !expiredDate
+            ) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "please fill the required field",
+              });
+            }
+            const isExist = await db.Voucher.findOne({
+              where: {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                amount,
+                minTransaction,
+                maxDiscount,
+                usedLimit,
+              },
+            });
+
+            if (isExist) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "you still have a similar voucher available",
+                data: isExist,
+              });
+            }
+
+            const newVoucher = await db.Voucher.create(
+              {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                isReferral,
+                amount,
+                maxDiscount,
+                minTransaction,
+                usedLimit,
+                expiredDate,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+            return res.status(201).send({
+              message: "new voucher created",
+              data: newVoucher,
+            });
+          }
+
+          break;
+
+        case "3":
+          if (isReferral) {
+            if (!amount || !maxDiscount) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "please fill the required field",
+              });
+            }
+            await db.Voucher.update(
+              { isReferral: false },
+              {
+                where: {
+                  isReferral: true,
+                },
+              }
+            );
+
+            const newVoucher = await db.Voucher.create(
+              {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                isReferral,
+                amount,
+                maxDiscount,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+            return res.status(201).send({
+              message: "new voucher created",
+              data: newVoucher,
+            });
+          } else {
+            if (
+              !amount ||
+              !maxDiscount ||
+              !minTransaction ||
+              !usedLimit ||
+              !expiredDate
+            ) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "please fill the required field",
+              });
+            }
+            const isExist = await db.Voucher.findOne({
+              where: {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                amount,
+                minTransaction,
+                maxDiscount,
+                usedLimit,
+              },
+            });
+
+            if (isExist) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "you still have a similar voucher available",
+                data: isExist,
+              });
+            }
+
+            const newVoucher = await db.Voucher.create(
+              {
+                branch_id: user.Branch.id,
+                voucher_type_id,
+                isReferral,
+                amount,
+                maxDiscount,
+                minTransaction,
+                usedLimit,
+                expiredDate,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+            return res.status(201).send({
+              message: "new voucher created",
+              data: newVoucher,
+            });
+          }
+
+          break;
+
+        default:
+          throw new Error("Invalid voucher type");
       }
-
-      const newVoucher = await db.Voucher.create(
-        {
-          branch_id,
-          voucher_type_id,
-          amount,
-          expiredDate,
-          minTransaction,
-          maxDiscount,
-          isReferral,
-          usedLimit,
-        },
-        { transaction }
-      );
-      await transaction.commit();
-      return res.status(200).send({
-        message: "new voucher created",
-        data: newVoucher,
-      });
     } catch (error) {
       await transaction.rollback();
       return res.status(500).send({

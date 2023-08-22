@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, oneOf } = require("express-validator");
 const db = require("../../models");
 
 const validate = (validations) => {
@@ -220,7 +220,7 @@ module.exports = {
     body("discount_type_id")
       .notEmpty()
       .withMessage("discount type is required"),
-    body("amount").isNumeric().withMessage("amount has to be numeric"),
+
     body("expiredDate")
       .notEmpty()
       .withMessage("expired date is required")
@@ -235,48 +235,63 @@ module.exports = {
         return true;
       }),
     body("amount")
-      .if(body("discount_type_id").not().equals(1))
+      .if(body("discount_type_id").not().equals("1"))
       .notEmpty()
       .withMessage("amount cannot be empty")
       .isNumeric()
       .withMessage("amount has to be numeric"),
   ]),
   validateCreateVoucher: validate([
-    body("voucher_type_id")
-      .isNumeric()
-      .withMessage("voucher type has to be numeric")
-      .notEmpty()
-      .withMessage("voucher type is required"),
-    body("usedLimit")
-      .isNumeric()
-      .withMessage("usedLimit has to be numeric")
-      .custom((value) => {
-        if (value <= 0) {
-          throw new Error("usedLimit must be grater than zero");
-        }
-        return true;
-      }),
-    body("amount")
-      .if(body("voucher_type_id").not().equals(1))
-      .notEmpty()
-      .withMessage("amount cannot be empty")
-      .isNumeric()
-      .withMessage("amount has to be numeric"),
-    body("expiredDate")
-      .notEmpty()
-      .withMessage("expired date is required")
-      .isDate()
-      .withMessage("Invalid date format")
-      .custom((value) => {
-        const currentDate = new Date();
-        const selectedDate = new Date(value);
-        if (selectedDate < currentDate) {
-          throw new Error("expired date cannot be in the past");
-        }
-        return true;
-      }),
-    body("minTransaction").isNumeric().withMessage("amount has to be numeric"),
-    body("maxDiscount").isNumeric().withMessage("amount has to be numeric"),
     body("isReferral").isBoolean().withMessage("isReferral has to be boolean"),
+    body("voucher_type_id").notEmpty().withMessage("discount type is required"),
+
+    body("amount")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+    body("maxDiscount")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+
+    body("usedLimit")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+    body("expiredDate")
+      .optional()
+      .custom((value) => {
+        if (value) {
+          const currentDate = new Date();
+          const selectedDate = new Date(value);
+          if (selectedDate < currentDate) {
+            throw new Error("expired date cannot be in the past");
+          }
+        }
+        return true;
+      }),
+    // body("minTransaction").isNumeric().withMessage("amount has to be numeric"),
+    // body("maxDiscount").isNumeric().withMessage("amount has to be numeric"),
   ]),
 };
