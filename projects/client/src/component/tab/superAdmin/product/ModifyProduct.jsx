@@ -116,7 +116,7 @@ export default function ModifyProduct() {
         }
     }
 
-    const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues }) => {
+    const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues, setFieldValue }) => {
         const { file, name, category_id, description, weight, unitOfMeasurement, basePrice, storageInstruction, storagePeriod } = values;
         console.log("berhasil click submit")
         const formData = new FormData();
@@ -144,7 +144,6 @@ export default function ModifyProduct() {
                 setSuccessMessage(response.data?.message)
                 handleShowAlert()
                 setSelectedProductId("")
-                setSelectedCategoryId("")
                 setFieldValue("file", null)
             }
         } catch (error) {
@@ -208,7 +207,7 @@ export default function ModifyProduct() {
             'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
     };
 
-    function preview() {
+    function preview(event) {
         const file = event.target.files[0];
         console.log("file here:", file)
         if (file) {
