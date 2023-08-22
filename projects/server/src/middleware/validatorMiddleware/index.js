@@ -176,10 +176,10 @@ module.exports = {
       .optional()
       .custom((value, { req }) => {
         if (value !== "" && isNaN(value)) {
-          throw new Error("Price must be a valid number");
+          throw new Error("Weight must be a valid number");
         }
         if (value !== "" && parseInt(value) < 0) {
-          throw new Error("Price must be a positive integer");
+          throw new Error("Weight must be a positive integer");
         }
         return true;
       }),
@@ -215,6 +215,37 @@ module.exports = {
       .optional()
       .isLength({ max: 255 })
       .withMessage("Maximum character is 255"),
+  ]),
+  createBranchProduct: validate([
+    body("product_id")
+      .notEmpty()
+      .withMessage("Product_id is required")
+      .custom(checkValidProduct),
+    body("origin")
+      .trim()
+      .notEmpty()
+      .withMessage("Origin is required")
+      .isLength({ max: 50 })
+      .withMessage("Origin must not exceed 50 characters"),
+    body("quantity")
+      .notEmpty()
+      .withMessage("Quantity is required")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer"),
+  ]),
+  updateBranchProductDetails: validate([
+    body("origin")
+      .trim()
+      .optional()
+      .isLength({ max: 50 })
+      .withMessage("Origin must not exceed 50 characters"),
+  ]),
+  updateBranchProductStock: validate([
+    body("quantity")
+      .notEmpty()
+      .withMessage("Quantity is required")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer"),
   ]),
   validateRegisterUser: validate([
     body("name")

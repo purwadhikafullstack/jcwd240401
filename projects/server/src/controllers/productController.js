@@ -363,18 +363,20 @@ module.exports = {
       switch (action) {
         case "modify":
           try {
-            const isExist = await db.Product.findOne({
-              where: {
-                name,
-                weight,
-                unitOfMeasurement,
-              },
-            });
-            if (isExist) {
-              await transaction.rollback();
-              return res
-                .status(400)
-                .send({ message: "Similar product already exist" });
+            if (name || weight || unitOfMeasurement) {
+              const isExist = await db.Product.findOne({
+                where: {
+                  name,
+                  weight,
+                  unitOfMeasurement,
+                },
+              });
+              if (isExist) {
+                await transaction.rollback();
+                return res
+                  .status(400)
+                  .send({ message: "Similar product already exist" });
+              }
             }
             if (req.file) {
               const realimgProduct = getProduct.getDataValue("imgProduct");
@@ -762,4 +764,3 @@ module.exports = {
     }
   }
 };
-// get branch category

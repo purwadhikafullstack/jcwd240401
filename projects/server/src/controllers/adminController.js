@@ -112,10 +112,26 @@ module.exports = {
 
       const status = quantity <= 5 ? "restock" : "ready";
 
-      const newBranchProduct = await user.Branch.addProduct(product, {
-        through: { quantity, origin, status },
-        transaction,
-      });
+      const newBranchProduct = await db.Branch_Product.create(
+        {
+          branch_id: user.Branch.id,
+          product_id: product_id,
+          quantity: quantity,
+          origin: origin,
+          status: status,
+        },
+        { transaction, returning: ["id"] }
+      );
+
+      // await db.Stock_History.create(
+      //   {
+      //     branch_product_id: newBranchProduct.id, // doesnt return id, why???
+      //     totalQuantity: quantity,
+      //     quantity: quantity,
+      //     status: "restock by admin",
+      //   },
+      //   { transaction }
+      // );
 
       await transaction.commit();
 
@@ -508,8 +524,6 @@ module.exports = {
     }
   },
 };
-// get branch product
-// get branch product per id
 
 // sales report (SA & A)
 // stock history (A)
