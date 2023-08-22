@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import * as yup from "yup";
 import { Formik, Form } from 'formik';
+
 import Modal from '../../../Modal';
 import InputField from '../../../InputField';
 import AlertPopUp from '../../../AlertPopUp';
-import axios from 'axios';
 
 export default function CreateCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -13,17 +14,11 @@ export default function CreateCategory() {
 
     const createCategorySchema = yup.object().shape({
         name: yup.string().max(50, 'Category name must not exceed 50 characters').required("Category name is required"),
-        file: yup.mixed()
-        // .test("required", "Please select a file", (value) => {
-        //     return !!value || !!this.parent.name;
-        // })
-        // .test("fileSize", "The file size is too large", (value) => {
-        //     return !value || (value[0] && value[0].size <= 1000000);
-        // })
-        // .test("type", "We only support jpg, jpeg, or png", (value) => {
-        //     const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        //     return !value || (value[0] && supportedTypes.includes(value[0].type));
-        // })
+        file: yup.mixed().required("Category image is required")
+        // .test("is-valid-type", "Not a valid image type",
+        // value => isValidFileType(value && value.name.toLowerCase(), "image"))
+        // .test("is-valid-size", "Max allowed size is 100KB",
+        // value => value && value.size <= MAX_FILE_SIZE)
     })
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
@@ -32,7 +27,7 @@ export default function CreateCategory() {
         formData.append('name', name);
         formData.append('file', file);
         try {
-            const response = await axios.post("http://localhost:8000/api/admins/category", formData, {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/category`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -53,8 +48,8 @@ export default function CreateCategory() {
                     setErrorMessage(`${msg}`)
                 }
             }
-            if (response.data.error) {
-                const errMsg = response.data.error;
+            if (response?.data.error) {
+                const errMsg = response?.data.error;
                 console.log(errMsg)
                 setStatus({ success: false, errors: errMsg });
                 setErrorMessage(`${errMsg}`);

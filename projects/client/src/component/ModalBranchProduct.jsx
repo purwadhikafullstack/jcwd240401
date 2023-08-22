@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"
+import axios from "axios";
 
 export default function ModalBranchProduct({ branchProductId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
@@ -61,6 +61,10 @@ export default function ModalBranchProduct({ branchProductId, onClose }) {
                     </div>
                     {/* Modal body */}
                     <div className="py-6 space-y-6 px-10">
+                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                            Origin:
+                            <p className="text-black">{selectedProduct?.origin}</p>
+                        </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Description:
                             <p className="text-black">{selectedProduct?.Product?.description}</p>
