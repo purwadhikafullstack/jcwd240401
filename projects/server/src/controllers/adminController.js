@@ -549,14 +549,14 @@ module.exports = {
         }
       }
       const results = await db.Stock_History.findAndCountAll({
-        where,
+        // where,
         include: [
           {
             model: db.Branch_Product,
-            as:"StockBranchProduct",
-            attributes: ["id"],
-            where: branchProductWhere,
-            include: { model: db.Product, where: { isRemoved: 0 } },
+
+            // attributes: ["id"],
+            // where: branchProductWhere,
+            // include: { model: db.Product, where: { isRemoved: 0 } },
           },
         ],
         limit: pagination.perPage,
@@ -589,9 +589,9 @@ module.exports = {
   async getCart(req, res) {
     try {
       const blabla = await db.Cart.findAll({
-        include:{
-          model: db.Branch_Product
-        }
+        include: {
+          model: db.Branch_Product,
+        },
       });
 
       res.status(200).send({

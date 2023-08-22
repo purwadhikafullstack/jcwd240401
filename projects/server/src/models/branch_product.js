@@ -17,10 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Branch_Product.belongsTo(models.Branch, { foreignKey: "branch_id" });
       Branch_Product.belongsTo(models.Product, { foreignKey: "product_id" });
       Branch_Product.belongsTo(models.Discount, { foreignKey: "discount_id" });
-      Branch_Product.hasMany(models.Stock_History, {
-        foreignKey: "branch_product_id",
-        as:"StockHistories"
-      });
+      // Branch_Product.hasMany(models.Stock_History, {
+      //   foreignKey: "branch_product_id",
+      // });
       Branch_Product.belongsToMany(models.Order, {
         through: models.Order_Item,
         foreignKey: "branch_product_id",
@@ -30,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Branch_Product.init(
     {
+      id: { type: DataTypes.INTEGER, primaryKey: true },
       branch_id: DataTypes.INTEGER,
       product_id: DataTypes.INTEGER,
       quantity: DataTypes.INTEGER,
