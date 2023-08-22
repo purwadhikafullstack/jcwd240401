@@ -13,12 +13,8 @@ export default function CreateCategory() {
     const [showAlert, setShowAlert] = useState(false)
 
     const createCategorySchema = yup.object().shape({
-        name: yup.string().max(50, 'Category name must not exceed 50 characters').required("Category name is required"),
+        name: yup.string().max(50, 'Category name must not exceed 50 characters').required("Category name is required").typeError("Name must be a valid text"),
         file: yup.mixed().required("Category image is required")
-        // .test("is-valid-type", "Not a valid image type",
-        // value => isValidFileType(value && value.name.toLowerCase(), "image"))
-        // .test("is-valid-size", "Max allowed size is 100KB",
-        // value => value && value.size <= MAX_FILE_SIZE)
     })
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {

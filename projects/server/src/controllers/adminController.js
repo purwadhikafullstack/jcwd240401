@@ -120,8 +120,18 @@ module.exports = {
           origin: origin,
           status: status,
         },
-        { transaction }
+        { transaction, returning: ["id"] }
       );
+
+      // await db.Stock_History.create(
+      //   {
+      //     branch_product_id: newBranchProduct.id, // doesnt return id, why???
+      //     totalQuantity: quantity,
+      //     quantity: quantity,
+      //     status: "restock by admin",
+      //   },
+      //   { transaction }
+      // );
 
       await transaction.commit();
 
@@ -514,8 +524,6 @@ module.exports = {
     }
   },
 };
-// get branch product
-// get branch product per id
 
 // sales report (SA & A)
 // stock history (A)

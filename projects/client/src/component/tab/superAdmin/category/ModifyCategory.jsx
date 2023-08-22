@@ -21,7 +21,7 @@ export default function ModifyCategory() {
     const [imagePreview, setImagePreview] = useState(null);
 
     const categorySchema = yup.object().shape({
-        name: yup.string().max(50, 'Category name must not exceed 50 characters'),
+        name: yup.string().max(50, 'Category name must not exceed 50 characters').typeError("Name must be a valid text"),
     })
 
     const getOneCategory = async () => {
