@@ -550,24 +550,15 @@ module.exports = {
       }
       const results = await db.Stock_History.findAndCountAll({
         where,
-        attributes: [
-          "id",
-          "branch_product_id",
-          "totalQuantity",
-          "quantity",
-          "status",
-          "createdAt",
-          "updatedAt",
-        ],
         include: [
           {
             model: db.Branch_Product,
+            as:"StockBranchProduct",
             attributes: ["id"],
             where: branchProductWhere,
             include: { model: db.Product, where: { isRemoved: 0 } },
           },
         ],
-
         limit: pagination.perPage,
         offset: (pagination.page - 1) * pagination.perPage,
         order,
@@ -593,6 +584,21 @@ module.exports = {
         error: error.message,
       });
     }
+  },
+  //get cart
+  async getCart(req, res) {
+    try {
+      const blabla = await db.Cart.findAll({
+        include:{
+          model: db.Branch_Product
+        }
+      });
+
+      res.status(200).send({
+        message: "blabla",
+        data: blabla,
+      });
+    } catch (err) {}
   },
 };
 // get branch product

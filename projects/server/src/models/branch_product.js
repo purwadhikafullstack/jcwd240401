@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       Branch_Product.belongsTo(models.Discount, { foreignKey: "discount_id" });
       Branch_Product.hasMany(models.Stock_History, {
         foreignKey: "branch_product_id",
+        as:"StockHistories"
       });
       Branch_Product.belongsToMany(models.Order, {
         through: models.Order_Item,
