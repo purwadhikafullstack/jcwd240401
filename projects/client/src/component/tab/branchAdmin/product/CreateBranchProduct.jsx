@@ -38,7 +38,7 @@ export default function CreateBranchProduct() {
     }
     const createBranchProductSchema = yup.object().shape({
         product_id: yup.string().trim().required("Product is required"),
-        origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50"),
+        origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50").typeError("Origin must be a valid text"),
         quantity: yup.number().required("Quantity is required").min(1, "Quantity must be at least 1").typeError('Quantity must be a valid number'),
     });
 

@@ -30,15 +30,15 @@ export default function ModifyProduct() {
     const uOMOptions = [{ label: "GR", value: "gr" }, { label: "ML", value: "ml" }]
     const modifyProductSchema = yup.object().shape({
         file: yup.mixed(),
-        name: yup.string().trim().max(50, "Maximum character is 50"),
+        name: yup.string().trim().max(50, "Maximum character is 50").typeError("Name must be a valid text"),
         category_id: yup.string().trim(),
-        description: yup.string().trim().max(500, "Maximum character is 500"),
-        weight: yup.string().trim()
+        description: yup.string().trim().max(500, "Maximum character is 500").typeError("Description must be a valid text"),
+        weight: yup.number()
             .test("is-positive-integer", "Weight must be a positive integer", (value) => {
                 return !isNaN(value) && parseInt(value) > 0;
             }),
         unitOfMeasurement: yup.string().trim().oneOf(["gr", "ml"], "Unit of measurement must be 'gr' or 'ml'"),
-        basePrice: yup.string().trim()
+        basePrice: yup.number()
             .test("is-valid-number", "Price must be a valid number", (value) => {
                 return !isNaN(value);
             })
@@ -46,8 +46,8 @@ export default function ModifyProduct() {
                 const numericValue = parseInt(value);
                 return numericValue >= 0 && numericValue <= 100000000;
             }),
-        storageInstruction: yup.string().trim().max(255, "Maximum character is 255"),
-        storagePeriod: yup.string().trim().max(255, "Maximum character is 255"),
+        storageInstruction: yup.string().trim().max(255, "Maximum character is 255").typeError("Storage instruction must be a valid text"),
+        storagePeriod: yup.string().trim().max(255, "Maximum character is 255").typeError("Storage period must be a valid text"),
     });
 
     const getOneProduct = async () => {
@@ -58,7 +58,7 @@ export default function ModifyProduct() {
                 if (data) {
                     setProductDetails({
                         name: data.name,
-                        file: `http://localhost:8000${data.imgProduct}`,
+                        file: `${process.env.REACT_APP_BASE_URL}${data.imgProduct}`,
                         category_id: data.category_id,
                         description: data.description,
                         weight: data.weight,
@@ -266,7 +266,7 @@ export default function ModifyProduct() {
                                     <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                                         <label htmlFor="weight" className="">Weight</label>
                                         <div className='relative'>
-                                            <InputField value={props.values.weight} id={"weight"} type={"string"} name="weight" onChange={props.handleChange} />
+                                            <InputField value={props.values.weight} id={"weight"} type={"number"} name="weight" onChange={props.handleChange} />
                                             {props.errors.weight && props.touched.weight && <div className="text-reddanger absolute top-12">{props.errors.weight}</div>}
                                         </div>
                                     </div>
@@ -287,7 +287,7 @@ export default function ModifyProduct() {
                                     <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                                         <label htmlFor="basePrice" className="">Base Price</label>
                                         <div className='relative'>
-                                            <InputField value={props.values.basePrice} id={"basePrice"} type={"string"} name="basePrice" onChange={props.handleChange} />
+                                            <InputField value={props.values.basePrice} id={"basePrice"} type={"number"} name="basePrice" onChange={props.handleChange} />
                                             {props.errors.basePrice && props.touched.basePrice && <div className="text-reddanger absolute top-12">{props.errors.basePrice}</div>}
                                         </div>
                                     </div>

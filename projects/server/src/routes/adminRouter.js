@@ -60,6 +60,7 @@ router.post(
   "/my-branch/branch-products",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
+  validatorMiddleware.createBranchProduct,
   adminController.addBranchProduct
 );
 // modify / remove branch product
@@ -67,6 +68,7 @@ router.patch(
   "/my-branch/branch-products/:id/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
+  validatorMiddleware.updateBranchProductDetails,
   adminController.modifyOrRemoveBranchProduct
 );
 // plus / minus branch product stock
@@ -74,6 +76,7 @@ router.patch(
   "/my-branch/branch-products/:id/stock/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
+  validatorMiddleware.updateBranchProductStock,
   adminController.plusOrMinusBranchProduct
 );
 // get all branch product

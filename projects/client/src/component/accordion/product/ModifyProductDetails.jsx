@@ -19,7 +19,7 @@ export default function ModifyProductDetails() {
   })
 
   const modifyBranchProductSchema = yup.object().shape({
-    origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50"),
+    origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50").typeError("Origin must be a valid text"),
   });
 
   let token = localStorage.getItem("token")
