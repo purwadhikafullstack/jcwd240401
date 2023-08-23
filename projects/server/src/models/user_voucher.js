@@ -17,6 +17,12 @@ module.exports = (sequelize, DataTypes) => {
   }
   User_Voucher.init(
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
       user_id: DataTypes.INTEGER,
       voucher_id: DataTypes.INTEGER,
       isUsed: DataTypes.BOOLEAN,
