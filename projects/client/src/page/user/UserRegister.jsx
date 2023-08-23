@@ -25,7 +25,7 @@ export default function UserRegister() {
 
     useEffect(() => {
         try{
-            axios.get("http://localhost:8000/api/auth/all-province").then((response) => {setProvinceData(response.data?.data)})
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-province`).then((response) => {setProvinceData(response.data?.data)})
         }catch(error){
             console.log(error)
         }
@@ -33,7 +33,7 @@ export default function UserRegister() {
 
     useEffect(() => {
         try{
-            axios.get(`http://localhost:8000/api/auth/all-city?province=${selectedProvince}`).then((response) => {setCityData(response.data?.data)})
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-city?province=${selectedProvince}`).then((response) => {setCityData(response.data?.data)})
         }catch(error){
             console.log(error)
         }

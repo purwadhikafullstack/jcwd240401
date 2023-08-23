@@ -8,39 +8,9 @@ import Button from './Button'
 import background from '../assets/BackgroundLeaves.jpg'
 
 export default function NavbarTop({city, province}) {
-    const [cityAddress, setCityAddress] = useState("")
-    const [provinceAddress, setProvinceAddress] = useState("")
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
     const navigate = useNavigate()
-
-    const getAddress = async() => {
-        try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/address`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if(response.data){
-                setCityAddress(response.data.data?.City?.city_name)
-                setProvinceAddress(response.data.data?.City?.Province?.province_name)
-            }
-        }catch(error){
-            console.error(error)
-            if(error.response){
-                console.error(error.response.message)
-            }
-        }
-    }
-    useEffect(() => {
-        if(token && profile.role === "3"){
-            getAddress()
-        }else{
-            setCityAddress("")
-            setProvinceAddress("")
-        }
-    },[token, profile])
 
     const routes = [
         {name: "Home"},
@@ -59,7 +29,7 @@ export default function NavbarTop({city, province}) {
             <div><img src={logo} alt="logo" /></div>
             <div className='flex gap-4'>
                 <HiOutlineLocationMarker className="w-6 h-6" />
-                <div>{token && profile.role === "3" ? `${cityAddress}, ${provinceAddress}` : city && province ? `${city}, ${province}` : ""}</div> 
+                <div>{ city && province ? `${city}, ${province}` : ""}</div> 
             </div>
         </div>
         <div className="w-full h-full col-span-1 flex justify-end gap-20 items-center font-inter">

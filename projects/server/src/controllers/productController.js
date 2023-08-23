@@ -668,8 +668,8 @@ module.exports = {
     }
   },
   async productsFromNearestBranch(req,res) {
-    const latitude = req.query.latitude ? req.query.latitude : "" 
-    const longitude = req.query.longitude ? req.query.longitude : ""
+    const latitude = req.query.latitude ? req.query.latitude : "-6.3102373" 
+    const longitude = req.query.longitude ? req.query.longitude : "106.7995611"
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
@@ -738,6 +738,15 @@ module.exports = {
             where: where,
             include: { model: db.Category, where: { isRemoved: 0 } },
           },
+          {
+            model: db.Branch,
+            include: {
+              model: db.City,
+              include: {
+                model: db.Province
+              }
+            }
+          }
         ],
         order: order,
         limit: pagination.perPage,
@@ -754,6 +763,7 @@ module.exports = {
 
       return res.status(200).send({
         message: "Success get branch product",
+        pagination,
         data: branchProductData
       })
     }catch(error){
