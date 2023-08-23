@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const { join } = require("path");
 const router = require("./routes");
+require("../src/helpers/scheduler/expiredDiscount")
 
 const PORT = process.env.PORT || 8000;
 const app = express();

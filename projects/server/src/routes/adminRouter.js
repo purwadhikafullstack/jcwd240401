@@ -5,6 +5,7 @@ const categorymulterMiddleware = require("../middleware/multerMiddleware/categor
 const productmulterMiddleware = require("../middleware/multerMiddleware/product");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
+const promoValidator = require("../middleware/validatorMiddleware");
 
 router.post(
   "/category",
@@ -106,6 +107,50 @@ router.get(
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   productController.allUnaddedProducts
+);
+//create discount
+router.post(
+  "/discounts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  promoValidator.validateCreateDiscount,
+  adminController.createDiscount
+);
+// get all discounts
+router.get(
+  "/discounts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllDiscount
+);
+//get all discount types
+router.get(
+  "/discount-types",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllDiscountType
+);
+//create voucher
+router.post(
+  "/vouchers",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  promoValidator.validateCreateVoucher,
+  adminController.createVoucher
+);
+// get all vouchers
+router.get(
+  "/vouchers",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllVoucher
+);
+// get all voucher types
+router.get(
+  "/voucher-types",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllVoucherType
 );
 
 router.get(

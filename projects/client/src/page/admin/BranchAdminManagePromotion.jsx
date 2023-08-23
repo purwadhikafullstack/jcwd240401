@@ -1,7 +1,11 @@
-import React from 'react'
+import React from "react";
+import BranchAdminManagePromotionContent from "../../component/admin/BranchAdminManagePromotionContent";
+import LayoutAdmin from "../../component/admin/LayoutAdmin";
 
 export default function BranchAdminManagePromotion() {
-    return (
-        <div>BranchAdminManagePromotion</div>
-    )
+  return (
+    <LayoutAdmin>
+        <BranchAdminManagePromotionContent/>
+    </LayoutAdmin>
+  );
 }

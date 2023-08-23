@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, oneOf } = require("express-validator");
 const db = require("../../models");
 
 const validate = (validations) => {
@@ -216,6 +216,80 @@ module.exports = {
       .isLength({ max: 255 })
       .withMessage("Maximum character is 255"),
   ]),
+  validateCreateDiscount: validate([
+    body("discount_type_id")
+      .notEmpty()
+      .withMessage("discount type is required"),
+    body("expiredDate")
+      .notEmpty()
+      .withMessage("expired date is required")
+      .isDate()
+      .withMessage("Invalid date format")
+      .custom((value) => {
+        const currentDate = new Date();
+        const selectedDate = new Date(value);
+        if (selectedDate < currentDate) {
+          throw new Error("expired date cannot be in the past");
+        }
+        return true;
+      }),
+    body("amount")
+      .if(body("discount_type_id").not().equals("1"))
+      .notEmpty()
+      .withMessage("amount cannot be empty")
+      .isNumeric()
+      .withMessage("amount has to be numeric"),
+  ]),
+  validateCreateVoucher: validate([
+    body("isReferral").isBoolean().withMessage("isReferral has to be boolean"),
+    body("voucher_type_id").notEmpty().withMessage("discount type is required"),
+    body("amount")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+    body("maxDiscount")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+
+    body("usedLimit")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+    body("expiredDate")
+      .optional()
+      .custom((value) => {
+        if (value) {
+          const currentDate = new Date();
+          const selectedDate = new Date(value);
+          if (selectedDate < currentDate) {
+            throw new Error("expired date cannot be in the past");
+          }
+        }
+        return true;
+      }),
+  ]),
   createBranchProduct: validate([
     body("product_id")
       .notEmpty()
@@ -280,13 +354,13 @@ module.exports = {
       .withMessage("password does not match"),
     body("province").notEmpty().withMessage("Province is required"),
     body("city").notEmpty().withMessage("City is required"),
-    body("streetName").notEmpty().withMessage("Street address is required")
+    body("streetName").notEmpty().withMessage("Street address is required"),
   ]),
   validateForgotPassword: validate([
     body("email")
       .isEmail()
       .withMessage("Incorrect email format")
       .notEmpty()
-      .withMessage("Email is required")
+      .withMessage("Email is required"),
   ]),
 };
