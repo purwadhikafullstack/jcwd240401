@@ -92,7 +92,7 @@ export default function CreateCategory() {
           setter={handleHideAlert}
         />
       ) : null}
-      <Formik
+      <Formik enableReinitialize
         initialValues={{ name: "", file: null }}
         validationSchema={createCategorySchema}
         onSubmit={handleSubmit}

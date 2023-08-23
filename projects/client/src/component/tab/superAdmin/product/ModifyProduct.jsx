@@ -29,7 +29,6 @@ export default function ModifyProduct() {
     const [imagePreview, setImagePreview] = useState(null);
     const uOMOptions = [{ label: "GR", value: "gr" }, { label: "ML", value: "ml" }]
     const modifyProductSchema = yup.object().shape({
-        file: yup.mixed(),
         name: yup.string().trim().max(50, "Maximum character is 50").typeError("Name must be a valid text"),
         category_id: yup.string().trim(),
         description: yup.string().trim().max(500, "Maximum character is 500").typeError("Description must be a valid text"),
@@ -212,7 +211,6 @@ export default function ModifyProduct() {
         console.log("file here:", file)
         if (file) {
             const previewUrl = URL.createObjectURL(file);
-            console.log(previewUrl)
             setImagePreview(previewUrl);
         }
     }
