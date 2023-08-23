@@ -353,5 +353,256 @@ module.exports = {
                 error: error.message
             })
         }
+    },
+    async registerUser(req,res) {
+        const transaction = await db.sequelize.transaction()
+        try {
+            const {name, email, phone, password, confirmPassword, province, city, streetName, referralCode} = req.body
+            const userData = await db.User.findOne({
+                where: {
+                    [db.Sequelize.Op.or] : [{email: email}, {phone: phone}]
+                }
+            })
+            if(userData) {
+                if(userData.email === email) {
+                    await transaction.rollback()
+                    return res.status(400).send({
+                        message: "There's already an account with this email"
+                    })
+                }
+                
+                if(userData.phone === phone) {
+                    await transaction.rollback()
+                    return res.status(400).send({
+                        message: "There's already an account with this phone number"
+                    })
+                }
+            }
+
+            const salt = await bcrypt.genSalt(10)
+            const hashPassword = await bcrypt.hash(password, salt)
+
+            if(confirmPassword !== password){
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "Password doesn't match"
+                })
+            }
+            const selectedProvince = await db.Province.findOne({
+                where: {
+                    province_name: province
+                },
+                attributes: {
+                    exclude: ["id"]
+                }
+            })
+
+            const selectedCity = await db.City.findOne({
+                where: {
+                    city_name: city,
+                    province_id: selectedProvince.province_id
+                },
+                attributes: {
+                    exclude: ["id"]
+                }
+            })
+
+            if(!selectedCity){
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "There is no city in the selected province"
+                })
+            }
+
+            const verificationToken = crypto.randomBytes(16).toString("hex")
+            const newUser = await db.User.create({
+                role_id: 3,
+                name: name,
+                email: email,
+                phone: phone,
+                password: hashPassword,
+                referralCode: referralCode,
+                verificationToken
+            }, {
+                transaction,
+            })
+
+            const responseData = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${city}+${province}&key=${opencageKey}`)
+            if(!responseData){
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "Can't get location's latitude and longitude"
+                })
+            }
+            const sanitizedResponse = JSON.stringify(responseData, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                    if (value === responseData.request) {
+                        return;
+                    }
+                }
+                return value;
+            });
+            const latlong = JSON.parse(sanitizedResponse)
+            const geometry = latlong.data.results[0].geometry
+
+            const userAddress = await db.Address.create({
+                user_id: newUser.id,
+                streetName: streetName,
+                city_id: selectedCity.city_id,
+                latitude: geometry.lat,
+                longitude: geometry.lng,
+                isMain: true
+            }, {
+                transaction
+            })
+
+            const link = `${process.env.BASE_PATH_FE}/verify-account/${verificationToken}`
+            const template = fs.readFileSync("./src/helpers/template/verifyaccount.html", "utf-8")
+            const templateCompile = handlebars.compile(template)
+            const registerEmail = templateCompile({link})
+            
+            await transporter.sendMail({
+                from: "Groceer-e",
+                to: email,
+                subject: "Verify Your Groceer-e Account",
+                html: registerEmail
+            })
+
+            await transaction.commit()
+
+            return res.status(200).send({
+                message: "You have registered to Groceer-e! Please check your email to verify your account",
+                User: newUser,
+                Address: userAddress
+            })
+
+        }catch(error){
+            await transaction.rollback()
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async verifyAccount(req,res) {
+        const token = req.query.token
+        try{
+
+            const userData = await db.User.findOne({
+                where: {
+                    verificationToken: token
+                }
+            })
+    
+            if(!userData){
+                return res.status(400).send({
+                    message: "token invalid"
+                })
+            }
+    
+            userData.isVerify = true
+            await userData.save()
+    
+            return res.status(200).send({
+                message: "Your account has been verified"
+            })
+        }catch(error){
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async forgotPassword(req,res) {
+        const {email} = req.body
+        const transaction = await db.sequelize.transaction()
+
+        try {
+            const userData = await db.User.findOne({
+                where: {
+                    email: email
+                }
+            })
+            if(!userData) {
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "Email not found"
+                })
+            }
+
+            const payload = {id: userData.id, name: userData.name, status: userData.isVerify, role: userData.role_id}
+            const token = jwt.sign(payload, secretKey, {
+                expiresIn: "30m"
+            })
+
+            userData.resetPasswordToken = token
+            await userData.save()
+
+            const link = `${process.env.BASE_PATH_FE}/reset-password/${token}`
+            const template = fs.readFileSync("./src/helpers/template/resetpassword.html", "utf-8")
+            const templateCompile = handlebars.compile(template)
+            const registerEmail = templateCompile({link})
+            
+            await transporter.sendMail({
+                from: "Groceer-e",
+                to: email,
+                subject: "Reset Your Groceer-e Account Password",
+                html: registerEmail
+            })
+
+            await transaction.commit()
+
+            return res.status(200).send({
+                message: "Check your email to reset your password",
+            })
+        }catch(error){
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
+    },
+    async resetPassword(req,res) {
+        const token = req.query.token
+        const transaction = await db.sequelize.transaction()
+
+        const {password, confirmPassword } = req.body
+        try{
+            const userData = await db.User.findOne({
+                where: {
+                    resetPasswordToken: token
+                }
+            })
+            if(!userData) {
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "token invalid"
+                })
+            }
+
+            if(confirmPassword !== password) {
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "Password doesn't match"
+                })
+            }
+
+            const salt = await bcrypt.genSalt(10)
+            const hashPassword = await bcrypt.hash(password, salt)
+
+            userData.password = hashPassword
+            await userData.save()
+
+            await transaction.commit()
+
+            return res.status(200).send({
+                message: "You have reset your password"
+            })
+        }catch(error){
+            return res.status(500).send({
+                message: "Server error",
+                error: error.message
+            })
+        }
     }
 }

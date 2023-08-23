@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import * as yup from "yup";
+import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
+
 import Modal from '../../../Modal';
 import InputField from '../../../InputField';
 import AlertPopUp from '../../../AlertPopUp';
-import axios from 'axios';
 
 export default function CreateProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -15,7 +16,7 @@ export default function CreateProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -35,26 +36,14 @@ export default function CreateProduct() {
 
     const createProductSchema = yup.object().shape({
         file: yup.mixed(),
-        name: yup.string().trim().required("Product name is required").max(50, "Maximum character is 50"),
+        name: yup.string().trim().required("Product name is required").max(50, "Maximum character is 50").typeError("Name must be a valid text"),
         category_id: yup.string().trim().required("Category is required"),
-        description: yup.string().trim().required("Description is required").max(500, "Maximum character is 500"),
-        weight: yup.string().trim().required("Weight is required")
-        // .test("is-positive-integer", "Weight must be a positive integer", (value) => {
-        //     return !isNaN(value) && parseInt(value) > 0;
-        // }),
-        ,
+        description: yup.string().trim().required("Description is required").max(500, "Maximum character is 500").typeError("Description must be a valid text"),
+        weight: yup.number().required("Weight is required").min(5, "Weight must be at least 5").typeError('Weight must be a valid number'),
         unitOfMeasurement: yup.string().trim().required("Unit of measurement is required").oneOf(["gr", "ml"], "Unit of measurement must be 'gr' or 'ml'"),
-        basePrice: yup.string().trim().required("Price is required")
-        // .test("is-valid-number", "Price must be a valid number", (value) => {
-        //     return !isNaN(value);
-        // })
-        // .test("is-price-valid-range", "Price must be between 0 and 100,000,000", (value) => {
-        //     const numericValue = parseInt(value);
-        //     return numericValue >= 0 && numericValue <= 100000000;
-        // }),
-        ,
-        storageInstruction: yup.string().trim().required("Storage instruction is required").max(255, "Maximum character is 255"),
-        storagePeriod: yup.string().trim().required("Storage period is required").max(255, "Maximum character is 255"),
+        basePrice: yup.number().required("Price is required").min(1000, "Weight must be at least Rp 1.000").typeError('Base price must be a valid number'),
+        storageInstruction: yup.string().trim().required("Storage instruction is required").max(255, "Maximum character is 255").typeError("Storage instruction must be a valid text"),
+        storagePeriod: yup.string().trim().required("Storage period is required").max(255, "Maximum character is 255").typeError("Storage period must be a valid text"),
     });
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
@@ -71,7 +60,7 @@ export default function CreateProduct() {
         formData.append('storageInstruction', storageInstruction);
         formData.append('storagePeriod', storagePeriod);
         try {
-            const response = await axios.post("http://localhost:8000/api/admins/product", formData, {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/product`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -162,7 +151,7 @@ export default function CreateProduct() {
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                             <label htmlFor="weight" className="">Weight <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
-                                <InputField value={props.values.weight} id={"weight"} type={"string"} name="weight" onChange={props.handleChange} />
+                                <InputField value={props.values.weight} id={"weight"} type={"number"} name="weight" onChange={props.handleChange} />
                                 {props.errors.weight && props.touched.weight && <div className="text-sm text-reddanger absolute top-12">{props.errors.weight}</div>}
                             </div>
                         </div>
@@ -183,7 +172,7 @@ export default function CreateProduct() {
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                             <label htmlFor="basePrice" className="">Base Price <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
-                                <InputField value={props.values.basePrice} id={"basePrice"} type={"string"} name="basePrice" onChange={props.handleChange} />
+                                <InputField value={props.values.basePrice} id={"basePrice"} type={"number"} name="basePrice" onChange={props.handleChange} />
                                 {props.errors.basePrice && props.touched.basePrice && <div className="text-sm text-reddanger absolute top-12">{props.errors.basePrice}</div>}
                             </div>
                         </div>

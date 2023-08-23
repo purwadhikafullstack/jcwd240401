@@ -112,10 +112,26 @@ module.exports = {
 
       const status = quantity <= 5 ? "restock" : "ready";
 
-      const newBranchProduct = await user.Branch.addProduct(product, {
-        through: { quantity, origin, status },
-        transaction,
-      });
+      const newBranchProduct = await db.Branch_Product.create(
+        {
+          branch_id: user.Branch.id,
+          product_id: product_id,
+          quantity: quantity,
+          origin: origin,
+          status: status,
+        },
+        { transaction, returning: ["id"] }
+      );
+
+      await db.Stock_History.create(
+        {
+          branch_product_id: newBranchProduct.id, 
+          totalQuantity: quantity,
+          quantity: quantity,
+          status: "restock by admin",
+        },
+        { transaction }
+      );
 
       await transaction.commit();
 
@@ -204,24 +220,12 @@ module.exports = {
     const parsedQuantity = parseInt(quantity);
     try {
       const getBranchProduct = await db.Branch_Product.findOne({
-        attributes: [
-          "id",
-          "branch_id",
-          "product_id",
-          "quantity",
-          "origin",
-          "discount_id",
-          "status",
-          "isRemoved",
-          "createdAt",
-          "updatedAt",
-        ],
         where: {
           id: parseInt(req.params.id),
           isRemoved: false,
         },
       });
-      console.log(getBranchProduct);
+      console.log("ini branch product", getBranchProduct);
       if (!getBranchProduct) {
         await transaction.rollback();
         return res.status(404).send({
@@ -364,18 +368,6 @@ module.exports = {
       }
 
       const results = await db.Branch_Product.findAndCountAll({
-        attributes: [
-          "id",
-          "branch_id",
-          "product_id",
-          "quantity",
-          "origin",
-          "discount_id",
-          "status",
-          "isRemoved",
-          "createdAt",
-          "updatedAt",
-        ],
         where,
         include: [
           {
@@ -423,18 +415,6 @@ module.exports = {
         return res.status(401).send({ message: "User not found" });
       }
       const results = await db.Branch_Product.findAll({
-        attributes: [
-          "id",
-          "branch_id",
-          "product_id",
-          "quantity",
-          "origin",
-          "discount_id",
-          "status",
-          "isRemoved",
-          "createdAt",
-          "updatedAt",
-        ],
         where: { branch_id: user.Branch.id, isRemoved: 0 },
         include: [
           {
@@ -522,12 +502,11 @@ module.exports = {
       if (!user) {
         return res.status(401).send({ message: "User not found" });
       }
-      const {  discount_type_id, amount, expiredDate, products } =
-        req.body;
+      const { discount_type_id, amount, expiredDate, products } = req.body;
 
       const isExist = await db.Discount.findOne({
         where: {
-          branch_id:user.Branch.id,
+          branch_id: user.Branch.id,
           discount_type_id,
           amount,
           expiredDate,
@@ -1050,9 +1029,84 @@ module.exports = {
       });
     }
   },
+
+  //stock history
+  async getStockHistory(req, res) {
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      branch_product_id: req.query.filterBranchProduct || "",
+      status: req.query.filterStatus || "",
+      date: req.query.sortDate,
+    };
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+
+      const where = {};
+      const branchProductWhere = {
+        branch_id: user.Branch.id,
+        isRemoved: 0,
+      };
+      const order = [];
+      if (pagination.branch_product_id) {
+        where.branch_product_id = pagination.branch_product_id;
+      }
+      if (pagination.status) {
+        where.status = pagination.status;
+      }
+      if (pagination.date) {
+        if (pagination.date.toUpperCase() === "DESC") {
+          order.push(["createdAt", "DESC"]);
+        } else {
+          order.push(["createdAt", "ASC"]);
+        }
+      }
+      const results = await db.Stock_History.findAndCountAll({
+        where,
+        include: [
+          {
+            model: db.Branch_Product,
+            where: branchProductWhere,
+            include: { model: db.Product, where: { isRemoved: 0 } },
+          },
+        ],
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+        order,
+      });
+      console.log(results);
+      const totalCount = results.count;
+      pagination.totalData = totalCount;
+
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No branch products found",
+        });
+      }
+      res.status(200).send({
+        message: "Successfully retrieved branch products",
+        pagination,
+        data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
 };
-// get branch product
-// get branch product per id
 
 // sales report (SA & A)
 // stock history (A)

@@ -1,22 +1,20 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import {useSelector} from 'react-redux'
 import unauthorized from '../assets/Unauthorized.png'
 import background from '../assets/BackgroundLeaves.jpg'
 import Button from '../component/Button'
 
 export default function Unauthorized() {
     const navigate = useNavigate()    
-    const location = useLocation()
+    const profile = useSelector((state) => state.auth.profile)
 
     const goToHome = () => {
-        if (location.state && location.state?.from) {
-            const fromPath = location.state?.from?.pathname;
-            if (fromPath.startsWith('/admin')) {
-                navigate('/admin', {replace: true});
-            } else if(fromPath.startsWith('/user')) {
-                navigate('/', {replace: true})
-            }
-        }   
+        if(profile.role === '1' || profile.role === '2') {
+            navigate("/admin")
+        }else {
+            navigate("/")
+        } 
     }
   return (
     <>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import SearchBar from '../../../SearchBar';
 import { Pagination } from "flowbite-react";
+
+import SearchBar from '../../../SearchBar';
 import Modal from '../../../Modal';
 import CustomDropDowm from '../../../CustomDropdown';
 import ModalBranchProduct from '../../../ModalBranchProduct';
@@ -28,7 +29,7 @@ export default function AllBranchProduct() {
     let token = localStorage.getItem("token")
     const getCategory = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -50,7 +51,7 @@ export default function AllBranchProduct() {
     }
     const getBranchProduct = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/my-branch/branch-products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&filterStatus=${filter.status}&sortName=${filter.sortName}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&filterStatus=${filter.status}&sortName=${filter.sortName}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (response.data) {
@@ -86,28 +87,17 @@ export default function AllBranchProduct() {
             ...filter, [e.target.id]: e.target.value
         })
     }
-    const handleCategory = (obj, name) => {
+
+    const handleDropdownChange = (obj, name) => {
         setFilter((prevFilter) => ({
             ...prevFilter,
-            category: obj.value,
+            [name]: obj.value,
         }));
-    };
-    const handleState = (obj, name) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            status: obj.value,
-        }));
-    };
-    const handleName = (obj, name) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            sortName: obj.value,
-        }));
-    };
+    }
 
     const handleRemove = async (productId) => {
         try {
-            const response = await axios.patch(`http://localhost:8000/api/admins/my-branch/branch-products/${productId}/remove`, {}, {
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${productId}/remove`, {}, {
                 headers: { Authorization: `Bearer ${token}` },
             })
             if (response.status === 200) {
@@ -136,16 +126,16 @@ export default function AllBranchProduct() {
     useEffect(() => {
         getCategory()
         getBranchProduct()
-    }, [filter])
+    }, [filter, currentPage])
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Enter here to search branch product by name..." />
-                <CustomDropDowm options={nameOptions} onChange={handleName} placeholder={"Sort by Name"} />
-                <CustomDropDowm options={allCategory} onChange={handleCategory} placeholder={"Filter by Category"} />
-                <CustomDropDowm options={statusOptions} onChange={handleState} placeholder={"Filter by Status"} />
+                <CustomDropDowm options={nameOptions} onChange={(e) => handleDropdownChange(e, "sortName")} placeholder={"Sort by Name"} />
+                <CustomDropDowm options={allCategory} onChange={(e) => handleDropdownChange(e, "category")} placeholder={"Filter by Category"} />
+                <CustomDropDowm options={statusOptions} onChange={(e) => handleDropdownChange(e, "status")} placeholder={"Filter by Status"} />
             </div>
             <div className='w-full'>
                 <div className="grid gap-2">
@@ -153,7 +143,7 @@ export default function AllBranchProduct() {
                         <thead className="border-b-2 border-maingreen text-maingreen uppercase">
                             <tr>
                                 <th className="py-2 px-4" style={{ width: '45%' }}>Product</th>
-                                <th className="py-2 px-4 hidden lg:table-cell" style={{ width: '35%%' }}>Details</th>
+                                <th className="py-2 px-4 hidden xl:table-cell" style={{ width: '35%%' }}>Details</th>
                                 <th className="py-2 px-4" style={{ width: '7.5%' }}>Status</th>
                                 <th className="py-2 px-4" style={{ width: '7.5%' }}>Qty</th>
                                 <th className="py-2 px-4" style={{ width: '5%' }}></th>
@@ -163,8 +153,8 @@ export default function AllBranchProduct() {
                             {allBranchProduct.length !== 0 && allBranchProduct.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-100 border-b-2 border-gray-200">
                                     <td className="py-2 px-4 cursor-pointer" style={{ width: '45%' }} onClick={() => setSelectedProduct(item.id)}>
-                                        <div className='grid grid-cols-1 sm:grid-cols-2 justify-center text-sm'>
-                                            <div className='hidden sm:block'>
+                                        <div className='grid grid-cols-1 lg:grid-cols-2 justify-center text-sm'>
+                                            <div className='hidden lg:block'>
                                                 <img
                                                     className="w-28 h-28 justify-center mx-auto m-2 object-cover"
                                                     src={`http://localhost:8000${item?.Product?.imgProduct}`}
@@ -180,7 +170,7 @@ export default function AllBranchProduct() {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="py-2 px-4 hidden lg:table-cell cursor-pointer" style={{ width: '35%' }} onClick={() => setSelectedProduct(item.id)}>
+                                    <td className="py-2 px-4 hidden xl:table-cell cursor-pointer" style={{ width: '35%' }} onClick={() => setSelectedProduct(item.id)}>
                                         {item?.Product?.description.slice(0, 100)}
                                         {item?.Product?.description.length > 100 && (
                                             <span className="text-sm">...</span>
