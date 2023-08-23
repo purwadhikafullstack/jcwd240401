@@ -7,6 +7,7 @@ import Modal from '../../../Modal';
 import CustomDropDowm from '../../../CustomDropdown';
 import ModalProduct from '../../../ModalProduct';
 import AlertPopUp from '../../../AlertPopUp';
+import rupiah from '../../../../helpers/rupiah';
 
 export default function AllProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -155,7 +156,7 @@ export default function AllProduct() {
                             <tr>
                                 <th className="py-2 px-4" style={{ width: '40%' }}>Product</th>
                                 <th className="py-2 px-4 hidden lg:table-cell" style={{ width: '40%%' }}>Description</th>
-                                <th className="py-2 px-4" style={{ width: '15%' }}>Base Price</th>
+                                <th className="py-2 px-4" style={{ width: '15%' }}>Price</th>
                                 <th className="py-2 px-4" style={{ width: '5%' }}></th>
                             </tr>
                         </thead>
@@ -163,8 +164,8 @@ export default function AllProduct() {
                             {allProduct.length !== 0 && allProduct.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-100 border-b-2 border-gray-200">
                                     <td className="py-2 px-4 cursor-pointer" style={{ width: '40%' }} onClick={() => setSelectedProduct(item.id)}>
-                                        <div className='grid grid-cols-2 justify-center text-sm'>
-                                            <div>
+                                        <div className='grid grid-cols-1 md:grid-cols-2 justify-center text-sm'>
+                                            <div className='hidden md:block'>
                                                 <img
                                                     className="w-28 h-28 justify-center mx-auto m-2 object-cover"
                                                     src={`http://localhost:8000${item.imgProduct}`}
@@ -185,8 +186,8 @@ export default function AllProduct() {
                                             <span className="text-sm">...</span>
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{`Rp ${item.basePrice.toLocaleString("id-ID")}`}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger'><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{rupiah(item.basePrice)}</td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center'><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allProduct.length === 0 && (
