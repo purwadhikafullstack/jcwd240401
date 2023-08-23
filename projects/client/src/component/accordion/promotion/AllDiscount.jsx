@@ -45,11 +45,11 @@ export default function AllDiscount() {
 
   //table data
   const arrayData = [];
-  const now = dayjs();
+  const tomorrow = dayjs().add(1, "day");
+  const formattedTomorrow = tomorrow.format("YYYY-MM-DD"); // Get tomorrow's date
 
   const TableRow = () => {
     dataAllDiscount?.forEach((data, index) => {
-      console.log(new Date(data.expiredDate), now.toDate(), "ini tanggal");
       arrayData.push(
         <tr
           key={data.id}
@@ -70,7 +70,8 @@ export default function AllDiscount() {
             {new Date(data.createdAt).toLocaleDateString()}
           </td>
           <td className="px-6 py-4">
-            {new Date(data.expiredDate) < now.toDate() ? (
+            {new Date(data.expiredDate).setHours(0, 0, 0, 0) <
+            new Date().setHours(0, 0, 0, 0) ? (
               <span className=" text-reddanger">expired</span>
             ) : (
               <span className=" text-maingreen">on going</span>

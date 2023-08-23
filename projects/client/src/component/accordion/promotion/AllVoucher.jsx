@@ -45,9 +45,10 @@ export default function AllVoucher() {
 
   const arrayData = [];
   const TableRow = () => {
-    const now = dayjs();
+
 
     dataAllVoucher?.forEach((data, index) => {
+      console.log(new Date(data.expiredDate).setHours(0,0,0,0), new Date().setHours(0,0,0,0))
       arrayData.push(
         <tr
           key={data.id}
@@ -75,7 +76,7 @@ export default function AllVoucher() {
             {new Date(data.createdAt).toLocaleDateString()}
           </td>
           <td className="px-6 py-4">
-            {new Date(data.expiredDate) <= now.toDate() ? (
+            {new Date(data.expiredDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0) ? (
               <span className=" text-reddanger">expired</span>
             ) : (
               <span className=" text-maingreen">on going</span>
