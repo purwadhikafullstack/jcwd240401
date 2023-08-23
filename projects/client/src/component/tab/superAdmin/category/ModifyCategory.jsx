@@ -64,7 +64,7 @@ export default function ModifyCategory() {
         }
     }
 
-    const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues }) => {
+    const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues, setFieldValue }) => {
         setSubmitting(true)
         const { name, file } = values;
         console.log(name)
@@ -157,7 +157,7 @@ export default function ModifyCategory() {
             'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
     };
 
-    function preview() {
+    function preview(event) {
         const file = event.target.files[0];
         console.log("file here:", file)
         if (file) {
@@ -212,7 +212,7 @@ export default function ModifyCategory() {
                                         )}
                                     </div>
                                     <div className='relative'>
-                                        <input className='border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0' type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); preview() }} />
+                                        <input className='border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0' type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); preview(e) }} />
                                         {props.errors.file && props.touched.file && <div className="text-reddanger absolute top-12">{props.errors.file}</div>}
                                     </div>
                                 </div>
