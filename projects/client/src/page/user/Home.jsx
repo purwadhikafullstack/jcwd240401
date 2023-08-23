@@ -12,13 +12,25 @@ import { remove } from '../../store/reducer/authSlice'
 import productImg from '../../assets/BackgroundLeaves.jpg'
 import Button from '../../component/Button'
 import ProductCard from '../../component/ProductCard'
+import { Pagination } from 'flowbite-react'
+import CustomDropdown from '../../component/CustomDropdown'
+
 
 export default function Home() {
     const [latitude, setLatitude] = useState("")
     const [longitude, setLongitude] = useState("")
     const [error, setError] = useState("")
-    const [nearestBranch, setNearestBranch] = useState([])
+    const [cityAddress, setCityAddress] = useState("")
+    const [provinceAddress, setProvinceAddress] = useState("")
     const [categories, setCategories] = useState([])
+    const [productData, setProductData] = useState([])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [filter, setFilter] = useState({
+        search: "",
+        sortName: "",
+        sortPrice: ""
+    })
 
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
@@ -60,19 +72,56 @@ export default function Home() {
         }
     }, [token]);
 
-    useEffect(() => {
-        if (token && profile.role === "3"){
-            return
-        }
+    const getAddress = async() => {
         try{
-            axios.get(`http://localhost:8000/api/auth/nearest-branch?latitude=${latitude}&longitude=${longitude}`).then((response) => setNearestBranch(response.data))
-        }catch(error){
-            console.log(error)
-        }
-    }, [latitude, longitude, token, profile])
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/address`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
 
-    const city = nearestBranch.branchData?.City?.city_name
-    const province = nearestBranch.branchData?.City?.Province?.province_name
+            if(response.data){
+                setLatitude(response.data.data?.latitude)
+                setLongitude(response.data.data?.longitude)
+                setCityAddress(response.data.data?.City?.city_name)
+                setProvinceAddress(response.data.data?.City?.Province?.province_name)
+            }
+        }catch(error){
+            console.error(error)
+            if(error.response){
+                console.error(error.response.message)
+            }
+        }
+    }
+    useEffect(() => {
+        if(token && profile.role === "3"){
+            getAddress()
+        }else{
+            setCityAddress("")
+            setProvinceAddress("")
+        }
+    },[token, profile])
+
+    useEffect(() => {
+        try{
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${currentPage}&search=&filterCategory=&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`)
+            .then((response) => {
+                if(response.data){
+                    setProductData(response.data.data?.rows)
+                }
+                if(response.data.pagination) {
+                    setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
+                }
+            })
+        }catch(error){
+            if(error.response){
+                console.error(error.response.message)
+            }
+        }
+    }, [latitude, longitude, filter.search, filter.sortName, filter.sortPrice, currentPage])
+
+    const city =  (token && profile.role === "3") ? cityAddress : productData[0]?.Branch?.City?.city_name 
+    const province = (token && profile.role === "3") ? provinceAddress : productData[0]?.Branch?.City?.Province?.province_name
 
     useEffect(() => {
         try{
@@ -82,21 +131,45 @@ export default function Home() {
         }
     }, [])
 
-    const optionsName = ["Sort By Name"]
-    const optionsPrice = ["Sort By Price"]
-
     const handleLogout = () => {
         dispatch(remove())
         localStorage.removeItem("token")
         navigate("/")
     }
 
+    const handleSearchValue = (e) => {
+        setFilter((prevFilter) => ({
+            ...prevFilter,
+            search: e.target.value,
+        }));
+    }
+
+    const onPageChange = (page) => {
+        setProductData([]);
+        setCurrentPage(page)
+    }
+
+    const handleChangeDropdownName = (obj) => {
+        setFilter((prevFilter) => ({
+            ...prevFilter,
+            sortName: obj.value,
+        }));
+    };
+    const handleChangeDropdownPrice = (obj) => {
+        setFilter((prevFilter) => ({
+            ...prevFilter,
+            sortPrice: obj.value,
+        }));
+    };
+    const nameOptions = [{ label: "Default", value: "" }, { label: "Product Name: A-Z", value: "ASC" }, { label: "Product Name: Z-A", value: "DESC" }]
+    const priceOptions = [{ label: "Default", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
+    
     return (
         <>
         <NavbarTop city={city} province={province}/>
         <div className="w-full flex flex-col items-center">
             <div className="w-6/12 my-10">
-                <SearchBar placeholder={"Search Product"}/>
+                <SearchBar value={filter.search} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
             </div>
             <div className="w-6/12 h-64 mb-10">
                 <Carousel>
@@ -114,11 +187,25 @@ export default function Home() {
                 ))}
             </div>
             <div className='w-6/12 flex gap-5 mb-10'>
-                <Dropdown options={optionsName} placeholder={"Sort By Name"}/>
-                <Dropdown options={optionsPrice} placeholder={"Sort By Price"}/>
+                <CustomDropdown options={nameOptions} onChange={handleChangeDropdownName} placeholder={"Sort by Name"} />
+                <CustomDropdown options={priceOptions} onChange={handleChangeDropdownPrice} placeholder={"Sort by Price"} />
             </div>
-            <div className='w-6/12 flex mb-20'>
-                <ProductCard />
+            <div className='w-6/12 flex mb-20 justify-evenly'>
+                {productData.map((product, index) => (
+                    <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`}/>
+                ))}
+            </div>
+            <div className='flex justify-center'>
+                <Pagination
+                    currentPage={currentPage}
+                    onPageChange={onPageChange}
+                    showIcons
+                    layout="pagination"
+                    totalPages={totalPages}
+                    nextLabel="Next"
+                    previousLabel="Back"
+                    className="mx-auto"
+                />
             </div>
             {token ? <button onClick={handleLogout}>Log Out</button> : null}
         </div>
