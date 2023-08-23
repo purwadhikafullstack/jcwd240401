@@ -6,6 +6,6 @@ const userMiddleware = require("../middleware/authMiddleware")
 router.get("/profile", userController.getProfileWithVerificationToken)
 router.get("/address", userMiddleware.verifyToken, userController.getAddress)
 router.get("/branch-products", productController.productsFromNearestBranch)
-router.get("/carts", adminController.getCart);
+
 
 module.exports = router;
