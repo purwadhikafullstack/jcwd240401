@@ -8,8 +8,7 @@ const CustomHeader = ({ tabContent, titleContent, setContent }) => {
   };
   return (
     <div className="flex flex-col items-center">
-      <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4">{titleContent}</div>
-
+      <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">{titleContent}</div>
       <div className="w-full font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul
           className="flex flex-wrap -mb-px text-center"
@@ -31,7 +30,7 @@ const CustomHeader = ({ tabContent, titleContent, setContent }) => {
                 aria-selected={activeTab === data.name ? "true" : "false"}
                 onClick={() => handleTabClick(data.name, data.tab)}
               >
-                <span className=" text-xl hidden lg:block">{data.name}</span>
+                <span className="text-xl hidden lg:block w-40">{data.name}</span>
                 <span className="text-darkgreen lg:hidden">{data.icon}</span>
               </button>
             </li>
