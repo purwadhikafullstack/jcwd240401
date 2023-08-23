@@ -4,6 +4,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("User_Vouchers", {
       id: {
+        field: "id",
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
