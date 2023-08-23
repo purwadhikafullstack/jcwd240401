@@ -291,7 +291,6 @@ module.exports = {
         }
         return true;
       }),
-    // body("minTransaction").isNumeric().withMessage("amount has to be numeric"),
-    // body("maxDiscount").isNumeric().withMessage("amount has to be numeric"),
+    
   ]),
 };

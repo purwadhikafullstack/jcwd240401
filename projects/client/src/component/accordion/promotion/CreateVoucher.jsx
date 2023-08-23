@@ -90,37 +90,7 @@ export default function CreateVoucher() {
 
   const createVoucherSchema = yup.object().shape({
     isReferral: yup.boolean(),
-    // voucher_type_id: yup
-    //   .number()
-    //   .when("isReferral", (isReferral, createVoucherSchema) => {
-    //     if (isReferral == true)
-    //       return createVoucherSchema.required("voucher type is required");
-
-    //     return createVoucherSchema;
-    //   }),
-    // amount: yup.number().typeError("amount must be a number"),
-    // amount: yup
-    //   .number()
-    //   .typeError("amount must be a number")
-    //   .when("voucher_type_id", (voucher_type_id, createVoucherSchema) => {
-    //     if (voucher_type_id == "2")
-    //       return createVoucherSchema
-    //         .min(1, "amount must be greater than 1")
-    //         .max(100, "amount cannot be greater than 100");
-
-    //     if (voucher_type_id == "3")
-    //       return createVoucherSchema.min(1, "amount must be greater than 1");
-
-    //     return createVoucherSchema;
-    //   }),
-    // minTransaction: yup
-    //   .number()
-    //   .when("isReferral", (isReferral, createVoucherSchema) => {
-    //     if (isReferral == false)
-    //       return createVoucherSchema
-    //         .min(0, "amount must be greater than zero")
-    //         .required("amount is required");
-    //   }),
+    
   });
   return (
     <div className="flex flex-col w-5/6 mx-auto">

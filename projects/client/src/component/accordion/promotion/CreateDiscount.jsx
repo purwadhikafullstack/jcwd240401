@@ -244,9 +244,9 @@ export default function CreateDiscount() {
                           className=" form-checkbox text-maindarkgreen rounded-sm mr-1 "
                           checked={props.values.products.includes(
                             data.product_id
-                          )} // Check if product_id is in the array
+                          )} 
                           onChange={() => {
-                            // Toggle the product_id in the array
+                            
                             const updatedProducts =
                               props.values.products.includes(data.product_id)
                                 ? props.values.products.filter(
