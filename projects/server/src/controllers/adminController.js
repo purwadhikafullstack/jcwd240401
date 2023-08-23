@@ -220,24 +220,12 @@ module.exports = {
     const parsedQuantity = parseInt(quantity);
     try {
       const getBranchProduct = await db.Branch_Product.findOne({
-        attributes: [
-          "id",
-          "branch_id",
-          "product_id",
-          "quantity",
-          "origin",
-          "discount_id",
-          "status",
-          "isRemoved",
-          "createdAt",
-          "updatedAt",
-        ],
         where: {
           id: parseInt(req.params.id),
           isRemoved: false,
         },
       });
-      console.log(getBranchProduct);
+      console.log("ini branch product", getBranchProduct);
       if (!getBranchProduct) {
         await transaction.rollback();
         return res.status(404).send({
@@ -380,18 +368,6 @@ module.exports = {
       }
 
       const results = await db.Branch_Product.findAndCountAll({
-        attributes: [
-          "id",
-          "branch_id",
-          "product_id",
-          "quantity",
-          "origin",
-          "discount_id",
-          "status",
-          "isRemoved",
-          "createdAt",
-          "updatedAt",
-        ],
         where,
         include: [
           {
@@ -439,18 +415,6 @@ module.exports = {
         return res.status(401).send({ message: "User not found" });
       }
       const results = await db.Branch_Product.findAll({
-        attributes: [
-          "id",
-          "branch_id",
-          "product_id",
-          "quantity",
-          "origin",
-          "discount_id",
-          "status",
-          "isRemoved",
-          "createdAt",
-          "updatedAt",
-        ],
         where: { branch_id: user.Branch.id, isRemoved: 0 },
         include: [
           {
