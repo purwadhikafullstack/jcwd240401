@@ -14,17 +14,17 @@ module.exports = {
      */
     await queryInterface.bulkInsert("Voucher_types", [
       {
-        type: "free shipping",
+        type: "Free shipping",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        type: "percentage",
+        type: "Percentage",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        type: "nominal",
+        type: "Nominal",
         createdAt: new Date(),
         updatedAt: new Date(),
       },
