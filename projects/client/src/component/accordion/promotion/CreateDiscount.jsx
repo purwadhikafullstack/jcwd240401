@@ -85,17 +85,14 @@ export default function CreateDiscount() {
       }
     } catch (error) {
       const response = error.response;
-      console.log(response.data);
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
         if (msg) {
           setErrorMessage(`${msg}`);
         }
       }
-      console.log(errorMessage, "ini error mesek");
       if (response.data.error) {
         const errMsg = response.data.error;
-        console.log(errMsg);
 
         setErrorMessage(`${errMsg}`);
         handleShowAlert("open");

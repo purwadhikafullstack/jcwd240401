@@ -52,7 +52,6 @@ export default function CreateVoucher() {
         values,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log(response, "ini");
       if (response.status === 201) {
         actions.resetForm();
         setErrorMessage("");
@@ -61,7 +60,6 @@ export default function CreateVoucher() {
       }
     } catch (error) {
       const response = error.response;
-      console.log(error.response.status, "ini ");
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
         if (msg) {
@@ -72,7 +70,6 @@ export default function CreateVoucher() {
       if (response.status === 400) {
         setErrorMessage(`${response.data.message}`);
       }
-      console.log(errorMessage, "ini error mesek");
       if (response.data.error) {
         const errMsg = response.data.error;
         console.log(errMsg);
