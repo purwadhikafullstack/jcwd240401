@@ -69,7 +69,7 @@ export default function CreateDiscount() {
     setCurrentPage(page);
   };
 
-  const handleSubmit = async (values, { setStatus }) => {
+  const handleSubmit = async (values, actions) => {
     let token = localStorage.getItem("token");
     try {
       const response = await axios.post(
@@ -78,6 +78,7 @@ export default function CreateDiscount() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.status === 200) {
+        actions.resetForm();
         setErrorMessage("");
         setSuccessMessage(response.data?.message);
         handleShowAlert("open");
@@ -88,7 +89,6 @@ export default function CreateDiscount() {
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
         if (msg) {
-          setStatus({ success: false, msg });
           setErrorMessage(`${msg}`);
         }
       }
@@ -96,7 +96,7 @@ export default function CreateDiscount() {
       if (response.data.error) {
         const errMsg = response.data.error;
         console.log(errMsg);
-        setStatus({ success: false, errors: errMsg });
+
         setErrorMessage(`${errMsg}`);
         handleShowAlert("open");
       }
@@ -156,7 +156,7 @@ export default function CreateDiscount() {
           onSubmit={handleSubmit}
         >
           {(props) => (
-            <form>
+            <form id="myDiscountForm">
               <div>
                 <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                   <label htmlFor="discount_type_id" className="">

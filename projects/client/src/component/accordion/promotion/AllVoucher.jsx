@@ -45,10 +45,11 @@ export default function AllVoucher() {
 
   const arrayData = [];
   const TableRow = () => {
-
-
     dataAllVoucher?.forEach((data, index) => {
-      console.log(new Date(data.expiredDate).setHours(0,0,0,0), new Date().setHours(0,0,0,0))
+      console.log(
+        new Date(data.expiredDate).setHours(0, 0, 0, 0),
+        new Date().setHours(0, 0, 0, 0)
+      );
       arrayData.push(
         <tr
           key={data.id}
@@ -70,13 +71,18 @@ export default function AllVoucher() {
             {data.maxDiscount ? rupiah(data.maxDiscount) : "-"}
           </td>
           <td className="px-6 py-4">
-            {new Date(data.expiredDate).toLocaleDateString()}
+            {data.expiredDate
+              ? new Date(data.expiredDate).toLocaleDateString()
+              : "-"}
           </td>
           <td className="px-6 py-4">
             {new Date(data.createdAt).toLocaleDateString()}
           </td>
           <td className="px-6 py-4">
-            {new Date(data.expiredDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0) ? (
+            {data.expiredDate == null ? (
+              "-"
+            ) : new Date(data.expiredDate).setHours(0, 0, 0, 0) <
+              new Date().setHours(0, 0, 0, 0) ? (
               <span className=" text-reddanger">expired</span>
             ) : (
               <span className=" text-maingreen">on going</span>

@@ -43,7 +43,7 @@ export default function CreateVoucher() {
     }
   };
 
-  const handleSubmit = async (values, { setStatus }) => {
+  const handleSubmit = async (values, actions) => {
     let token = localStorage.getItem("token");
 
     try {
@@ -54,6 +54,7 @@ export default function CreateVoucher() {
       );
       console.log(response, "ini");
       if (response.status === 201) {
+        actions.resetForm();
         setErrorMessage("");
         setSuccessMessage(response.data?.message);
         handleShowAlert("open");
@@ -64,7 +65,6 @@ export default function CreateVoucher() {
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
         if (msg) {
-          setStatus({ success: false, msg });
           setErrorMessage(`${msg}`);
         }
       }
@@ -76,7 +76,7 @@ export default function CreateVoucher() {
       if (response.data.error) {
         const errMsg = response.data.error;
         console.log(errMsg);
-        setStatus({ success: false, errors: errMsg });
+
         setErrorMessage(`${errMsg}`);
         handleShowAlert("open");
       }
@@ -121,8 +121,6 @@ export default function CreateVoucher() {
     //         .min(0, "amount must be greater than zero")
     //         .required("amount is required");
     //   }),
-
-
   });
   return (
     <div className="flex flex-col w-5/6 mx-auto">
