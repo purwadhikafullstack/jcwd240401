@@ -7,10 +7,8 @@ import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
 import SearchBar from '../../component/SearchBar'
-import Dropdown from '../../component/Dropdown'
 import { remove } from '../../store/reducer/authSlice'
 import productImg from '../../assets/BackgroundLeaves.jpg'
-import Button from '../../component/Button'
 import ProductCard from '../../component/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CustomDropdown from '../../component/CustomDropdown'
@@ -118,7 +116,7 @@ export default function Home() {
                 console.error(error.response.message)
             }
         }
-    }, [latitude, longitude, filter.search, filter.sortName, filter.sortPrice, currentPage])
+    }, [latitude, longitude, filter.sortName, filter.sortPrice, currentPage])
 
     const city =  (token && profile.role === "3") ? cityAddress : productData[0]?.Branch?.City?.city_name 
     const province = (token && profile.role === "3") ? provinceAddress : productData[0]?.Branch?.City?.Province?.province_name
