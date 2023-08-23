@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import SearchBar from '../../../SearchBar';
 import { Pagination } from "flowbite-react";
+
+import SearchBar from '../../../SearchBar';
 import Modal from '../../../Modal';
 import CustomDropDowm from '../../../CustomDropdown';
 import ModalProduct from '../../../ModalProduct';
@@ -25,7 +26,7 @@ export default function AllProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -59,7 +60,7 @@ export default function AllProduct() {
 
     const getProduct = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`);
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
@@ -108,7 +109,7 @@ export default function AllProduct() {
 
     const handleRemove = async (productId) => {
         try {
-            const response = await axios.patch(`http://localhost:8000/api/admins/products/${productId}/remove`)
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}/remove`)
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
                 handleShowAlert()
@@ -147,7 +148,7 @@ export default function AllProduct() {
                 <CustomDropDowm options={nameOptions} onChange={handleName} placeholder={"Sort by Name"} />
                 <CustomDropDowm options={priceOptions} onChange={handlePrice} placeholder={"Sort by Price"} />
             </div>
-            <div className='w-full'>
+            <div className=''>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
                         <thead className="border-b-2 border-maingreen text-maingreen uppercase">

@@ -1,23 +1,15 @@
 const router = require("express").Router();
-const multer = require("multer");
 const { product: productController } = require("../controllers");
 const { admin: adminController } = require("../controllers");
 const categorymulterMiddleware = require("../middleware/multerMiddleware/category");
 const productmulterMiddleware = require("../middleware/multerMiddleware/product");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
-// const upload = multer({ fileFilter: fileFilter });
+const promoValidator = require("../middleware/validatorMiddleware");
 
-// create category // masih bisa handle wrong file format, blm bisa size
 router.post(
   "/category",
-  categorymulterMiddleware.single("file"),
-  function (req, res, next) {
-    if (req.fileValidationError) {
-      return res.status(400).json({ error: req.fileValidationError });
-    }
-    next();
-  },
+  categorymulterMiddleware,
   validatorMiddleware.createCategory,
   productController.createCategory
 );
@@ -32,21 +24,21 @@ router.get("/categories/:id", productController.oneCategoryById);
 //modify / remove category
 router.patch(
   "/categories/:id/:action",
-  categorymulterMiddleware.single("file"),
+  categorymulterMiddleware,
   validatorMiddleware.updateCategory,
   productController.modifyOrRemoveCategory
 );
 // create product
 router.post(
   "/product",
-  productmulterMiddleware.single("file"),
+  productmulterMiddleware,
   validatorMiddleware.createProduct,
   productController.createProduct
 );
 // modify / remove product
 router.patch(
   "/products/:id/:action",
-  productmulterMiddleware.single("file"),
+  productmulterMiddleware,
   validatorMiddleware.updateProduct,
   productController.modifyOrRemoveProduct
 );
@@ -69,6 +61,7 @@ router.post(
   "/my-branch/branch-products",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
+  validatorMiddleware.createBranchProduct,
   adminController.addBranchProduct
 );
 // modify / remove branch product
@@ -76,6 +69,7 @@ router.patch(
   "/my-branch/branch-products/:id/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
+  validatorMiddleware.updateBranchProductDetails,
   adminController.modifyOrRemoveBranchProduct
 );
 // plus / minus branch product stock
@@ -83,6 +77,7 @@ router.patch(
   "/my-branch/branch-products/:id/stock/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
+  validatorMiddleware.updateBranchProductStock,
   adminController.plusOrMinusBranchProduct
 );
 // get all branch product
@@ -113,14 +108,56 @@ router.get(
   authMiddleware.verifyAdmin,
   productController.allUnaddedProducts
 );
-// get all stock history
+//create discount
+router.post(
+  "/discounts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  promoValidator.validateCreateDiscount,
+  adminController.createDiscount
+);
+// get all discounts
+router.get(
+  "/discounts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllDiscount
+);
+//get all discount types
+router.get(
+  "/discount-types",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllDiscountType
+);
+//create voucher
+router.post(
+  "/vouchers",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  promoValidator.validateCreateVoucher,
+  adminController.createVoucher
+);
+// get all vouchers
+router.get(
+  "/vouchers",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllVoucher
+);
+// get all voucher types
+router.get(
+  "/voucher-types",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getAllVoucherType
+);
+
 router.get(
   "/stock-history",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   adminController.getStockHistory
 );
-
-
 
 module.exports = router;

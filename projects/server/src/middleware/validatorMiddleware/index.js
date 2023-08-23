@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, oneOf } = require("express-validator");
 const db = require("../../models");
 
 const validate = (validations) => {
@@ -81,7 +81,7 @@ module.exports = {
     body("province").notEmpty().withMessage("Branch province is required"),
     body("city").notEmpty().withMessage("Branch city is required"),
   ]),
-  validateSetPasswordAdmin: validate([
+  validateSetPassword: validate([
     body("password")
       .isLength({ min: 8 })
       .withMessage("minimum password length is 8 characters")
@@ -176,10 +176,10 @@ module.exports = {
       .optional()
       .custom((value, { req }) => {
         if (value !== "" && isNaN(value)) {
-          throw new Error("Price must be a valid number");
+          throw new Error("Weight must be a valid number");
         }
         if (value !== "" && parseInt(value) < 0) {
-          throw new Error("Price must be a positive integer");
+          throw new Error("Weight must be a positive integer");
         }
         return true;
       }),
@@ -215,5 +215,152 @@ module.exports = {
       .optional()
       .isLength({ max: 255 })
       .withMessage("Maximum character is 255"),
+  ]),
+  validateCreateDiscount: validate([
+    body("discount_type_id")
+      .notEmpty()
+      .withMessage("discount type is required"),
+    body("expiredDate")
+      .notEmpty()
+      .withMessage("expired date is required")
+      .isDate()
+      .withMessage("Invalid date format")
+      .custom((value) => {
+        const currentDate = new Date();
+        const selectedDate = new Date(value);
+        if (selectedDate < currentDate) {
+          throw new Error("expired date cannot be in the past");
+        }
+        return true;
+      }),
+    body("amount")
+      .if(body("discount_type_id").not().equals("1"))
+      .notEmpty()
+      .withMessage("amount cannot be empty")
+      .isNumeric()
+      .withMessage("amount has to be numeric"),
+  ]),
+  validateCreateVoucher: validate([
+    body("isReferral").isBoolean().withMessage("isReferral has to be boolean"),
+    body("voucher_type_id").notEmpty().withMessage("discount type is required"),
+    body("amount")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+    body("maxDiscount")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+
+    body("usedLimit")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && isNaN(value)) {
+          throw new Error("amount must be a valid number");
+        }
+        if (value !== "" && parseInt(value) < 0) {
+          throw new Error("amount must be a positive integer");
+        }
+        return true;
+      }),
+    body("expiredDate")
+      .optional()
+      .custom((value) => {
+        if (value) {
+          const currentDate = new Date();
+          const selectedDate = new Date(value);
+          if (selectedDate < currentDate) {
+            throw new Error("expired date cannot be in the past");
+          }
+        }
+        return true;
+      }),
+  ]),
+  createBranchProduct: validate([
+    body("product_id")
+      .notEmpty()
+      .withMessage("Product_id is required")
+      .custom(checkValidProduct),
+    body("origin")
+      .trim()
+      .notEmpty()
+      .withMessage("Origin is required")
+      .isLength({ max: 50 })
+      .withMessage("Origin must not exceed 50 characters"),
+    body("quantity")
+      .notEmpty()
+      .withMessage("Quantity is required")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer"),
+  ]),
+  updateBranchProductDetails: validate([
+    body("origin")
+      .trim()
+      .optional()
+      .isLength({ max: 50 })
+      .withMessage("Origin must not exceed 50 characters"),
+  ]),
+  updateBranchProductStock: validate([
+    body("quantity")
+      .notEmpty()
+      .withMessage("Quantity is required")
+      .isInt({ gt: 0 })
+      .withMessage("Quantity must be a positive integer"),
+  ]),
+  validateRegisterUser: validate([
+    body("name")
+      .notEmpty()
+      .withMessage("Name is required")
+      .isLength({ max: 50 })
+      .withMessage("Maximum character is 50"),
+    body("email")
+      .isEmail()
+      .withMessage("incorrect email format")
+      .notEmpty()
+      .withMessage("email is required"),
+    body("phone").notEmpty().withMessage("phone number is required"),
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("minimum password length is 8 characters")
+      .isStrongPassword({
+        minSymbols: 0,
+      })
+      .withMessage(
+        "password must contain 1 uppercase, 1 lowercase and 1 number"
+      ),
+    body("confirmPassword")
+      .notEmpty()
+      .withMessage("confirm password is required")
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          return false;
+        }
+        return true;
+      })
+      .withMessage("password does not match"),
+    body("province").notEmpty().withMessage("Province is required"),
+    body("city").notEmpty().withMessage("City is required"),
+    body("streetName").notEmpty().withMessage("Street address is required"),
+  ]),
+  validateForgotPassword: validate([
+    body("email")
+      .isEmail()
+      .withMessage("Incorrect email format")
+      .notEmpty()
+      .withMessage("Email is required"),
   ]),
 };

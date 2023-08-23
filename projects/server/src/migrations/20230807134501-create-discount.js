@@ -27,7 +27,7 @@ module.exports = {
       },
       amount: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        defaultValue: null,
       },
       expiredDate: {
         type: Sequelize.DATE,
