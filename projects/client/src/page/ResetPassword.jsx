@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import { useFormik } from 'formik'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
+import { HiEye } from 'react-icons/hi'
 import background from '../assets/BackgroundLeaves.jpg'
 import groceereLogo from '../assets/logo_Groceer-e.svg'
 import setPasswordPic from '../assets/SetPasswordPic.png'
@@ -15,28 +16,37 @@ export default function ResetPassword() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const {resetPasswordToken} = useParams()
+    const [showPassword, setShowPassword] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [showAlert, setShowAlert] = useState(false)
 
     const onSubmit = async(values, actions) => {
         try{
+            actions.setSubmitting(true)
+            setIsLoading(true)
             const response = await axios.post(`http://localhost:8000/api/auth/users/reset-password?token=${resetPasswordToken}`, values, {
                 headers: {"Content-Type" : "application/json"}
             })
             if (response.status === 200){
                 actions.resetForm()
+                actions.setSubmitting(false)
+                setIsLoading(false)
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
+                handleShowAlert()
             }
         }catch(error){
             if(error.response.status === 500){
                 setErrorMessage("Login failed: Server error")
-            }else if(error.response?.data?.message === "token invalid"){
-                setErrorMessage("token invalid")
-            }else if(error.response?.data?.message === "Password doesn't match"){
-                setErrorMessage("Password doesn't match")
+            }else if(error.response?.data?.message){
+                setErrorMessage(error.response?.data?.message)
             }
+            actions.setSubmitting(false)
+            setIsLoading(false)
+            handleShowAlert()
         }
     }
-    const {values, errors, touched, handleChange, handleBlur, handleSubmit} = useFormik({
+    const {values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting} = useFormik({
         initialValues: {
             password: "",
             confirmPassword: "",
@@ -44,6 +54,21 @@ export default function ResetPassword() {
         validationSchema: setPasswordSchema,
         onSubmit
     })
+
+    const togglePassword = () => {
+        setShowPassword(!showPassword);
+    }
+
+    const handleShowAlert = () => {
+        setShowAlert(true)
+        setTimeout(() => {
+            setShowAlert(false)
+        }, 4000)
+    }
+
+    const handleHideAlert = () => {
+        setShowAlert(false)
+    }
 
   return (
     <div className="absolute w-full min-h-screen bg-cover bg-center flex justify-center items-center" style={{backgroundImage: `url(${background})`, backgroundSize: 'cover'}}>
@@ -61,13 +86,15 @@ export default function ResetPassword() {
                     <img src={setPasswordPic} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
-                    {errorMessage ? (<AlertPopUp condition={"fail"} content={errorMessage}/>) : (null)}
-                    {successMessage ? (<AlertPopUp condition={"success"} content={successMessage} />) : (null)}
+                    {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
                 </div>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-72 flex flex-col gap-2">
                     <div className="w-full">
-                        <label htmlFor="password" className="font-inter">Password</label>
-                        <InputField value={values.password} id={"password"} type={"password"} onChange={handleChange} onBlur={handleBlur}/>
+                        <div className="relative">
+                            <label htmlFor="password" className="font-inter relative">Password</label>
+                            <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
+                            <div className='absolute bottom-2 right-2'><HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} /></div>
+                        </div>
                         {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                     </div>
                     <div className="w-full">
@@ -75,8 +102,9 @@ export default function ResetPassword() {
                         <InputField value={values.confirmPassword} id={"confirmPassword"} type={"password"} onChange={handleChange} onBlur={handleBlur}/>
                         {errors.confirmPassword && touched.confirmPassword && <p className="text-reddanger text-sm font-inter">{errors.confirmPassword}</p>}
                     </div>
-                    <div className="mt-10">
-                        <Button label={"Set Password"} condition={"positive"} onClick={handleSubmit}/>
+                    <div className="mt-10 flex flex-col items-center gap-2">
+                        {isLoading ? (<div className='text-sm text-maingreen font-inter'>Loading...</div>) : null}
+                        <Button label={"Set Password"} condition={"positive"} onClick={handleSubmit} buttonType={"submit"} isDisabled={isSubmitting}/>
                     </div>
                 </form>
             </div>

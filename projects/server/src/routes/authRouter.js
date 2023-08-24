@@ -16,6 +16,6 @@ router.get("/keep-login", authMiddleware.verifyToken, authController.keepLogin)
 router.post("/users/register", authValidator.validateRegisterUser, authController.registerUser)
 router.patch("/users/verify", authController.verifyAccount)
 router.post("/forgot-password", authValidator.validateForgotPassword, authController.forgotPassword)
-router.post("/reset-password", authValidator.validateSetPassword, authController.resetPassword)
+router.post("/users/reset-password", authValidator.validateSetPassword, authController.resetPassword)
 
 module.exports = router;

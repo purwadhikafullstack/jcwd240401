@@ -4,7 +4,7 @@ import {useFormik} from 'formik'
 import axios from 'axios'
 import background from '../assets/BackgroundLeaves.jpg'
 import InputField from '../component/InputField'
-import Button from '../component/Button'
+import Modal from '../component/Modal'
 import groceereLogo from '../assets/logo_Groceer-e.svg'
 import forgotPassword from '../assets/Forgot password.png'
 import { forgotPasswordSchema } from '../helpers/validationSchema'
@@ -14,27 +14,36 @@ export default function Login() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const [showAlert, setShowAlert] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     
     const onSubmit = async(values, actions) => {
         try{
+            actions.setSubmitting(true)
+            setIsLoading(true)
             const response = await axios.post("http://localhost:8000/api/auth/forgot-password", values, {
                 headers: {"Content-Type" : "application/json"}
             })
             if (response.status === 200){
                 actions.resetForm()
+                actions.setSubmitting(false)
+                setIsLoading(false)
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
+                handleShowAlert()
             }
         }catch(error){
             if(error.response.status === 500){
                 setErrorMessage("Can't send email: Server error")
-            }else if(error.response?.data?.message === "Email not found"){
-                setErrorMessage("Email not found")
+            }else if(error.response?.data?.message){
+                setErrorMessage(error.response?.data?.message)
             }
+            actions.setSubmitting(false)
+            setIsLoading(false)
             handleShowAlert()
+
         }
     }
-    const {values, errors, touched, handleChange, handleBlur, handleSubmit} = useFormik({
+    const {values, errors, touched, handleChange, handleBlur, handleSubmit, isValid, isSubmitting} = useFormik({
         initialValues: {
             email: "",
         },
@@ -70,8 +79,7 @@ export default function Login() {
                     <img src={forgotPassword} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
-                    {errorMessage ? (<AlertPopUp condition={"fail"} content={errorMessage}/>) : (null)}
-                    {successMessage ? (<AlertPopUp condition={"success"} content={successMessage} />) : (null)}
+                    {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
                 </div>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-72 flex flex-col gap-2">
                     <div className="w-full">
@@ -79,8 +87,9 @@ export default function Login() {
                         <InputField value={values.email} id={"email"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
                         {errors.email && touched.email && <p className="text-reddanger text-sm font-inter">{errors.email}</p>}
                     </div>
-                    <div className="mt-10">
-                        <Button label={"Send Reset Password Link"} condition={"positive"} onClick={handleSubmit}/>
+                    <div className="mt-10 flex flex-col items-center gap-2">
+                        {isLoading ? (<div className='text-sm text-maingreen font-inter'>Loading...</div>) : null}
+                        <Modal isDisabled={!isValid || isSubmitting} modalTitle={"Send Reset Password Link"} toggleName={"Send Reset Password Link"} content={`Send reset password link to ${values.email}?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={handleSubmit}/>
                     </div>
                 </form>
                 <div className="w-full flex gap-4 justify-center items-center">
