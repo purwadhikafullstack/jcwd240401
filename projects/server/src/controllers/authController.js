@@ -591,12 +591,13 @@ module.exports = {
             const hashPassword = await bcrypt.hash(password, salt)
 
             userData.password = hashPassword
+            userData.resetPasswordToken = null
             await userData.save()
 
             await transaction.commit()
 
             return res.status(200).send({
-                message: "You have reset your password"
+                message: "You have successfully reset your password"
             })
         }catch(error){
             return res.status(500).send({
