@@ -26,13 +26,23 @@ import NotFound from "./page/NotFound";
 import ForgotPassword from "./page/ForgotPassword";
 import VerifyAccount from "./page/user/VerifyAccount";
 import ResetPassword from "./page/ResetPassword";
+import Cart from "./page/user/Cart";
+import Checkout from "./page/user/Checkout";
+import Payment from "./page/user/Payment";
+import Orders from "./page/user/Orders";
+import Account from "./page/user/Account";
+import UserProfile from "./page/user/UserProfile";
+import UserProfileEdit from "./page/user/UserProfileEdit";
+import UserProfileChangePassword from "./page/user/UserProfileChangePassword";
+import UserAddressCreate from "./page/user/UserAddressCreate";
+import UserAddressModify from "./page/user/UserAddressModify";
 
 function App() {
   const dispatch = useDispatch()
 
   const keepLogin = async () => {
     let token = localStorage.getItem("token")
-    if(token) {
+    if (token) {
       try {
         const response = await axios.get("http://localhost:8000/api/auth/keep-login", {
           headers: {
@@ -40,12 +50,12 @@ function App() {
           }
         })
 
-        if(response.data.userId){
+        if (response.data.userId) {
           localStorage.setItem("token", response.data.refreshToken)
           const decoded = jwtDecode(token)
           dispatch(keep(decoded))
         }
-      }catch(error){
+      } catch (error) {
         console.log(error)
       }
     }
@@ -53,7 +63,7 @@ function App() {
 
   useEffect(() => {
     keepLogin()
-  },[])
+  }, [])
 
   return (
     <Router>
@@ -67,11 +77,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:resetPasswordToken" element={<ResetPassword />} />
 
-        <Route element={<PrivateAdminWrapper allowedRoles={[1,2]} />}>
+        <Route element={<PrivateAdminWrapper allowedRoles={[1, 2]} />}>
           <Route path="/admin" element={<AdminHome />} />
         </Route>
 
-        <Route element={<PrivateAdminWrapper allowedRoles={[1]}/>}>
+        <Route element={<PrivateAdminWrapper allowedRoles={[1]} />}>
           <Route path="/admin/manage-branch" element={<SuperAdminManageBranch />} />
           <Route path="/admin/manage-product" element={<SuperAdminManageProduct />} />
           <Route path="/admin/manage-category" element={<SuperAdminManageCategory />} />
@@ -79,13 +89,24 @@ function App() {
           <Route path="/admin/order" element={<SuperAdminOrder />} />
         </Route>
 
-        <Route element={<PrivateAdminWrapper allowedRoles={[2]}/>}>
+        <Route element={<PrivateAdminWrapper allowedRoles={[2]} />}>
           <Route path="/admin/branch/manage-product" element={<BranchAdminManageProduct />} />
           <Route path="/admin/branch/manage-promotion" element={<BranchAdminManagePromotion />} />
           <Route path="/admin/branch/manage-order" element={<BranchAdminManageOrder />} />
           <Route path="/admin/branch/report" element={<BranchAdminReport />} />
         </Route>
-        
+
+        <Route path="/user/cart" element={<Cart />} />
+        <Route path="/user/checkout" element={<Checkout />} />
+        <Route path="/user/payment" element={<Payment />} />
+        <Route path="/user/orders" element={<Orders />} />
+        <Route path="/user/account" element={<Account />} />
+        <Route path="/user/account/my-profile" element={<UserProfile />} />
+        <Route path="/user/account/my-profile/edit" element={<UserProfileEdit />} />
+        <Route path="/user/account/my-profile/change-password" element={<UserProfileChangePassword />} />
+        <Route path="/user/account/my-address" element={<Account />} />
+        <Route path="/user/account/my-address/create" element={<UserAddressCreate />} />
+        <Route path="/user/account/my-address/edit" element={<UserAddressModify />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

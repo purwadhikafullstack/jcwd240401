@@ -7,8 +7,7 @@ const {
   getAbsolutePathPublicFileProduct,
 } = require("../helpers/fileConverter");
 const fs = require("fs");
-const geolib = require('geolib')
-
+const geolib = require("geolib");
 
 const validUnitOfMeasurementValues = ["gr", "ml"];
 const handleCatchError = async (res, transaction, error) => {
@@ -667,9 +666,9 @@ module.exports = {
       });
     }
   },
-  async productsFromNearestBranch(req,res) {
-    const latitude = req.query.latitude ? req.query.latitude : "-6.3102373" 
-    const longitude = req.query.longitude ? req.query.longitude : "106.7995611"
+  async productsFromNearestBranch(req, res) {
+    const latitude = req.query.latitude ? req.query.latitude : "";
+    const longitude = req.query.longitude ? req.query.longitude : "";
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
@@ -678,7 +677,7 @@ module.exports = {
       name: req.query.sortName,
       price: req.query.sortPrice,
     };
-    try{
+    try {
       const where = {};
       const order = [];
 
@@ -694,43 +693,54 @@ module.exports = {
       }
       if (pagination.name) {
         if (pagination.name.toUpperCase() === "DESC") {
-          order.push([{model: db.Product, as: "Product"}, "name", "DESC"]);
+          order.push([{ model: db.Product, as: "Product" }, "name", "DESC"]);
         } else {
-          order.push([{model: db.Product, as: "Product"}, "name", "ASC"]);
+          order.push([{ model: db.Product, as: "Product" }, "name", "ASC"]);
         }
       }
       if (pagination.price) {
         if (pagination.price.toUpperCase() === "DESC") {
-          order.push([{model: db.Product, as: "Product"}, "basePrice", "DESC"]);
+          order.push([
+            { model: db.Product, as: "Product" },
+            "basePrice",
+            "DESC",
+          ]);
         } else {
-          order.push([{model: db.Product, as: "Product"}, "basePrice", "ASC"]);
+          order.push([
+            { model: db.Product, as: "Product" },
+            "basePrice",
+            "ASC",
+          ]);
         }
       }
 
-      const userLocation = { latitude: latitude, longitude: longitude }
+      const userLocation = { latitude: latitude, longitude: longitude };
 
-      const branchData = await db.Branch.findAll()
-      let nearestBranchId = 0
-      let nearest = 50000
+      const branchData = await db.Branch.findAll();
+      let nearestBranchId = 0;
+      let nearest = 50000;
 
-      if(latitude && longitude){
+      if (latitude && longitude) {
         branchData.map((branch) => {
-          const branchLocation = {latitude: branch.latitude, longitude: branch.longitude}
-          const distance = geolib.getDistance(userLocation, branchLocation)
-          if(distance < nearest){
-            nearest = distance
-            nearestBranchId = branch.id
+          const branchLocation = {
+            latitude: branch.latitude,
+            longitude: branch.longitude,
+          };
+          const distance = geolib.getDistance(userLocation, branchLocation);
+          if (distance < nearest) {
+            nearest = distance;
+            nearestBranchId = branch.id;
           } else {
-            nearestBranchId = branchData[0].id
+            nearestBranchId = branchData[0].id;
           }
-        })
+        });
       } else {
-        nearestBranchId = branchData[0].id
+        nearestBranchId = branchData[0].id;
       }
 
       const branchProductData = await db.Branch_Product.findAndCountAll({
         where: {
-          branch_id: nearestBranchId
+          branch_id: nearestBranchId,
         },
         include: [
           {
@@ -743,15 +753,15 @@ module.exports = {
             include: {
               model: db.City,
               include: {
-                model: db.Province
-              }
-            }
-          }
+                model: db.Province,
+              },
+            },
+          },
         ],
         order: order,
         limit: pagination.perPage,
-        offset: (pagination.page - 1) * pagination.perPage, 
-      })
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
       const totalCount = branchProductData.count;
       pagination.totalData = totalCount;
 
@@ -764,13 +774,13 @@ module.exports = {
       return res.status(200).send({
         message: "Success get branch product",
         pagination,
-        data: branchProductData
-      })
-    }catch(error){
+        data: branchProductData,
+      });
+    } catch (error) {
       return res.status(500).send({
         message: "Server error",
-        error: error.message
-      })
+        error: error.message,
+      });
     }
-  }
+  },
 };
