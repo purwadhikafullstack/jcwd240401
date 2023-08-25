@@ -363,4 +363,55 @@ module.exports = {
       .notEmpty()
       .withMessage("Email is required"),
   ]),
+  validateCreateAddress: validate([
+    body("streetName")
+      .trim()
+      .notEmpty()
+      .withMessage("Street name is required")
+      .isLength({ max: 255 })
+      .withMessage("Street name must not exceed 255 characters"),
+    body("province").trim().notEmpty().withMessage("Province is required"),
+    body("city").trim().notEmpty().withMessage("Street name is required"),
+    body("receiver")
+      .notEmpty()
+      .withMessage("Receiver name is required")
+      .isLength({ max: 50 })
+      .withMessage("Maximum character is 50"),
+    body("contact")
+      .notEmpty()
+      .withMessage("Receiver contact is required")
+      .isMobilePhone()
+      .withMessage("Invalid phone number"),
+    body("addressLabel")
+      .notEmpty()
+      .withMessage("Address label is required")
+      .isIn(["Home", "Work"])
+      .withMessage("Label must be 'Home' or 'Work'"),
+  ]),
+  validateModifyAddress: validate([
+    body("streetName")
+      .trim()
+      .notEmpty()
+      .withMessage("Street name is required")
+      .isLength({ max: 255 })
+      .withMessage("Street name must not exceed 255 characters"),
+    body("province").trim().notEmpty().withMessage("Province is required"),
+    body("city").trim().notEmpty().withMessage("Street name is required"),
+    body("receiver")
+      .optional()
+      .isLength({ max: 50 })
+      .withMessage("Maximum character is 50"),
+    body("contact")
+      .optional()
+      .isMobilePhone()
+      .withMessage("Invalid phone number"),
+    body("addressLabel")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && !["Home", "Work"].includes(value)) {
+          throw new Error("Label must be 'Home' or 'Work'");
+        }
+        return true;
+      }),
+  ]),
 };
