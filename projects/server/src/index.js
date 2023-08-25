@@ -3,19 +3,18 @@ const express = require("express");
 const cors = require("cors");
 const { join } = require("path");
 const router = require("./routes");
-require("../src/helpers/scheduler/expiredDiscount")
+require("../src/helpers/scheduler/expiredDiscount");
 
 const PORT = process.env.PORT || 8000;
 const app = express();
 app.use(
-  cors(
+  cors()
   //   {
   //   origin: [
   //     process.env.WHITELISTED_DOMAIN &&
   //       process.env.WHITELISTED_DOMAIN.split(","),
   //   ],
   // }
-  )
 );
 
 app.use(express.json());
@@ -23,11 +22,26 @@ app.use(express.json());
 //#region API ROUTES
 
 // multer
-app.use("/src/Public/product", express.static("src/Public/product"));
-app.use("/src/Public/profile", express.static("src/Public/profile"));
-app.use("/src/Public/refund", express.static("src/Public/refund"));
-app.use("/src/Public/category", express.static("src/Public/category"));
-app.use("/src/Public/payment", express.static("src/Public/payment"));
+app.use(
+  "/src/Public/product",
+  express.static(join(__dirname, "src/Public/product"))
+);
+app.use(
+  "/src/Public/profile",
+  express.static(join(__dirname, "src/Public/profile"))
+);
+app.use(
+  "/src/Public/refund",
+  express.static(join(__dirname, "src/Public/refund"))
+);
+app.use(
+  "/src/Public/category",
+  express.static(join(__dirname, "src/Public/category"))
+);
+app.use(
+  "/src/Public/payment",
+  express.static(join(__dirname, "src/Public/payment"))
+);
 
 // ===========================
 // NOTE : Add your routes here
