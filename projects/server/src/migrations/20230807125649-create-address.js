@@ -28,7 +28,7 @@ module.exports = {
           model: "Cities",
           key: "city_id",
         },
-      }, 
+      },
       latitude: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -41,6 +41,21 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+      },
+      addressLabel: {
+        type: Sequelize.ENUM("Home", "Work"),
+      },
+      receiver: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      contact: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      postalCode: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       isRemoved: {
         type: Sequelize.BOOLEAN,
