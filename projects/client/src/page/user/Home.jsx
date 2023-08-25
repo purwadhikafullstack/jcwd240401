@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import { Carousel } from 'flowbite-react'
 import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
 import SearchBar from '../../component/SearchBar'
-import { remove } from '../../store/reducer/authSlice'
-import productImg from '../../assets/BackgroundLeaves.jpg'
 import ProductCard from '../../component/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CustomDropdown from '../../component/CustomDropdown'
+import shrimp from '../../assets/Seafood.jpg'
+import bread from '../../assets/bread.jpg'
+import CarouselContent from '../../component/user/CarouselContent'
 
 
 export default function Home() {
@@ -22,6 +22,7 @@ export default function Home() {
     const [provinceAddress, setProvinceAddress] = useState("")
     const [categories, setCategories] = useState([])
     const [productData, setProductData] = useState([])
+    const [outOfReach, setOutOfReach] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [filter, setFilter] = useState({
@@ -32,8 +33,10 @@ export default function Home() {
 
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
+    const bannerContent = [
+        { product_id: "1", type: "Discount by percentage", amount: "20", name: "Shrimp", img: shrimp },
+        { product_id: "2", type: "Buy one get one", amount: "", name: "Bread", img: bread }
+    ]
 
     useEffect(() => {
         if (!token) {
@@ -110,6 +113,9 @@ export default function Home() {
                     if (response.data.pagination) {
                         setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
                     }
+                    if(response.data.outOfReach === true){
+                        setOutOfReach(true)
+                    }
                 })
         } catch (error) {
             if (error.response) {
@@ -128,12 +134,6 @@ export default function Home() {
             console.log(error)
         }
     }, [])
-
-    const handleLogout = () => {
-        dispatch(remove())
-        localStorage.removeItem("token")
-        navigate("/")
-    }
 
     const handleSearchValue = (e) => {
         setFilter((prevFilter) => ({
@@ -165,9 +165,9 @@ export default function Home() {
                 </div>
                 <div className="w-6/12 h-64 mb-10">
                     <Carousel>
-                        <div className="w-full h-full">
-                            <img src={productImg} alt="product image carousel" />
-                        </div>
+                        {bannerContent.map((banner) => (
+                            <CarouselContent key={banner.product_id} type={banner.type} amount={banner.amount} name={banner.name} image={banner.img}/>
+                        ))}
                     </Carousel>
                 </div>
                 <div className="w-6/12 h-auto flex gap-4 overflow-x-auto mb-10">
@@ -184,7 +184,7 @@ export default function Home() {
                 </div>
                 <div className='w-6/12 flex mb-20 justify-evenly'>
                     {productData.map((product, index) => (
-                        <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} />
+                        <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach}/>
                     ))}
                 </div>
                 <div className='flex justify-center'>
@@ -199,7 +199,6 @@ export default function Home() {
                         className="mx-auto"
                     />
                 </div>
-                {token ? <button onClick={handleLogout}>Log Out</button> : null}
             </div>
             <NavbarBottom />
             <Footer />
