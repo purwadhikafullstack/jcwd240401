@@ -80,6 +80,7 @@ module.exports = {
     body("phone").notEmpty().withMessage("phone number is required"),
     body("province").notEmpty().withMessage("Branch province is required"),
     body("city").notEmpty().withMessage("Branch city is required"),
+    body("streetName").notEmpty().withMessage("Street address is required")
   ]),
   validateSetPassword: validate([
     body("password")
