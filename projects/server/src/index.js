@@ -24,23 +24,23 @@ app.use(express.json());
 // multer
 app.use(
   "/src/Public/product",
-  express.static(join(__dirname, "src/Public/product"))
+  express.static(join(__dirname, "Public", "product"))
 );
 app.use(
   "/src/Public/profile",
-  express.static(join(__dirname, "src/Public/profile"))
+  express.static(join(__dirname, "Public", "profile"))
 );
 app.use(
   "/src/Public/refund",
-  express.static(join(__dirname, "src/Public/refund"))
+  express.static(join(__dirname, "Public", "refund"))
 );
 app.use(
   "/src/Public/category",
-  express.static(join(__dirname, "src/Public/category"))
+  express.static(join(__dirname, "Public", "category"))
 );
 app.use(
   "/src/Public/payment",
-  express.static(join(__dirname, "src/Public/payment"))
+  express.static(join(__dirname, "Public", "payment"))
 );
 
 // ===========================
