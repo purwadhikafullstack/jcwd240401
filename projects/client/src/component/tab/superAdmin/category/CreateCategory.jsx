@@ -30,18 +30,17 @@ export default function CreateCategory() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("file", file);
+    console.log("test")
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/admins/category`,
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           },
         }
       );
-
       if (response.status === 201) {
         resetForm();
         setErrorMessage("");
@@ -49,6 +48,7 @@ export default function CreateCategory() {
         handleShowAlert();
       }
     } catch (error) {
+      console.log(error)
       const response = error.response;
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];

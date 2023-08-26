@@ -171,7 +171,7 @@ export default function AllProduct() {
                             {allProduct.length !== 0 && allProduct.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-100 border-b-2 border-gray-200">
                                     <td className="py-2 px-4 cursor-pointer" style={{ width: '40%' }} onClick={() => setSelectedProduct(item.id)}>
-                                        <div className='grid grid-cols-1 md:grid-cols-2 justify-center text-sm'>
+                                        <div className='grid grid-cols-1 md:grid-cols-2 justify-center text-sm gap-1'>
                                             <div className='hidden md:block'>
                                                 <img
                                                     className="w-28 h-28 justify-center mx-auto m-2 object-cover"

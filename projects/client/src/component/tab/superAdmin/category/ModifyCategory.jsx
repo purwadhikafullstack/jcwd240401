@@ -93,8 +93,6 @@ export default function ModifyCategory() {
                     "Authorization": `Bearer ${token}`
                 },
             })
-            console.log("Response:", response);
-            console.log(response.data.data)
 
             if (response.status === 200) {
                 resetForm({ values: initialValues })
@@ -130,9 +128,6 @@ export default function ModifyCategory() {
         } finally {
             setSubmitting(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => {
-                window.location.reload()
-            }, 4000)
         }
     }
 
