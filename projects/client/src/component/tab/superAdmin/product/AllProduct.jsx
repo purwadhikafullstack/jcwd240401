@@ -24,10 +24,13 @@ export default function AllProduct() {
     })
     const [allCategory, setAllCategory] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const token = localStorage.getItem("token")
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -61,7 +64,9 @@ export default function AllProduct() {
 
     const getProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
@@ -110,7 +115,9 @@ export default function AllProduct() {
 
     const handleRemove = async (productId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}/remove`)
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}/remove`, null, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
                 handleShowAlert()

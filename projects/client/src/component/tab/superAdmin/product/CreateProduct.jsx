@@ -13,10 +13,13 @@ export default function CreateProduct() {
     const [showAlert, setShowAlert] = useState(false)
     const [allCategory, setAllCategory] = useState([]);
     const uOMOptions = [{ label: "GR", value: "gr" }, { label: "ML", value: "ml" }]
+    const token = localStorage.getItem("token")
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -63,6 +66,7 @@ export default function CreateProduct() {
             const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/product`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
                 },
             })
 
@@ -97,6 +101,7 @@ export default function CreateProduct() {
             handleShowAlert()
             resetForm()
         } finally {
+            getCategory()
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setSubmitting(false);
         }
