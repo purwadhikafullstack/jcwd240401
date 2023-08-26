@@ -18,7 +18,7 @@ export default function NotFound() {
 
     useEffect(() => {
         try{
-            axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/profile/?token=${verificationToken}`).then((response) => setIsVerify(response.data.data?.isVerify))
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/users/profile?token=${verificationToken}`).then((response) => setIsVerify(response.data.data?.isVerify))
             if(isVerify){
                 setDisabled(true)
                 setImage(true)
@@ -26,7 +26,7 @@ export default function NotFound() {
         }catch(error){
             console.log(error)
         }
-    }, [isVerify])
+    }, [isVerify, verificationToken])
 
     const verify = async() => {
         try{

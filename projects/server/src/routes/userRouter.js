@@ -8,7 +8,6 @@ const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 
 router.use(authMiddleware.verifyToken, authMiddleware.verifyUser);
-router.get("/profile", userController.getProfileWithVerificationToken);
 router.get("/main-address", userController.getMainAddress);
 router.get("/addresses", userController.getAllAddress);
 router.get("/branch-products", productController.productsFromNearestBranch);
