@@ -19,6 +19,7 @@ export default function ModifyCategory() {
         file: ""
     })
     const [imagePreview, setImagePreview] = useState(null);
+    const token = localStorage.getItem("token")
 
     const categorySchema = yup.object().shape({
         name: yup.string().max(50, 'Category name must not exceed 50 characters').typeError("Name must be a valid text"),
@@ -26,7 +27,9 @@ export default function ModifyCategory() {
 
     const getOneCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 console.log(data)
@@ -46,7 +49,9 @@ export default function ModifyCategory() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -85,6 +90,7 @@ export default function ModifyCategory() {
             const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}/modify`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
                 },
             })
             console.log("Response:", response);

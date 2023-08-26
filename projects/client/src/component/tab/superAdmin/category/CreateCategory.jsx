@@ -12,6 +12,7 @@ export default function CreateCategory() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
+  const token = localStorage.getItem("token")
   const createCategorySchema = yup.object().shape({
     name: yup
       .string()
@@ -36,6 +37,7 @@ export default function CreateCategory() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`
           },
         }
       );
