@@ -1030,14 +1030,15 @@ module.exports = {
     }
   },
 
-  //stock history
+  //stock history (A)
   async getStockHistory(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
-      branch_product_id: req.query.filterBranchProduct || "",
+      search: req.query.search || "",
       status: req.query.filterStatus || "",
       date: req.query.sortDate,
+      branch_product_id: req.query.filterBranchProduct || "",
     };
     try {
       const user = await db.User.findOne({
@@ -1057,9 +1058,15 @@ module.exports = {
         branch_id: user.Branch.id,
         isRemoved: 0,
       };
+      let productWhere = { isRemoved: 0 };
       const order = [];
+      if (pagination.search) {
+        productWhere["$Branch_Product.Product.name$"] = {
+          [db.Sequelize.Op.like]: `%${pagination.search}%`,
+        };
+      }
       if (pagination.branch_product_id) {
-        where.branch_product_id = pagination.branch_product_id;
+        branchProductWhere.id = pagination.branch_product_id;
       }
       if (pagination.status) {
         where.status = pagination.status;
@@ -1080,6 +1087,7 @@ module.exports = {
             where: branchProductWhere,
             include: {
               model: db.Product,
+              where: productWhere,
               attributes: [
                 "name",
                 "weight",
@@ -1087,12 +1095,110 @@ module.exports = {
                 "category_id",
                 "isRemoved",
               ],
-              where: { isRemoved: 0 },
               include: {
                 model: db.Category,
                 attributes: ["name"],
               },
             },
+          },
+        ],
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+        order,
+      });
+      console.log(results);
+      const totalCount = results.count;
+      pagination.totalData = totalCount;
+
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No branch products found",
+        });
+      }
+      res.status(200).send({
+        message: "Successfully retrieved branch products",
+        pagination,
+        data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
+
+  //stock history (SA)
+  async getStockHistorySuperAdmin(req, res) {
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      search: req.query.search || "",
+      status: req.query.filterStatus || "",
+      date: req.query.sortDate,
+      branch_product_id: req.query.filterBranchProduct || "",
+      branch_id: req.query.filterBranch || "1",
+    };
+    try {
+      const where = {};
+      const branchProductWhere = {
+        branch_id: pagination.branch_id,
+        isRemoved: 0,
+      };
+      let productWhere = { isRemoved: 0 };
+      const order = [];
+      if (pagination.search) {
+        productWhere["$Branch_Product.Product.name$"] = {
+          [db.Sequelize.Op.like]: `%${pagination.search}%`,
+        };
+      }
+      if (pagination.branch_product_id) {
+        branchProductWhere.id = pagination.branch_product_id;
+      }
+      if (pagination.status) {
+        where.status = pagination.status;
+      }
+      if (pagination.date) {
+        if (pagination.date.toUpperCase() === "DESC") {
+          order.push(["createdAt", "DESC"]);
+        } else {
+          order.push(["createdAt", "ASC"]);
+        }
+      }
+      const results = await db.Stock_History.findAndCountAll({
+        where,
+        include: [
+          {
+            model: db.Branch_Product,
+            attributes: ["id", "branch_id"],
+            where: branchProductWhere,
+            include: [
+              {
+                model: db.Branch,
+                attributes: ["id", "city_id"],
+                where: { id: pagination.branch_id },
+                include: {
+                  model: db.City,
+                  attributes: ["city_name"],
+                },
+              },
+              {
+                model: db.Product,
+                where: productWhere,
+                attributes: [
+                  "name",
+                  "weight",
+                  "unitOfMeasurement",
+                  "category_id",
+                  "isRemoved",
+                ],
+                include: {
+                  model: db.Category,
+                  attributes: ["name"],
+                },
+              },
+            ],
           },
         ],
         limit: pagination.perPage,

@@ -181,12 +181,20 @@ router.get(
   authMiddleware.verifyAdmin,
   adminController.getAllVoucherType
 );
-
+//get stock history branch admin
 router.get(
   "/stock-history",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   adminController.getStockHistory
+);
+
+//get stock history superadmin
+router.get(
+  "/stock-history-sa",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.getStockHistorySuperAdmin
 );
 
 module.exports = router;
