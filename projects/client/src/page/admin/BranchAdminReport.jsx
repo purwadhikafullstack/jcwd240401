@@ -1,7 +1,11 @@
-import React from 'react'
+import React from "react";
+import LayoutAdmin from "../../component/admin/LayoutAdmin";
+import BranchAdminReportContent from "../../component/admin/BranchAdminReportContent";
 
 export default function BranchAdminReport() {
-    return (
-        <div>BranchAdminReport</div>
-    )
+  return (
+    <LayoutAdmin>
+      <BranchAdminReportContent />
+    </LayoutAdmin>
+  );
 }

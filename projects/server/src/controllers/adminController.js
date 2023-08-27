@@ -125,7 +125,7 @@ module.exports = {
 
       await db.Stock_History.create(
         {
-          branch_product_id: newBranchProduct.id, 
+          branch_product_id: newBranchProduct.id,
           totalQuantity: quantity,
           quantity: quantity,
           status: "restock by admin",
@@ -1076,8 +1076,23 @@ module.exports = {
         include: [
           {
             model: db.Branch_Product,
+            attributes: ["id"],
             where: branchProductWhere,
-            include: { model: db.Product, where: { isRemoved: 0 } },
+            include: {
+              model: db.Product,
+              attributes: [
+                "name",
+                "weight",
+                "unitOfMeasurement",
+                "category_id",
+                "isRemoved",
+              ],
+              where: { isRemoved: 0 },
+              include: {
+                model: db.Category,
+                attributes: ["name"],
+              },
+            },
           },
         ],
         limit: pagination.perPage,
