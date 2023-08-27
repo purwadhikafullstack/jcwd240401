@@ -51,6 +51,21 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      addressLabel: {
+        type: Sequelize.ENUM("Home", "Work"),
+      },
+      receiver: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      contact: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      postalCode: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       imgPayment: {
         type: Sequelize.STRING,
         defaultValue: null,

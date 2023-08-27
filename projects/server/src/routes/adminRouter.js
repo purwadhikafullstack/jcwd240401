@@ -9,21 +9,34 @@ const promoValidator = require("../middleware/validatorMiddleware");
 
 router.post(
   "/category",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
   categorymulterMiddleware,
   validatorMiddleware.createCategory,
   productController.createCategory
 );
 // get category
-router.get("/categories", productController.allCategory);
+router.get(
+  "/categories",
+  authMiddleware.verifyToken,
+  productController.allCategory
+);
 // get category
 router.get(
   "/no-pagination-categories",
+  authMiddleware.verifyToken,
   productController.allCategoryNoPagination
 );
-router.get("/categories/:id", productController.oneCategoryById);
+router.get(
+  "/categories/:id",
+  authMiddleware.verifyToken,
+  productController.oneCategoryById
+);
 //modify / remove category
 router.patch(
   "/categories/:id/:action",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
   categorymulterMiddleware,
   validatorMiddleware.updateCategory,
   productController.modifyOrRemoveCategory
@@ -31,6 +44,8 @@ router.patch(
 // create product
 router.post(
   "/product",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
   productmulterMiddleware,
   validatorMiddleware.createProduct,
   productController.createProduct
@@ -38,15 +53,29 @@ router.post(
 // modify / remove product
 router.patch(
   "/products/:id/:action",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
   productmulterMiddleware,
   validatorMiddleware.updateProduct,
   productController.modifyOrRemoveProduct
 );
 // get product
-router.get("/products", productController.allProduct);
-router.get("/no-pagination-products", productController.allProductNoPagination);
+router.get(
+  "/products",
+  authMiddleware.verifyToken,
+  productController.allProduct
+);
+router.get(
+  "/no-pagination-products",
+  authMiddleware.verifyToken,
+  productController.allProductNoPagination
+);
 // get one product
-router.get("/products/:id", productController.oneProductById);
+router.get(
+  "/products/:id",
+  authMiddleware.verifyToken,
+  productController.oneProductById
+);
 
 // get all branch
 router.get(

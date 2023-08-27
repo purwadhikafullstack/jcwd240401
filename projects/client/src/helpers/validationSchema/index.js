@@ -5,12 +5,13 @@ const loginSchema = yup.object().shape({
     password: yup.string().required("Password is required")
 })
 
-const registerSchema = yup.object().shape({
+const registerAdminSchema = yup.object().shape({
     name: yup.string().required("Name is required"),
     email: yup.string().email("Incorrect email format").required("Email is required"),
     phone: yup.string().required("Phone is required"),
     province: yup.string().required("Province is required"),
-    city: yup.string().required("City is required")
+    city: yup.string().required("City is required"),
+    streetName: yup.string().required("Street Address is required")
 })
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/
@@ -36,4 +37,4 @@ const registerUserSchema = yup.object().shape({
     streetName: yup.string().required("Street address is required")
 })
 
-export {loginSchema, registerSchema, setPasswordSchema, forgotPasswordSchema, registerUserSchema}
+export {loginSchema, registerAdminSchema, setPasswordSchema, forgotPasswordSchema, registerUserSchema}

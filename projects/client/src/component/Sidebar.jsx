@@ -47,7 +47,7 @@ export default function Sidebar(props) {
 
     const routes = profileRole === role_id ? superAdminRoutes : adminRoutes
     return (
-        <div className="flex flex-col items-center lg:h-screen lg:w-full lg:bg-cover lg:bg-center lg:px-4 z-50" style={{ backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover` }}>
+        <div className="flex flex-col items-center lg:h-full lg:w-full lg:bg-cover lg:bg-center lg:px-4 z-50" style={{ backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover` }}>
             <div className="hidden lg:block lg:my-6">
                 <img src={logo} alt="logo" />
             </div>

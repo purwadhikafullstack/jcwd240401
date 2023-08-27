@@ -1,5 +1,5 @@
 import React from "react";
-import { HiTrash, HiOutlineCheckCircle, HiOutlinePlusCircle, HiOutlineMinusCircle } from "react-icons/hi";
+import { HiTrash, HiOutlineCheckCircle, HiOutlinePlusCircle, HiOutlineMinusCircle, HiOutlineChevronLeft } from "react-icons/hi";
 import { HiPlusCircle } from "react-icons/hi2"
 
 export default function Button({
@@ -56,6 +56,15 @@ export default function Button({
             break;
         case "logout":
             mainButtonClass = "px-2 py-2 w-52 border-b border-lightgrey text-reddanger text-left";
+            break;
+        case "setMain":
+            mainButtonClass = "px-2 w-fit border border-maingreen text-maingreen text-sm mt-2 mb-1";
+            break;
+        case "back":
+            mainButtonClass = "grid text-xl sm:text-2xl w-fit h-[24px] px-2";
+            hoverClass = !isDisabled && "hover:bg-slate-100";
+            icon = <HiOutlineChevronLeft size={22} className="" />;
+            iconClass = "grid justify-center";
             break;
         default:
             mainButtonClass = "";

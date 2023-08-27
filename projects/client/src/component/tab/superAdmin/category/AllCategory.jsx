@@ -19,9 +19,12 @@ export default function AllCategory() {
         sort: ""
     })
 
+    const token = localStorage.getItem("token")
     const handleRemove = async (categoryId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${categoryId}/remove`)
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${categoryId}/remove`, null, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
                 handleShowAlert()
@@ -51,7 +54,9 @@ export default function AllCategory() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
