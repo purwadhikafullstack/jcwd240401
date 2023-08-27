@@ -17,6 +17,14 @@ module.exports = {
           key: "id",
         },
       },
+      streetName: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      postalCode: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       city_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

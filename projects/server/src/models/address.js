@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       latitude: DataTypes.STRING,
       longitude: DataTypes.STRING,
       isMain: DataTypes.BOOLEAN,
+      addressLabel: DataTypes.ENUM("Home", "Work"),
+      receiver: DataTypes.STRING,
+      contact: DataTypes.STRING,
+      postalCode: DataTypes.INTEGER,
       isRemoved: DataTypes.BOOLEAN,
     },
     {

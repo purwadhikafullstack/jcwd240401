@@ -19,9 +19,12 @@ export default function AllCategory() {
         sort: ""
     })
 
+    const token = localStorage.getItem("token")
     const handleRemove = async (categoryId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${categoryId}/remove`)
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${categoryId}/remove`, null, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
                 handleShowAlert()
@@ -51,7 +54,9 @@ export default function AllCategory() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
@@ -130,7 +135,7 @@ export default function AllCategory() {
                                         />
                                     </td>
                                     <td className="py-2 px-4 text-center" style={{ width: '75%' }}>{item.name}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger'><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center'><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allCategory.length === 0 && (

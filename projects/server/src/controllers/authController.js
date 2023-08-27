@@ -74,7 +74,7 @@ module.exports = {
     async registerAdmin(req,res) {
         const transaction = await db.sequelize.transaction()
         try {
-            const {name, email, phone, province, city} = req.body
+            const {name, email, phone, province, city, streetName} = req.body
             const userData = await db.User.findOne({
                 where: {
                     email: email
@@ -135,24 +135,14 @@ module.exports = {
             }, {
                 transaction,
             })
-
-            const responseData = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${city}+${province}&key=${opencageKey}`)
-            const sanitizedResponse = JSON.stringify(responseData, (key, value) => {
-                if (typeof value === 'object' && value !== null) {
-                    if (value === responseData.request) {
-                        return;
-                    }
-                }
-                return value;
-            });
-            const latlong = JSON.parse(sanitizedResponse)
-            const geometry = latlong.data.results[0].geometry
             
             const newBranch = await db.Branch.create({
                 user_id: newAdmin.id,
+                streetName: streetName,
                 city_id: selectedCity.city_id,
-                latitude: geometry.lat,
-                longitude: geometry.lng
+                postalCode: selectedCity.postal_code,
+                latitude: req.geometry.lat,
+                longitude: req.geometry.lng
             }, {
                 transaction
             })
@@ -427,31 +417,17 @@ module.exports = {
                 transaction,
             })
 
-            const responseData = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${city}+${province}&key=${opencageKey}`)
-            if(!responseData){
-                await transaction.rollback()
-                return res.status(400).send({
-                    message: "Can't get location's latitude and longitude"
-                })
-            }
-            const sanitizedResponse = JSON.stringify(responseData, (key, value) => {
-                if (typeof value === 'object' && value !== null) {
-                    if (value === responseData.request) {
-                        return;
-                    }
-                }
-                return value;
-            });
-            const latlong = JSON.parse(sanitizedResponse)
-            const geometry = latlong.data.results[0].geometry
-
             const userAddress = await db.Address.create({
                 user_id: newUser.id,
                 streetName: streetName,
                 city_id: selectedCity.city_id,
-                latitude: geometry.lat,
-                longitude: geometry.lng,
-                isMain: true
+                latitude: req.geometry.lat,
+                longitude: req.geometry.lng,
+                isMain: true,
+                addressLabel: "Home",
+                receiver: newUser.name,
+                contact: newUser.phone,
+                postalCode: selectedCity.postal_code
             }, {
                 transaction
             })
@@ -591,12 +567,13 @@ module.exports = {
             const hashPassword = await bcrypt.hash(password, salt)
 
             userData.password = hashPassword
+            userData.resetPasswordToken = null
             await userData.save()
 
             await transaction.commit()
 
             return res.status(200).send({
-                message: "You have reset your password"
+                message: "You have successfully reset your password"
             })
         }catch(error){
             return res.status(500).send({

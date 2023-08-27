@@ -28,8 +28,9 @@ export default function ModifyProduct() {
     })
     const [imagePreview, setImagePreview] = useState(null);
     const uOMOptions = [{ label: "GR", value: "gr" }, { label: "ML", value: "ml" }]
+    const token = localStorage.getItem("token")
+
     const modifyProductSchema = yup.object().shape({
-        file: yup.mixed(),
         name: yup.string().trim().max(50, "Maximum character is 50").typeError("Name must be a valid text"),
         category_id: yup.string().trim(),
         description: yup.string().trim().max(500, "Maximum character is 500").typeError("Description must be a valid text"),
@@ -52,7 +53,9 @@ export default function ModifyProduct() {
 
     const getOneProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${selectedProductId}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${selectedProductId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -78,7 +81,9 @@ export default function ModifyProduct() {
 
     const getProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-products`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-products`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -98,7 +103,9 @@ export default function ModifyProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`);
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -135,6 +142,7 @@ export default function ModifyProduct() {
             const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${selectedProductId}/modify`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${token}`
                 },
             })
 
@@ -212,7 +220,6 @@ export default function ModifyProduct() {
         console.log("file here:", file)
         if (file) {
             const previewUrl = URL.createObjectURL(file);
-            console.log(previewUrl)
             setImagePreview(previewUrl);
         }
     }

@@ -3,9 +3,13 @@ import axios from "axios"
 
 export default function ModalProduct({ productId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
+    const token = localStorage.getItem("token")
+
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/products/${productId}`);
+            const response = await axios.get(`http://localhost:8000/api/admins/products/${productId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             if (response.data) {
                 setSelectedProduct(response.data.data)
             }

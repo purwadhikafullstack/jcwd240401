@@ -7,6 +7,7 @@ import Modal from '../../../Modal';
 import CustomDropDowm from '../../../CustomDropdown';
 import ModalBranchProduct from '../../../ModalBranchProduct';
 import AlertPopUp from '../../../AlertPopUp';
+import rupiah from '../../../../helpers/rupiah';
 
 export default function AllBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -153,7 +154,7 @@ export default function AllBranchProduct() {
                             {allBranchProduct.length !== 0 && allBranchProduct.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-100 border-b-2 border-gray-200">
                                     <td className="py-2 px-4 cursor-pointer" style={{ width: '45%' }} onClick={() => setSelectedProduct(item.id)}>
-                                        <div className='grid grid-cols-1 lg:grid-cols-2 justify-center text-sm'>
+                                        <div className='grid grid-cols-1 lg:grid-cols-2 justify-center text-sm gap-1'>
                                             <div className='hidden lg:block'>
                                                 <img
                                                     className="w-28 h-28 justify-center mx-auto m-2 object-cover"
@@ -165,8 +166,8 @@ export default function AllBranchProduct() {
                                             <div className='flex flex-col justify-center w-4/5 pl-2 gap-2'>
                                                 <div className='text-maindarkgreen'>{item?.Product?.name}</div>
                                                 <div>{item?.Product?.Category.name}</div>
-                                                <div>{item?.Product?.weight} {item?.Product?.unitOfMeasurement} / pack</div>
-                                                <div>{`Rp ${item?.Product?.basePrice.toLocaleString("id-ID")}`}</div>
+                                                <div>{item?.Product?.weight}{item?.Product?.unitOfMeasurement} / pack</div>
+                                                <div>{rupiah(item?.Product?.basePrice)}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -178,7 +179,7 @@ export default function AllBranchProduct() {
                                     </td>
                                     <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.status} </td>
                                     <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.quantity} </td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger'><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center'><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allBranchProduct.length === 0 && (

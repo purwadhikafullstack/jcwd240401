@@ -1,10 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import {useFormik} from 'formik'
 import axios from 'axios'
-import { registerSchema } from '../../../../helpers/validationSchema'
+import { registerAdminSchema } from '../../../../helpers/validationSchema'
 import AlertPopUp from '../../../AlertPopUp'
 import InputField from '../../../InputField'
-import Dropdown from '../../../Dropdown'
 import Modal from '../../../Modal'
 
 export default function CreateBranch() {
@@ -15,11 +14,12 @@ export default function CreateBranch() {
     const [selectedProvince, setSelectedProvince] = useState("")
     const [selectedCity, setSelectedCity] = useState("")
     const [showAlert, setShowAlert] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const token = localStorage.getItem("token")
 
     useEffect(() => {
         try{
-            axios.get("http://localhost:8000/api/auth/all-province").then((response) => {setProvinceData(response.data?.data)})
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-province`).then((response) => {setProvinceData(response.data?.data)})
         }catch(error){
             console.log(error)
         }
@@ -27,7 +27,7 @@ export default function CreateBranch() {
 
     useEffect(() => {
         try{
-            axios.get(`http://localhost:8000/api/auth/all-city?province=${selectedProvince}`).then((response) => {setCityData(response.data?.data)})
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-city?province=${selectedProvince}`).then((response) => {setCityData(response.data?.data)})
         }catch(error){
             console.log(error)
         }
@@ -38,13 +38,17 @@ export default function CreateBranch() {
 
     const onSubmit = async(values, actions) => {
         try{
-            const response = await axios.post("http://localhost:8000/api/auth/admins/register", values, {
+            actions.setSubmitting(true)
+            setIsLoading(true)
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/admins/register`, values, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             })
             if (response.status === 200){
                 actions.resetForm()
+                actions.setSubmitting(false)
+                setIsLoading(false)
                 setErrorMessage("")
                 setSelectedProvince("")
                 setSelectedCity("")
@@ -53,26 +57,25 @@ export default function CreateBranch() {
             }
         }catch(error){
             if(error.response.status === 500){
-                setErrorMessage("Add admin failed: Server error")
-            }else if(error.response?.data?.message === "There's already an admin with this email"){
-                setErrorMessage("There's already an admin with this email")
-            }else if(error.response?.data?.message === "There's already a branch in this city"){
-                setErrorMessage("There's already a branch in this city")
-            }else if(error.response?.data?.message === "There is no city in the selected province"){
-                setErrorMessage("There is no city in the selected province")
+                setErrorMessage("Register failed: Server error")
+            }else if(error.response?.data?.message){
+                setErrorMessage(error.response?.data?.message)
             }
+            actions.setSubmitting(false)
+            setIsLoading(false)
             handleShowAlert()
         }
     }
-    const {values, errors, touched, handleChange, handleBlur, handleSubmit} = useFormik({
+    const {values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue, isValid, isSubmitting} = useFormik({
         initialValues: {
             name: "",
             email: "",
             phone: "",
             province: "",
             city: "",
+            streetName: "",
         },
-        validationSchema: registerSchema,
+        validationSchema: registerAdminSchema,
         onSubmit
     })
 
@@ -96,37 +99,48 @@ export default function CreateBranch() {
                         </div>
                         <form onSubmit={(e) => {e.preventDefault(); handleSubmit(e)}} autoComplete="off" className="w-full flex flex-col gap-2">
                             <div className="w-full">
-                                <label htmlFor="name" className="font-inter">Name</label>
+                                <label htmlFor="name" className="font-inter">Name <span className="text-xs text-reddanger">* required</span></label>
                                 <InputField value={values.name} id={"name"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.name && touched.name && <p className="text-reddanger text-sm font-inter">{errors.name}</p>}
                             </div>
                             <div className="w-full">
-                                <label htmlFor="email" className="font-inter">Email</label>
+                                <label htmlFor="email" className="font-inter">Email <span className="text-xs text-reddanger">* required</span></label>
                                 <InputField value={values.email} id={"email"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.email && touched.email && <p className="text-reddanger text-sm font-inter">{errors.email}</p>}
                             </div>
                             <div className="w-full">
-                                <label htmlFor="phone" className="font-inter">Phone</label>
+                                <label htmlFor="phone" className="font-inter">Phone <span className="text-xs text-reddanger">* required</span></label>
                                 <InputField value={values.phone} id={"phone"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.phone && touched.phone && <p className="text-reddanger text-sm font-inter">{errors.phone}</p>}
                             </div>
                             <div className="w-full flex flex-col">
-                                <label htmlFor="province" className="font-inter">Province</label>
-                                <Dropdown options={provinceOptions} id="province" placeholder={"Choose a province"} onChange={(value) => {
-                                    setSelectedProvince(value);
-                                    handleChange("province")(value)
-                                }}/>
+                                <label htmlFor="province" className="font-inter">Province <span className="text-xs text-reddanger">* required</span></label>
+                                <select id="province" value={selectedProvince} name="province" onChange={(e)=> {setSelectedProvince(e.target.value); setFieldValue('province', e.target.value)}} className="w-full h-10 bg-lightgrey font-inter rounded-md">
+                                    <option value="">--Choose a Province--</option>
+                                    {provinceOptions.map((options) => (
+                                    <option value={options}>{options}</option>
+                                    ))}
+                                </select>
                                 {errors.province && touched.province && <p className="text-reddanger text-sm font-inter">{errors.province}</p>}
                             </div>
                             <div className="w-full flex flex-col">
-                            <label htmlFor="city" className="font-inter">City</label>
-                                <Dropdown options={cityOptions} id="city" placeholder={"Choose a city"} onChange={(value) => {
-                                    setSelectedCity(value)
-                                    handleChange("city")(value)}}/>
+                                <label htmlFor="city" className="font-inter">City <span className="text-xs text-reddanger">* required</span></label>
+                                <select id="city" value={selectedCity} name="city" onChange={(e) => {setSelectedCity(e.target.value); setFieldValue('city', e.target.value)}} className="w-full h-10 bg-lightgrey font-inter rounded-md">
+                                    <option value="">--Select a City--</option>
+                                    {cityOptions.map((options) => (
+                                    <option value={options}>{options}</option>
+                                    ))}
+                                </select>
                                 {errors.city && touched.city && <p className="text-reddanger text-sm font-inter">{errors.city}</p>}
                             </div>
-                            <div className="mt-10">
-                                <Modal modalTitle={"Add Branch Admin"} toggleName={"Add Branch Admin"} content={`Are you sure to add ${values.name} (${values.email}) as branch admin at ${values.city}, ${values.province}?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} onClickButton={handleSubmit}/>
+                            <div className="w-full">
+                                <label htmlFor="streetName" className="font-inter">Street Address <span className="text-xs text-reddanger">* required</span></label>
+                                <InputField value={values.streetName} id={"streetName"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
+                                {errors.streetName && touched.streetName && <p className="text-reddanger text-sm font-inter">{errors.streetName}</p>}
+                            </div>
+                            <div className="mt-10 flex flex-col items-center gap-2">
+                                {isLoading ? (<div className='text-sm text-maingreen font-inter'>Loading...</div>) : null}
+                                <Modal isDisabled={!isValid || isSubmitting} modalTitle={"Add Branch Admin"} toggleName={"Add Branch Admin"} content={`Are you sure to add ${values.name} (${values.email}) as branch admin at ${values.city}, ${values.province}?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={handleSubmit}/>
                             </div>
                         </form>
                     </div>
