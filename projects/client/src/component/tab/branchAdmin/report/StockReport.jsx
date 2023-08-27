@@ -4,19 +4,25 @@ import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 import dayjs from "dayjs";
 
+import CustomDropDowm from "../../../CustomDropdown";
+
+
 export default function StockReport() {
   const [dataStockHistory, setDataStockHistory] = useState([]);
+  const [dataAllBranchProduct, setDataAllBranchProduct] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState({
     sort: "",
+    search: "",
+    status: "",
     branch_product_id: "",
   });
   const fetchDataStockHistory = async () => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${currentPage}&sortDate=${filter.sort}&filterBranchProduct=${filter.branch_product_id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${currentPage}&sortDate=${filter.sort}&search=${filter.search}&filterStatus=${filter.status}&filterBranchProduct=${filter.branch_product_id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
@@ -32,8 +38,34 @@ export default function StockReport() {
       console.log(error);
     }
   };
+  const fetchAllBranchProduct = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/no-pagination-branch-products`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data) {
+        const data = response.data.data;
+        if (data) {
+          let options = data.map((d) => ({
+            label: `${d.Product?.name} [ ${d.Product?.weight}${d.Product.unitOfMeasurement} / pack ]`,
+            value: d.id,
+          }));
+          options.splice(0, 0, { label: "filter by name", value: "" });
+          setDataAllBranchProduct(options);
+        } else {
+          setDataAllBranchProduct([]);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchDataStockHistory();
+    fetchAllBranchProduct();
   }, [currentPage, filter]);
 
   const onPageChange = (page) => {
@@ -43,8 +75,6 @@ export default function StockReport() {
 
   //table data
   const arrayData = [];
-  const tomorrow = dayjs().add(1, "day");
-
   const TableRow = () => {
     dataStockHistory?.forEach((data, index) => {
       arrayData.push(
@@ -73,10 +103,12 @@ export default function StockReport() {
   ];
 
   const options2 = [
-    { label: "Filter by discount type", value: "" },
-    { label: "Buy one get one", value: 1 },
-    { label: "Discount by percentage", value: 2 },
-    { label: "Discount by nominal", value: 3 },
+    { label: "Filter by status", value: "" },
+    { label: "restock by admin", value: "restock by admin" },
+    { label: "reduced by admin", value: "reduced by admin" },
+    { label: "canceled by admin", value: "canceled by admin" },
+    { label: "canceled by user", value: "canceled by user" },
+    { label: "purchased by user", value: "purchased by user" },
   ];
 
   const handleChangeDropdown = (obj, name) => {
@@ -85,22 +117,42 @@ export default function StockReport() {
       [name]: obj.value,
     }));
   };
+  const handleFilterChange = (e) => {
+    setFilter({
+      ...filter,
+      [e.target.id]: e.target.value,
+    });
+  };
 
   return (
     <div className="w-5/6 mx-auto">
       <div className="relative">
-        {/* <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropdown
+        <div className="mx-auto py-2 w-5/6">
+          <CustomDropDowm
+            options={dataAllBranchProduct}
+            onChange={(e) => handleChangeDropdown(e, "branach_poduct_id")}
+            placeholder={"filter by product"}
+          />
+          {/* <SearchBar
+            id={"search"}
+            value={filter.search}
+            type="text"
+            onChange={handleFilterChange}
+            placeholder="Enter here to search product by name..."
+          /> */}
+        </div>
+        <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
+          <CustomDropDowm
             options={options}
             onChange={(e) => handleChangeDropdown(e, "sort")}
             placeholder={"Sort by expired date"}
           />
-          <CustomDropdown
+          <CustomDropDowm
             options={options2}
-            onChange={(e) => handleChangeDropdown(e, "discount_type_id")}
-            placeholder={"filter by discount type"}
+            onChange={(e) => handleChangeDropdown(e, "status")}
+            placeholder={"filter by status"}
           />
-        </div> */}
+        </div>
         <div className="w-72 overflow-x-auto lg:w-full">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
