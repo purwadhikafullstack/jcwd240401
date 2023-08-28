@@ -80,7 +80,7 @@ module.exports = {
     body("phone").notEmpty().withMessage("phone number is required"),
     body("province").notEmpty().withMessage("Branch province is required"),
     body("city").notEmpty().withMessage("Branch city is required"),
-    body("streetName").notEmpty().withMessage("Street address is required")
+    body("streetName").notEmpty().withMessage("Street address is required"),
   ]),
   validateSetPassword: validate([
     body("password")
@@ -390,14 +390,9 @@ module.exports = {
       .withMessage("Label must be 'Home' or 'Work'"),
   ]),
   validateModifyAddress: validate([
-    body("streetName")
-      .trim()
-      .notEmpty()
-      .withMessage("Street name is required")
-      .isLength({ max: 255 })
-      .withMessage("Street name must not exceed 255 characters"),
-    body("province").trim().notEmpty().withMessage("Province is required"),
-    body("city").trim().notEmpty().withMessage("Street name is required"),
+    body("streetName").trim().optional(),
+    body("province").trim().optional(),
+    body("city").trim().optional(),
     body("receiver")
       .optional()
       .isLength({ max: 50 })
