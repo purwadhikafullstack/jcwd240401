@@ -44,7 +44,7 @@ module.exports = {
                 })
             }
 
-            const payload = {id: userData.id, name: userData.name, status: userData.isVerify, role: userData.role_id, imgProfile: userData.imgProfile}
+            const payload = {id: userData.id, name: userData.name, phone: userData.phone, status: userData.isVerify, role: userData.role_id, imgProfile: userData.imgProfile}
             const token = jwt.sign(payload, secretKey, {
                 expiresIn: "7d"
             })
@@ -270,7 +270,7 @@ module.exports = {
                     id: userId
                 }
             })
-            const payload = {id: userData.id, name: userData.name, status: userData.isVerify, role: userData.role_id, imgProfile: userData.imgProfile}
+            const payload = {id: userData.id, name: userData.name, phone: userData.phone, status: userData.isVerify, role: userData.role_id, imgProfile: userData.imgProfile}
             const refreshToken = jwt.sign(payload, secretKey, {
                 expiresIn: "1h"
             })
