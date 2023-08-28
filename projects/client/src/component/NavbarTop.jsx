@@ -6,6 +6,7 @@ import { HiOutlineLocationMarker, HiOutlineUser, HiOutlineShoppingCart } from 'r
 import { useLocation, useNavigate } from 'react-router-dom'
 import Button from './Button'
 import background from '../assets/BackgroundLeaves.jpg'
+import DropdownForNavbar from './user/DropdownForNavbar'
 
 export default function NavbarTop({city, province}) {
     const token = localStorage.getItem("token")
@@ -16,7 +17,7 @@ export default function NavbarTop({city, province}) {
         {name: "Home"},
         {name: "Orders"},
         {name: "Cart", icon: <HiOutlineShoppingCart size={25} />},
-        {name: "Account", icon: <HiOutlineUser size={25} />}
+        {name: "Account", icon: <DropdownForNavbar />}
     ]
 
     const onClickLogIn = () => {
@@ -33,7 +34,7 @@ export default function NavbarTop({city, province}) {
             </div>
         </div>
         <div className="w-full h-full col-span-1 flex justify-end gap-20 items-center font-inter">
-            <div className="flex justify-between gap-10">
+            <div className="flex items-center justify-between gap-10">
                 {routes.map(({ name, icon }, idx) => (
                     token && profile.role === "3" ? 
                     <div key={idx}>{icon ? icon : name}</div> : <div key={idx} className='h-10 flex items-center justify-center'>{name}</div>
