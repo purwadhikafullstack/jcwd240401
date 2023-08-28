@@ -37,6 +37,7 @@ import UserProfileChangePassword from "./page/user/UserProfileChangePassword";
 import UserAddressCreate from "./page/user/UserAddressCreate";
 import UserAddressModify from "./page/user/UserAddressModify";
 import UserAddress from "./page/user/UserAddress";
+import SingleProduct from "./page/user/SingleProduct";
 
 function App() {
   const dispatch = useDispatch()
@@ -108,6 +109,7 @@ function App() {
         <Route path="/user/account/my-address" element={<UserAddress />} />
         <Route path="/user/account/my-address/create" element={<UserAddressCreate />} />
         <Route path="/user/account/my-address/edit/:name" element={<UserAddressModify />} />
+        <Route path="/product/:name" element={<SingleProduct />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

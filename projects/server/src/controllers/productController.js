@@ -44,9 +44,6 @@ module.exports = {
         .send({ message: "Successfully created new category" });
     } catch (error) {
       handleCatchError(res, transaction, error);
-      // console.log(error);
-      // await transaction.rollback();
-      // return res.status(500).send({ message: "Internal Server Error" });
     }
   },
   // get all category
@@ -120,6 +117,45 @@ module.exports = {
       return res.status(200).send({
         message: "Successfully retrieved categories",
         data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: "Internal Server Error" });
+    }
+  },
+  async allCategoryNoPaginationPerBranch(req, res) {
+    try {
+      const branchProducts = await db.Branch_Product.findAll({
+        where: { branch_id: req.params.id, isRemoved: 0 },
+        include: [{ model: db.Product, include: { model: db.Category } }],
+      });
+
+      if (branchProducts.length === 0) {
+        return res.status(200).send({
+          message: "No products found for the specified branch",
+        });
+      }
+
+      const uniqueCategoryIds = new Set();
+
+      const uniqueCategories = [];
+
+      branchProducts.forEach((branchProduct) => {
+        branchProduct.Product.Categories.forEach((category) => {
+          if (!uniqueCategoryIds.has(category.id)) {
+            uniqueCategoryIds.add(category.id);
+            uniqueCategories.push({
+              id: category.id,
+              name: category.name,
+              imgCategory: category.imgCategory,
+            });
+          }
+        });
+      });
+
+      return res.status(200).send({
+        message: "Successfully retrieved categories for the specified branch",
+        data: uniqueCategories,
       });
     } catch (error) {
       console.log(error);
