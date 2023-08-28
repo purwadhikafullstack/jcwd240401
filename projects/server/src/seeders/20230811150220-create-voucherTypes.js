@@ -12,7 +12,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    await queryInterface.bulkInsert("Voucher_types", [
+    await queryInterface.bulkInsert("Voucher_Types", [
       {
         type: "Free shipping",
         createdAt: new Date(),
@@ -38,6 +38,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete("Voucher_types", null, {});
+    await queryInterface.bulkDelete("Voucher_Types", null, {});
   },
 };
