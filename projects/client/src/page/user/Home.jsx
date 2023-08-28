@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { Carousel } from 'flowbite-react'
+import { useSelector } from 'react-redux'
 import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
 import SearchBar from '../../component/SearchBar'
-import { remove } from '../../store/reducer/authSlice'
-import productImg from '../../assets/BackgroundLeaves.jpg'
 import ProductCard from '../../component/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CustomDropdown from '../../component/CustomDropdown'
+import CarouselContent from '../../component/user/CarouselContent'
 
 
 export default function Home() {
@@ -22,6 +19,7 @@ export default function Home() {
     const [provinceAddress, setProvinceAddress] = useState("")
     const [categories, setCategories] = useState([])
     const [productData, setProductData] = useState([])
+    const [outOfReach, setOutOfReach] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [filter, setFilter] = useState({
@@ -32,8 +30,6 @@ export default function Home() {
 
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
 
     useEffect(() => {
         if (!token) {
@@ -72,12 +68,11 @@ export default function Home() {
 
     const getAddress = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/address`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/main-address`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             })
-
             if (response.data) {
                 setLatitude(response.data.data?.latitude)
                 setLongitude(response.data.data?.longitude)
@@ -100,26 +95,31 @@ export default function Home() {
         }
     }, [token, profile])
 
-    useEffect(() => {
-        try {
-            axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${currentPage}&search=&filterCategory=&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`)
-                .then((response) => {
-                    if (response.data) {
-                        setProductData(response.data.data?.rows)
-                    }
-                    if (response.data.pagination) {
-                        setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
-                    }
-                })
-        } catch (error) {
-            if (error.response) {
-                console.error(error.response.message)
+    const getProducts = async () => {
+        try{
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${currentPage}&search=&filterCategory=&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`)
+            if (response.data) {
+                setProductData(response.data.data?.rows)
+            }
+            if (response.data.pagination) {
+                setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
+            }
+            if(response.data.outOfReach === true){
+                setOutOfReach(true)
+            }
+        }catch(error){
+            if(error.response){
+                console.log(error.response.message)
             }
         }
+    }
+
+    useEffect(() => {
+        getProducts()
     }, [latitude, longitude, filter.sortName, filter.sortPrice, currentPage])
 
-    const city = (token && profile.role === "3") ? cityAddress : productData[0]?.Branch?.City?.city_name
-    const province = (token && profile.role === "3") ? provinceAddress : productData[0]?.Branch?.City?.Province?.province_name
+    const city = (token && profile.role === "3") ? cityAddress : productData ? productData[0]?.Branch?.City?.city_name : ""
+    const province = (token && profile.role === "3") ? provinceAddress : productData ? productData[0]?.Branch?.City?.Province?.province_name : ""
 
     useEffect(() => {
         try {
@@ -128,12 +128,6 @@ export default function Home() {
             console.log(error)
         }
     }, [])
-
-    const handleLogout = () => {
-        dispatch(remove())
-        localStorage.removeItem("token")
-        navigate("/")
-    }
 
     const handleSearchValue = (e) => {
         setFilter((prevFilter) => ({
@@ -164,11 +158,7 @@ export default function Home() {
                     <SearchBar value={filter.search} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
                 </div>
                 <div className="w-6/12 h-64 mb-10">
-                    <Carousel>
-                        <div className="w-full h-full">
-                            <img src={productImg} alt="product image carousel" />
-                        </div>
-                    </Carousel>
+                    <CarouselContent />
                 </div>
                 <div className="w-6/12 h-auto flex gap-4 overflow-x-auto mb-10">
                     {categories.data?.map((category) => (
@@ -183,9 +173,9 @@ export default function Home() {
                     <CustomDropdown options={priceOptions} onChange={(e) => handleChangeDropdown(e, "sortPrice")} placeholder={"Sort by Price"} />
                 </div>
                 <div className='w-6/12 flex mb-20 justify-evenly'>
-                    {productData.map((product, index) => (
-                        <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} />
-                    ))}
+                    {productData ? (productData.map((product, index) => (
+                        <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach}/>))
+                    ) : (<div className='font-inter'>No Product Found</div>)}
                 </div>
                 <div className='flex justify-center'>
                     <Pagination
@@ -199,7 +189,6 @@ export default function Home() {
                         className="mx-auto"
                     />
                 </div>
-                {token ? <button onClick={handleLogout}>Log Out</button> : null}
             </div>
             <NavbarBottom />
             <Footer />

@@ -7,10 +7,10 @@ const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 
+router.get("/branch-products", productController.productsFromNearestBranch);
 router.use(authMiddleware.verifyToken, authMiddleware.verifyUser);
 router.get("/main-address", userController.getMainAddress);
 router.get("/addresses", userController.getAllAddress);
-router.get("/branch-products", productController.productsFromNearestBranch);
 router.post(
   "/address",
   validatorMiddleware.validateCreateAddress,

@@ -17,9 +17,8 @@ import BranchAdminReport from "./page/admin/BranchAdminReport";
 import Login from "./page/Login";
 import UserRegister from "./page/user/UserRegister";
 import BranchAdminSetAccount from "./page/admin/BranchAdminSetAccount";
-import PrivateSuperAdminWrapper from "./wrapper/PrivateSuperAdminWrapper";
 import PrivateAdminWrapper from "./wrapper/PrivateAdminWrapper";
-import PrivateBranchAdminWrapper from "./wrapper/PrivateBranchAdminWrapper";
+import PublicWrapper from "./wrapper/PublicWrapper";
 import Unauthorized from "./page/Unauthorized";
 import { keep } from "./store/reducer/authSlice";
 import NotFound from "./page/NotFound";
@@ -70,13 +69,16 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<UserRegister />} />
-        <Route path="/verify-account/:verificationToken" element={<VerifyAccount />} />
+        <Route element={<PublicWrapper />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<UserRegister />} />
+          <Route path="/verify-account/:verificationToken" element={<VerifyAccount />} />
+          <Route path="/set-password/:verificationToken" element={<BranchAdminSetAccount />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:resetPasswordToken" element={<ResetPassword />} />
+        </Route>
+
         <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/set-password/:verificationToken" element={<BranchAdminSetAccount />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:resetPasswordToken" element={<ResetPassword />} />
 
         <Route element={<PrivateAdminWrapper allowedRoles={[1, 2]} />}>
           <Route path="/admin" element={<AdminHome />} />
