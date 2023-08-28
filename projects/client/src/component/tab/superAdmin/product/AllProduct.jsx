@@ -94,24 +94,13 @@ export default function AllProduct() {
             ...filter, [e.target.id]: e.target.value
         })
     }
-    const handleCategory = (obj, name) => {
+
+    const handleDropdownChange = (obj, name) => {
         setFilter((prevFilter) => ({
             ...prevFilter,
-            category: obj.value,
+            [name]: obj.value,
         }));
-    };
-    const handleName = (obj, name) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            sortName: obj.value,
-        }));
-    };
-    const handlePrice = (obj, name) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            sortPrice: obj.value,
-        }));
-    };
+    }
 
     const handleRemove = async (productId) => {
         try {
@@ -152,9 +141,9 @@ export default function AllProduct() {
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Enter here to search product by name..." />
-                <CustomDropDowm options={allCategory} onChange={handleCategory} placeholder={"Filter by Category"} />
-                <CustomDropDowm options={nameOptions} onChange={handleName} placeholder={"Sort by Name"} />
-                <CustomDropDowm options={priceOptions} onChange={handlePrice} placeholder={"Sort by Price"} />
+                <CustomDropDowm options={allCategory} onChange={(e) => handleDropdownChange(e, "category")} placeholder={"Filter by Category"} />
+                <CustomDropDowm options={nameOptions} onChange={(e) => handleDropdownChange(e, "sortName")} placeholder={"Sort by Name"} />
+                <CustomDropDowm options={priceOptions} onChange={(e) => handleDropdownChange(e, "sortPrice")} placeholder={"Sort by Price"} />
             </div>
             <div className=''>
                 <div className="grid gap-2">
@@ -175,7 +164,7 @@ export default function AllProduct() {
                                             <div className='hidden md:block'>
                                                 <img
                                                     className="w-28 h-28 justify-center mx-auto m-2 object-cover"
-                                                    src={`http://localhost:8000${item.imgProduct}`}
+                                                    src={`${proccess.env.REACT_APP_BASE_URL}${item.imgProduct}`}
                                                     onError={handleImageError}
                                                     alt="/"
                                                 />
