@@ -197,4 +197,20 @@ router.get(
   adminController.getStockHistorySuperAdmin
 );
 
+//get all branch no pagination
+router.get(
+  "/no-pagination-all-branch",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.allBranchNoPagination
+);
+
+//get all branch product no pagination (SA)
+router.get(
+  "/no-pagination-branch-products-sa",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.allBranchProductNoPaginationSuperAdmin
+);
+
 module.exports = router;

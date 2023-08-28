@@ -1154,6 +1154,8 @@ module.exports = {
       date: req.query.sortDate,
       branch_product_id: req.query.filterBranchProduct || "",
       branch_id: req.query.filterBranch || "1",
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
     };
     try {
       const where = {};
@@ -1163,6 +1165,19 @@ module.exports = {
       };
       let productWhere = { isRemoved: 0 };
       const order = [];
+      if (pagination.startDate && pagination.endDate) {
+        where.createdAt = {
+          [db.Sequelize.Op.between]: [pagination.startDate, pagination.endDate],
+        };
+      } else if (pagination.startDate) {
+        where.createdAt = {
+          [db.Sequelize.Op.gte]: pagination.startDate,
+        };
+      } else if (pagination.endDate) {
+        where.createdAt = {
+          [db.Sequelize.Op.lte]: pagination.endDate,
+        };
+      }
       if (pagination.search) {
         productWhere["$Branch_Product.Product.name$"] = {
           [db.Sequelize.Op.like]: `%${pagination.search}%`,
@@ -1239,6 +1254,78 @@ module.exports = {
       res.status(500).send({
         message: "Internal Server Error",
         error: error.message,
+      });
+    }
+  },
+  //all branch no pagination (SA)
+  async allBranchNoPagination(req, res) {
+    try {
+      const results = await db.Branch.findAndCountAll({
+        include: [
+          {
+            model: db.User,
+            attributes: ["name", "phone"],
+          },
+          {
+            model: db.City,
+            include: [
+              {
+                model: db.Province,
+                attributes: ["province_name"],
+              },
+            ],
+            attributes: {
+              exclude: ["city_id"],
+            },
+          },
+        ],
+      });
+
+      if (results.rows.length === 0) {
+        return res.status(200).send({
+          message: "No branch found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Successfully retrieved branch",
+        data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: "Internal Server Error" });
+    }
+  },
+  //all branch product no pagination (SA)
+  async allBranchProductNoPaginationSuperAdmin(req, res) {
+    try {
+      const results = await db.Branch_Product.findAll({
+        where: { isRemoved: 0 },
+        include: [
+          {
+            model: db.Product,
+            where: {
+              isRemoved: 0,
+            },
+            include: { model: db.Category, where: { isRemoved: 0 } },
+          },
+        ],
+      });
+
+      if (results.length === 0) {
+        return res.status(200).send({
+          message: "No branch products found",
+        });
+      }
+
+      res.status(200).send({
+        message: "Successfully retrieved products",
+        data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
       });
     }
   },

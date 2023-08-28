@@ -144,7 +144,7 @@ export default function StockReport() {
         <div className="mx-auto py-2 w-5/6">
           <CustomDropDowm
             options={dataAllBranchProduct}
-            onChange={(e) => handleChangeDropdown(e, "branach_poduct_id")}
+            onChange={(e) => handleChangeDropdown(e, "branch_product_id")}
             placeholder={"filter by product"}
           />
         </div>
@@ -178,7 +178,7 @@ export default function StockReport() {
           <CustomDropDowm
             options={options}
             onChange={(e) => handleChangeDropdown(e, "sort")}
-            placeholder={"Sort by expired date"}
+            placeholder={"Sort by create date"}
           />
           <CustomDropDowm
             options={options2}
