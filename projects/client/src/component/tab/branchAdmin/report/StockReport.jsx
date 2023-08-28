@@ -2,10 +2,8 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
-import dayjs from "dayjs";
 
 import CustomDropDowm from "../../../CustomDropdown";
-
 
 export default function StockReport() {
   const [dataStockHistory, setDataStockHistory] = useState([]);
@@ -14,15 +12,16 @@ export default function StockReport() {
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState({
     sort: "",
-    search: "",
     status: "",
     branch_product_id: "",
+    startDate: "",
+    endDate: "",
   });
   const fetchDataStockHistory = async () => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${currentPage}&sortDate=${filter.sort}&search=${filter.search}&filterStatus=${filter.status}&filterBranchProduct=${filter.branch_product_id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${currentPage}&sortDate=${filter.sort}&filterStatus=${filter.status}&filterBranchProduct=${filter.branch_product_id}&startDate=${filter.startDate}&endDate=${filter.endDate}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
@@ -73,6 +72,19 @@ export default function StockReport() {
     setCurrentPage(page);
   };
 
+  const renderSwitch = (param, data) => {
+    switch (param) {
+      case "restock by admin":
+        return <td className="px-6 py-4 text-maingreen">{`+${data}`}</td>;
+      case "reduced by admin":
+        return <td className="px-6 py-4 text-reddanger">{`-${data}`}</td>;
+      case "purchased by user":
+        return <td className="px-6 py-4 text-reddanger">{`-${data}`}</td>;
+      default:
+        return <td className="px-6 py-4">{param}</td>;
+    }
+  };
+
   //table data
   const arrayData = [];
   const TableRow = () => {
@@ -82,9 +94,11 @@ export default function StockReport() {
           key={data.id}
           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
         >
-          <td className="px-6 py-4">{data.Branch_Product.Product.name}</td>
+          <td className="px-6 py-4">{`${data.Branch_Product.Product.name} [ ${data.Branch_Product.Product?.weight}${data.Branch_Product.Product.unitOfMeasurement} / pack ]`}</td>
           <td className="px-6 py-4">{data.totalQuantity}</td>
-          <td className="px-6 py-4">{data.quantity}</td>
+          <td className="px-6 py-4">
+            {renderSwitch(data.status, data.quantity)}
+          </td>
           <td className="px-6 py-4">{data.status}</td>
           <td className="px-6 py-4">
             {new Date(data.createdAt).toLocaleDateString()}
@@ -133,13 +147,32 @@ export default function StockReport() {
             onChange={(e) => handleChangeDropdown(e, "branach_poduct_id")}
             placeholder={"filter by product"}
           />
-          {/* <SearchBar
-            id={"search"}
-            value={filter.search}
-            type="text"
-            onChange={handleFilterChange}
-            placeholder="Enter here to search product by name..."
-          /> */}
+        </div>
+        <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Start Date
+            </label>
+            <input
+              id="startDate"
+              type="date"
+              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              value={filter.startDate}
+              onChange={handleFilterChange}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              End Date
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              value={filter.endDate}
+              onChange={handleFilterChange}
+            />
+          </div>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <CustomDropDowm

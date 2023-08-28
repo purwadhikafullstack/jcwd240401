@@ -1039,6 +1039,8 @@ module.exports = {
       status: req.query.filterStatus || "",
       date: req.query.sortDate,
       branch_product_id: req.query.filterBranchProduct || "",
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
     };
     try {
       const user = await db.User.findOne({
@@ -1060,6 +1062,19 @@ module.exports = {
       };
       let productWhere = { isRemoved: 0 };
       const order = [];
+      if (pagination.startDate && pagination.endDate) {
+        where.createdAt = {
+          [db.Sequelize.Op.between]: [pagination.startDate, pagination.endDate],
+        };
+      } else if (pagination.startDate) {
+        where.createdAt = {
+          [db.Sequelize.Op.gte]: pagination.startDate,
+        };
+      } else if (pagination.endDate) {
+        where.createdAt = {
+          [db.Sequelize.Op.lte]: pagination.endDate,
+        };
+      }
       if (pagination.search) {
         productWhere["$Branch_Product.Product.name$"] = {
           [db.Sequelize.Op.like]: `%${pagination.search}%`,
