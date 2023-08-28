@@ -5,11 +5,12 @@ export default function InputField({
     value,
     type,
     onChange,
-    onBlur
+    onBlur,
+    placeholder
 }) {
     return (
         <>
-            <input value={value} id={id} type={type} onChange={onChange} className="h-10 font-inter border-none w-full bg-lightgrey rounded-md py-2 focus:outline-none px-4" />
+            <input value={value} id={id} type={type} onChange={onChange} placeholder={placeholder} className="h-10 font-inter border-none w-full bg-lightgrey rounded-md py-2 focus:outline-none px-4" />
         </>
     )
 }

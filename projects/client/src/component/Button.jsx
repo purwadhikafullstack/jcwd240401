@@ -7,7 +7,8 @@ export default function Button({
     onClick,
     isDisabled,
     condition,
-    buttonType
+    buttonType,
+    size
 }) {
     let mainButtonClass, hoverClass, icon, iconClass, disabledStyle;
 
@@ -16,22 +17,22 @@ export default function Button({
     switch (condition) {
         case "positive":
             mainButtonClass =
-                "bg-[#2E6930] px-4 mr-2 py-2 rounded-lg text-white text-base w-full";
+                "bg-[#2E6930] px-4 mr-2 h-10 rounded-lg text-white text-base w-full";
             hoverClass = "hover:font-bold hover:bg-[#1E4620]";
             break;
         case "negative":
             mainButtonClass =
-                "bg-white px-4 mr-2 py-1 rounded-lg text-[#2E6930] border border-[#2E6930] text-base w-full";
+                "bg-white px-4 mr-2 h-10 rounded-lg text-[#2E6930] border border-[#2E6930] text-base w-full";
             hoverClass = "hover:font-bold hover:bg-slate-100";
             break;
         case "plus":
-            mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
+            mainButtonClass = `grid text-${size} w-fit h-fit`;
             hoverClass = !isDisabled && "hover:bg-slate-100";
             icon = <HiOutlinePlusCircle className="text-[#2E6930]" />;
             iconClass = "grid justify-center";
             break;
         case "minus":
-            mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
+            mainButtonClass = `grid text-${size} w-fit h-fit`;
             hoverClass = !isDisabled && "hover:bg-slate-100";
             icon = <HiOutlineMinusCircle className="text-[#2E6930]" />;
             iconClass = "grid justify-center";
