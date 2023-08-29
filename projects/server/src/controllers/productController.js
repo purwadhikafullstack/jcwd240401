@@ -756,6 +756,7 @@ module.exports = {
           if(distance < nearest){
             nearest = distance
             nearestBranchId = branch.id
+            outOfReach = false
           } else {
             nearestBranchId = branchData[0].id
             outOfReach = true
@@ -801,6 +802,7 @@ module.exports = {
       return res.status(200).send({
         message: "Success get branch product",
         outOfReach: outOfReach,
+        branchId: nearestBranchId,
         pagination,
         data: branchProductData
       })
