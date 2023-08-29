@@ -9,6 +9,7 @@ import ProductCard from '../../component/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CustomDropdown from '../../component/CustomDropdown'
 import CarouselContent from '../../component/user/CarouselContent'
+import { Link } from 'react-router-dom'
 
 
 export default function Home() {
@@ -96,7 +97,7 @@ export default function Home() {
     }, [token, profile])
 
     const getProducts = async () => {
-        try{
+        try {
             const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${currentPage}&search=&filterCategory=&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`)
             if (response.data) {
                 setProductData(response.data.data?.rows)
@@ -104,15 +105,33 @@ export default function Home() {
             if (response.data.pagination) {
                 setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
             }
-            if(response.data.outOfReach === true){
+            if (response.data.outOfReach === true) {
                 setOutOfReach(true)
             }
-        }catch(error){
-            if(error.response){
+        } catch (error) {
+            if (error.response) {
                 console.log(error.response.message)
             }
         }
     }
+
+    // const getCategory = async() => {
+    //     try {
+    //         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/branchs/${}/categories`);
+    //         if (response.data) {
+    //             const data = response.data.data;
+    //             if (data) {
+    //                 setCategories(data)
+    //             } else {
+    //                 setCategories([]);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         if (error.response) {
+    //             console.log(error.response.message)
+    //         }
+    //     }
+    // }
 
     useEffect(() => {
         getProducts()
@@ -121,13 +140,14 @@ export default function Home() {
     const city = (token && profile.role === "3") ? cityAddress : productData ? productData[0]?.Branch?.City?.city_name : ""
     const province = (token && profile.role === "3") ? provinceAddress : productData ? productData[0]?.Branch?.City?.Province?.province_name : ""
 
-    useEffect(() => {
-        try {
-            axios.get(`http://localhost:8000/api/admins/no-pagination-categories`).then((response) => setCategories(response.data))
-        } catch (error) {
-            console.log(error)
-        }
-    }, [])
+    // useEffect(() => {
+    //     try {
+    //         axios.get(`http://localhost:8000/api/admins/no-pagination-categories`).then((response) => setCategories(response.data))
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }, [])
+
 
     const handleSearchValue = (e) => {
         setFilter((prevFilter) => ({
@@ -154,27 +174,29 @@ export default function Home() {
         <>
             <NavbarTop city={city} province={province} />
             <div className="w-full flex flex-col items-center">
-                <div className="w-6/12 my-10">
+                <div className="w-11/12 gap-2 sm:w-6/12 my-10">
                     <SearchBar value={filter.search} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
                 </div>
-                <div className="w-6/12 h-64 mb-10">
+                <div className="w-11/12 gap-2 sm:w-6/12 h-64 mb-10">
                     <CarouselContent />
                 </div>
-                <div className="w-6/12 h-auto flex gap-4 overflow-x-auto mb-10">
+                <div className="w-11/12 gap-2 sm:w-6/12 h-fit flex overflow-x-auto mb-10">
                     {categories.data?.map((category) => (
-                        <div key={category.id} className='relative inline-block p-2 rounded-md' style={{ backgroundImage: `url(http://localhost:8000${category.imgCategory})`, backgroundSize: 'cover' }}>
+                        <div key={category.id} className='relative inline-block p-2 rounded-md' style={{ backgroundImage: `url(${process.env.REACT_APP_BASE_URL}${category.imgCategory})`, backgroundSize: 'cover' }}>
                             <div className="absolute inset-0 bg-black bg-opacity-40 w-full h-full rounded-md"></div>
                             <button className='w-auto font-inter text-white whitespace-nowrap relative z-10'>{category.name}</button>
                         </div>
                     ))}
                 </div>
-                <div className='w-6/12 flex gap-5 mb-10'>
+                <div className='w-11/12 gap-2 sm:w-6/12 flex mb-10'>
                     <CustomDropdown options={nameOptions} onChange={(e) => handleChangeDropdown(e, "sortName")} placeholder={"Sort by Name"} />
                     <CustomDropdown options={priceOptions} onChange={(e) => handleChangeDropdown(e, "sortPrice")} placeholder={"Sort by Price"} />
                 </div>
-                <div className='w-6/12 flex mb-20 justify-evenly'>
+                <div className='w-11/12 gap-2 sm:w-6/12 grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 sm:gap-10 mb-10 justify-center'>
                     {productData ? (productData.map((product, index) => (
-                        <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach}/>))
+                        <Link to={`/product/${product.Product?.name}`}><div key={index} className='flex justify-center mb-2 sm:mb-0'>
+                            <ProductCard key={index} productName={product.Product?.name} productBasePrice={product.Product?.basePrice} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach} />
+                        </div> </Link>))
                     ) : (<div className='font-inter'>No Product Found</div>)}
                 </div>
                 <div className='flex justify-center'>
