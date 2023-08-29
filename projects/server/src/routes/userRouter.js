@@ -2,14 +2,15 @@ const router = require("express").Router();
 const {
   user: userController,
   product: productController,
-  coordinate: coordinateController
+  coordinate: coordinateController,
 } = require("../controllers");
 const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
-router.get("/location", coordinateController.coordinateToPlacename)
+router.get("/branch-products/:name", userController.branchProductByName);
+router.get("/location", coordinateController.coordinateToPlacename);
 router.use(authMiddleware.verifyToken, authMiddleware.verifyUser);
 router.get("/main-address", userController.getMainAddress);
 router.get("/addresses", userController.getAllAddress);
