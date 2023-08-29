@@ -766,6 +766,20 @@ module.exports = {
         nearestBranchId = branchData[0].id
       }
 
+      const nearestBranchData = await db.Branch.findOne({
+        where: {
+          id: nearestBranchId
+        },
+        include: [
+          {
+            model: db.City,
+            include: {
+              model: db.Province
+            }
+          }
+        ]
+      })
+
       const branchProductData = await db.Branch_Product.findAndCountAll({
         where: {
           branch_id: nearestBranchId
@@ -777,14 +791,9 @@ module.exports = {
             include: { model: db.Category, where: { isRemoved: 0 } },
           },
           {
-            model: db.Branch,
-            include: {
-              model: db.City,
-              include: {
-                model: db.Province
-              }
-            }
-          }
+            model: db.Discount,
+            include: { model: db.Discount_Type },
+          },
         ],
         order: order,
         limit: pagination.perPage,
@@ -796,13 +805,14 @@ module.exports = {
       if (branchProductData.rows.length === 0) {
         return res.status(200).send({
           message: "No products found",
+          branchData: nearestBranchData
         });
       }
 
       return res.status(200).send({
         message: "Success get branch product",
         outOfReach: outOfReach,
-        branchId: nearestBranchId,
+        branchData: nearestBranchData,
         pagination,
         data: branchProductData
       })
