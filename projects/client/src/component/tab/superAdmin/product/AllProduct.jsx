@@ -164,7 +164,7 @@ export default function AllProduct() {
                                             <div className='hidden md:block'>
                                                 <img
                                                     className="w-28 h-28 justify-center mx-auto m-2 object-cover"
-                                                    src={`${proccess.env.REACT_APP_BASE_URL}${item.imgProduct}`}
+                                                    src={`${process.env.REACT_APP_BASE_URL}${item.imgProduct}`}
                                                     onError={handleImageError}
                                                     alt="/"
                                                 />

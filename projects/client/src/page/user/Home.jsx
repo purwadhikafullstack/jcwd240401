@@ -17,11 +17,16 @@ export default function Home() {
     const [error, setError] = useState("")
     const [cityAddress, setCityAddress] = useState("")
     const [provinceAddress, setProvinceAddress] = useState("")
+    const [cityCoordinaes, setCityCoordinates] = useState("")
+    const [provinceCoordinates, setProvinceCoordinates] = useState("")
     const [categories, setCategories] = useState([])
     const [productData, setProductData] = useState([])
     const [outOfReach, setOutOfReach] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
+    const [isLoadingPlacename, setIsLoadingPlacename] = useState(true);
+    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+    const [locationReady, setLocationReady] = useState(false);
     const [filter, setFilter] = useState({
         search: "",
         sortName: "",
@@ -30,6 +35,39 @@ export default function Home() {
 
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
+
+    const coordinateToPlacename = async() => {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/location?latitude=${latitude}&longitude=${longitude}`)
+        if(response.data){
+            if(response.data.data?.city === "Daerah Khusus Ibukota Jakarta"){
+                setCityCoordinates(response.data.data?.city_district)
+                setProvinceCoordinates("DKI Jakarta")
+            } else {
+                setCityCoordinates(response.data.data?.city)
+                setProvinceCoordinates(response.data.data?.state)
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (!isLoadingPlacename && locationPermissionGranted) {
+            coordinateToPlacename();
+        }
+    }, [isLoadingPlacename, locationPermissionGranted]);
+
+    useEffect(() => {
+        if (latitude !== "" && longitude !== "") {
+            setIsLoadingPlacename(true);
+            coordinateToPlacename()
+                .then(() => {
+                    setIsLoadingPlacename(false);
+                })
+                .catch((error) => {
+                    console.error("Error fetching placename:", error);
+                    setIsLoadingPlacename(false); 
+                });
+        }
+    }, [latitude, longitude]);
 
     useEffect(() => {
         if (!token) {
@@ -40,24 +78,29 @@ export default function Home() {
                     );
                     resolve(consent)
                 })
-
+                setLocationPermissionGranted(permissionGranted)
                 if (permissionGranted) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            setLatitude(position.coords.latitude);
-                            setLongitude(position.coords.longitude);
-                            setError(null);
-                        },
-                        (error) => {
-                            console.error("Error getting geolocation:", error.message)
-                            setError("Error getting geolocation. Please allow location access.")
-                        }
-                    )
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(
+                                (position) => resolve(position),
+                                (error) => reject(error)
+                            );
+                        });
+                
+                        setLatitude(position.coords.latitude);
+                        setLongitude(position.coords.longitude);
+                        setLocationReady(true) 
+                        setError(null);
+                    } catch (error) {
+                        console.error("Error getting geolocation:", error.message);
+                        setError("Error getting geolocation. Please allow location access.");
+                    }
                 } else {
+                    setLocationReady(true)
                     setError("Location access denied.");
                 }
             }
-
             if ("geolocation" in navigator) {
                 askForLocationPermission();
             } else {
@@ -86,10 +129,14 @@ export default function Home() {
             }
         }
     }
+
     useEffect(() => {
-        if (token && profile.role === "3") {
-            getAddress()
+        if(token && profile.role === "3"){
+            getAddress().then(()=> {
+                setLocationReady(true)
+            })
         } else {
+            setLocationReady(true)
             setCityAddress("")
             setProvinceAddress("")
         }
@@ -115,11 +162,13 @@ export default function Home() {
     }
 
     useEffect(() => {
-        getProducts()
-    }, [latitude, longitude, filter.sortName, filter.sortPrice, currentPage])
+        if(locationReady){
+            getProducts()
+        }
+    }, [latitude, longitude, filter.sortName, filter.sortPrice, currentPage, locationReady])
 
-    const city = (token && profile.role === "3") ? cityAddress : productData ? productData[0]?.Branch?.City?.city_name : ""
-    const province = (token && profile.role === "3") ? provinceAddress : productData ? productData[0]?.Branch?.City?.Province?.province_name : ""
+    const city = (token && profile.role === "3") ? cityAddress : locationPermissionGranted ? cityCoordinaes : productData[0]?.Branch?.City?.city_name
+    const province = (token && profile.role === "3") ? provinceAddress : locationPermissionGranted ? provinceCoordinates : productData[0]?.Branch?.City?.Province?.province_name
 
     useEffect(() => {
         try {
