@@ -428,6 +428,43 @@ module.exports = {
       });
     }
   },
+  async branchProductByName(req, res) {
+    try {
+      const result = await db.Branch_Product.findOne({
+        where: { isRemoved: false },
+        include: [
+          {
+            model: db.Product,
+            where: {
+              name: decodeURIComponent(req.params.name),
+              isRemoved: 0,
+            },
+            include: { model: db.Category, where: { isRemoved: 0 } },
+          },
+          {
+            model: db.Discount,
+            include: { model: db.Discount_Type },
+          },
+        ],
+      });
+
+      if (!result) {
+        return res.status(404).send({
+          message: "Branch product not found",
+        });
+      }
+
+      res.status(200).send({
+        message: "Successfully retrieved branch product",
+        data: result,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
 };
 
 // get profile (all account)
