@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import { useSelector } from 'react-redux'
 import logo from '../assets/logo_Groceer-e.svg'
 import { HiOutlineLocationMarker, HiOutlineShoppingCart } from 'react-icons/hi'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import Button from './Button'
 import background from '../assets/BackgroundLeaves.jpg'
 import DropdownForNavbar from './user/DropdownForNavbar'
@@ -11,6 +11,7 @@ export default function NavbarTop({city, province}) {
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
     const navigate = useNavigate()
+    const location = useLocation()
 
     const routes = [
         {name: "Home", to: "/"},
@@ -37,7 +38,7 @@ export default function NavbarTop({city, province}) {
                 {routes.map(({ name, icon, to }, idx) => (
                     <Link to={to}>
                     {token && profile.role === "3" ? 
-                    <div key={idx}>{icon ? icon : name}</div> : <div key={idx} className='h-10 flex items-center justify-center'>{name}</div>}
+                    <div key={idx}>{icon ? icon : name}</div> : <div key={idx} className={`h-10 flex items-center justify-center ${location.pathname === to ? `text-maingreen font-bold border-b-2 border-maingreen` : `text-darkgrey`}`}>{name === "Account" ? <Link to="/user/account">{name}</Link> : name}</div>}
                     </Link>
                 ))}
             </div>

@@ -291,14 +291,14 @@ export default function Home() {
                     <CustomDropdownProduct id="sortName" options={nameOptions} onChange={handleFilterChange} placeholder={"Sort by Name"} />
                     <CustomDropdownProduct id="sortPrice" options={priceOptions} onChange={handleFilterChange} placeholder={"Sort by Price"} />
                 </div>
-                <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 mb-10 justify-center'>
+                <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
                     {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (
                         <Link to={`/product/${product.Product?.name}`}><div key={index} className='flex justify-center mb-2 sm:mb-0'>
                             <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach} />
                         </div> </Link>))
                     ) : (<div className='font-inter col-span-2 text-center text-maingreen'>No Product Found</div>)}
                 </div>
-                <div className='flex justify-center mb-10'>
+                <div className='flex justify-center mb-20'>
                     <Pagination
                         currentPage={currentPage}
                         onPageChange={onPageChange}
