@@ -12,7 +12,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    await queryInterface.bulkInsert("Discount_types", [
+    await queryInterface.bulkInsert("Discount_Types", [
       {
         type: "Buy one get one",
         createdAt: new Date(),
@@ -38,6 +38,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete("Discount_types", null, {});
+    await queryInterface.bulkDelete("Discount_Types", null, {});
   },
 };

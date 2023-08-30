@@ -117,10 +117,12 @@ module.exports = {
   },
   async getAddressByName(req, res) {
     try {
+      console.log(decodeURIComponent(req.params.name));
       const userAddress = await db.Address.findOne({
         where: {
           user_id: req.user.id,
-          streetName: req.params.name,
+          streetName: decodeURIComponent(req.params.name),
+          isRemoved: 0,
         },
         include: [
           {
@@ -138,7 +140,7 @@ module.exports = {
         ],
       });
 
-      if (userAddress.length === 0) {
+      if (!userAddress) {
         return res.status(200).send({
           message: "No address found",
         });
@@ -149,6 +151,7 @@ module.exports = {
         data: userAddress,
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).send({
         message: "Server error",
         error: error.message,
@@ -167,6 +170,20 @@ module.exports = {
       isMain,
     } = req.body;
     try {
+      const userAddressCount = await db.Address.count({
+        where: {
+          user_id: req.user.id,
+          isRemoved: 0,
+        },
+        transaction,
+      });
+
+      if (userAddressCount >= 5) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "You already have the maximum number of addresses (5)",
+        });
+      }
       const selectedProvince = await db.Province.findOne({
         where: {
           province_name: province,
@@ -345,20 +362,6 @@ module.exports = {
         return res.status(400).send({ message: "Address not found" });
       }
 
-      const isExist = await db.Address.findOne({
-        where: {
-          user_id: req.user.id,
-          city_id: selectedCity.city_id,
-          streetName,
-        },
-        transaction,
-      });
-      if (isExist) {
-        await transaction.rollback();
-        return res.status(404).send({
-          message: "An address with similar details already exists",
-        });
-      }
       const data = {};
       if (province || city || streetName) {
         const selectedProvince = await db.Province.findOne({
@@ -380,6 +383,20 @@ module.exports = {
           await transaction.rollback();
           return res.status(400).send({
             message: "There is no city in the selected province",
+          });
+        }
+        const isExist = await db.Address.findOne({
+          where: {
+            user_id: req.user.id,
+            city_id: selectedCity.city_id,
+            streetName,
+          },
+          transaction,
+        });
+        if (isExist) {
+          await transaction.rollback();
+          return res.status(404).send({
+            message: "An address with similar details already exists",
           });
         }
         data.streetName = streetName;
@@ -405,6 +422,43 @@ module.exports = {
       });
     } catch (error) {
       await transaction.rollback();
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
+  async branchProductByName(req, res) {
+    try {
+      const result = await db.Branch_Product.findOne({
+        where: { isRemoved: false },
+        include: [
+          {
+            model: db.Product,
+            where: {
+              name: decodeURIComponent(req.params.name),
+              isRemoved: 0,
+            },
+            include: { model: db.Category, where: { isRemoved: 0 } },
+          },
+          {
+            model: db.Discount,
+            include: { model: db.Discount_Type },
+          },
+        ],
+      });
+
+      if (!result) {
+        return res.status(404).send({
+          message: "Branch product not found",
+        });
+      }
+
+      res.status(200).send({
+        message: "Successfully retrieved branch product",
+        data: result,
+      });
+    } catch (error) {
       console.log(error);
       return res.status(500).send({
         message: "Internal Server Error",

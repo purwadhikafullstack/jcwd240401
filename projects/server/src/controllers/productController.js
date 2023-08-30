@@ -44,9 +44,6 @@ module.exports = {
         .send({ message: "Successfully created new category" });
     } catch (error) {
       handleCatchError(res, transaction, error);
-      // console.log(error);
-      // await transaction.rollback();
-      // return res.status(500).send({ message: "Internal Server Error" });
     }
   },
   // get all category
@@ -120,6 +117,45 @@ module.exports = {
       return res.status(200).send({
         message: "Successfully retrieved categories",
         data: results,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: "Internal Server Error" });
+    }
+  },
+  async allCategoryNoPaginationPerBranch(req, res) {
+    try {
+      const branchProducts = await db.Branch_Product.findAll({
+        where: { branch_id: req.params.id, isRemoved: 0 },
+        include: [{ model: db.Product, include: { model: db.Category } }],
+      });
+
+      if (branchProducts.length === 0) {
+        return res.status(200).send({
+          message: "No products found for the specified branch",
+        });
+      }
+
+      const uniqueCategoryIds = new Set();
+
+      const uniqueCategories = [];
+
+      branchProducts.forEach((branchProduct) => {
+        const product = branchProduct.Product;
+        const category = product.Category; // Access the associated Category
+        if (category && !uniqueCategoryIds.has(category.id)) {
+          uniqueCategoryIds.add(category.id);
+          uniqueCategories.push({
+            id: category.id,
+            name: category.name,
+            imgCategory: category.imgCategory,
+          });
+        }
+      });
+
+      return res.status(200).send({
+        message: "Successfully retrieved categories for the specified branch",
+        data: uniqueCategories,
       });
     } catch (error) {
       console.log(error);
@@ -719,6 +755,7 @@ module.exports = {
       const branchData = await db.Branch.findAll();
       let nearestBranchId = 0;
       let nearest = 50000;
+      let outOfReach = false;
 
       if (latitude && longitude) {
         branchData.map((branch) => {
@@ -730,13 +767,29 @@ module.exports = {
           if (distance < nearest) {
             nearest = distance;
             nearestBranchId = branch.id;
+            outOfReach = false;
           } else {
             nearestBranchId = branchData[0].id;
+            outOfReach = true;
           }
         });
       } else {
         nearestBranchId = branchData[0].id;
       }
+
+      const nearestBranchData = await db.Branch.findOne({
+        where: {
+          id: nearestBranchId,
+        },
+        include: [
+          {
+            model: db.City,
+            include: {
+              model: db.Province,
+            },
+          },
+        ],
+      });
 
       const branchProductData = await db.Branch_Product.findAndCountAll({
         where: {
@@ -749,13 +802,8 @@ module.exports = {
             include: { model: db.Category, where: { isRemoved: 0 } },
           },
           {
-            model: db.Branch,
-            include: {
-              model: db.City,
-              include: {
-                model: db.Province,
-              },
-            },
+            model: db.Discount,
+            include: { model: db.Discount_Type },
           },
         ],
         order: order,
@@ -768,11 +816,14 @@ module.exports = {
       if (branchProductData.rows.length === 0) {
         return res.status(200).send({
           message: "No products found",
+          branchData: nearestBranchData,
         });
       }
 
       return res.status(200).send({
         message: "Success get branch product",
+        outOfReach: outOfReach,
+        branchData: nearestBranchData,
         pagination,
         data: branchProductData,
       });
