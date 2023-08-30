@@ -1063,18 +1063,32 @@ module.exports = {
       let productWhere = { isRemoved: 0 };
       const order = [];
       if (pagination.startDate && pagination.endDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+
         where.createdAt = {
-          [db.Sequelize.Op.between]: [pagination.startDate, pagination.endDate],
+          [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
         where.createdAt = {
-          [db.Sequelize.Op.gte]: pagination.startDate,
+          [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+
         where.createdAt = {
-          [db.Sequelize.Op.lte]: pagination.endDate,
+          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
         };
       }
+
       if (pagination.search) {
         productWhere["$Branch_Product.Product.name$"] = {
           [db.Sequelize.Op.like]: `%${pagination.search}%`,
@@ -1166,18 +1180,32 @@ module.exports = {
       let productWhere = { isRemoved: 0 };
       const order = [];
       if (pagination.startDate && pagination.endDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+
         where.createdAt = {
-          [db.Sequelize.Op.between]: [pagination.startDate, pagination.endDate],
+          [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
         where.createdAt = {
-          [db.Sequelize.Op.gte]: pagination.startDate,
+          [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+
         where.createdAt = {
-          [db.Sequelize.Op.lte]: pagination.endDate,
+          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
         };
       }
+
       if (pagination.search) {
         productWhere["$Branch_Product.Product.name$"] = {
           [db.Sequelize.Op.like]: `%${pagination.search}%`,

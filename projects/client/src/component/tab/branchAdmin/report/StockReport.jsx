@@ -106,7 +106,6 @@ export default function StockReport() {
         </tr>
       );
     });
-
     return arrayData;
   };
 
@@ -145,7 +144,7 @@ export default function StockReport() {
           <CustomDropDowm
             options={dataAllBranchProduct}
             onChange={(e) => handleChangeDropdown(e, "branch_product_id")}
-            placeholder={"filter by product"}
+            placeholder={"Filter by product"}
           />
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
@@ -156,7 +155,7 @@ export default function StockReport() {
             <input
               id="startDate"
               type="date"
-              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
               value={filter.startDate}
               onChange={handleFilterChange}
             />
@@ -168,7 +167,7 @@ export default function StockReport() {
             <input
               id="endDate"
               type="date"
-              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
               value={filter.endDate}
               onChange={handleFilterChange}
             />

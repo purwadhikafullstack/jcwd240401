@@ -173,20 +173,19 @@ export default function StockReport() {
     <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Branch
+          </label>
           <select
             id="branch"
             defaultValue={dataAllBranch[0]?.value}
             onChange={(e) => handleFilterChange(e)}
+            className="w-full mt-1 bg-lightgrey rounded-md focus:border-maindarkgreen border-none"
           >
             {dataAllBranch.map((obj) => {
               return <option value={obj.value}>{obj.label}</option>;
             })}
           </select>
-          <CustomDropDown
-            defaultValue={dataAllBranch[0]}
-            options={dataAllBranch}
-            onChange={(e) => handleChangeDropdown(e, "branch")}
-          />
         </div>
         <div className="mx-auto py-2 w-5/6">
           <CustomDropDown
@@ -203,7 +202,7 @@ export default function StockReport() {
             <input
               id="startDate"
               type="date"
-              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0 "
               value={filter.startDate}
               onChange={handleFilterChange}
             />
@@ -215,7 +214,7 @@ export default function StockReport() {
             <input
               id="endDate"
               type="date"
-              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
               value={filter.endDate}
               onChange={handleFilterChange}
             />
