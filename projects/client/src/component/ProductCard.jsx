@@ -65,13 +65,13 @@ export default function ProductCard({ product, productName, productBasePrice, pr
                                     {product.Discount.discount_type_id === 1 ? (
                                         <div className="text-reddanger font-bold">{rupiah(product.Product.basePrice)}</div>
                                     ) : product.Discount.discount_type_id === 2 ? (
-                                        <><div className="">{rupiah(product.Product.basePrice - (product.Product.basePrice * product.Discount.amount / 100))}</div>
+                                        <><div className="text-reddanger font-bold">{rupiah(product.Product.basePrice - (product.Product.basePrice * product.Discount.amount / 100))}</div>
                                             <div className="text-xs flex items-center gap-3">
                                                 <div><Label labelColor={"red"} text={`${product.Discount.amount} %`} /></div>
                                                 <del>{rupiah(product.Product.basePrice)}</del>
                                             </div></>
                                     ) : product.Discount.discount_type_id === 3 ? (
-                                        <><div className="">{rupiah(product.Product.basePrice - product.Discount.amount)}</div>
+                                        <><div className="text-reddanger font-bold">{rupiah(product.Product.basePrice - product.Discount.amount)}</div>
                                             <div className="text-xs flex items-center gap-3">
                                                 <del>{rupiah(product.Product.basePrice)}</del>
                                             </div></>

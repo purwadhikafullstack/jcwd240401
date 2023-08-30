@@ -5,15 +5,17 @@ import { Formik, Form, Field } from 'formik';
 import { useNavigate, Link, useParams } from "react-router-dom";
 
 import Modal from '../Modal';
-import InputField from '../InputField';
 import AlertPopUp from '../AlertPopUp';
 import Button from '../Button';
+import Label from '../Label';
+import rupiah from '../../helpers/rupiah';
 
 export default function SingleProductContent() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const [showAlert, setShowAlert] = useState(false)
     const [branchProductData, setBranchProductData] = useState({})
+    const [quantity, setQuantity] = useState("10")
     const { name } = useParams()
     const token = localStorage.getItem("token")
     const navigate = useNavigate()
@@ -63,8 +65,8 @@ export default function SingleProductContent() {
                     </div>
                     <div className='sm:grid sm:grid-cols-2 sm:gap-4 sm:mt-9'>
                         <div>
-                            <div>
-                                <div className='relative'>
+                            <div className='grid h-full content-center'>
+                                <div className='relative h-fit'>
                                     <div className="absolute top-3 left-1 grid justify-center content-center sm:hidden"><Button condition={"back"} onClick={goBack} /></div>
                                     {branchProductData.discount_id && branchProductData.Discount?.isExpired === false ? (<div className="absolute bottom-0 left-0 h-8 w-full bg-reddanger flex justify-start text-sm items-center text-white font-inter px-4 sm:rounded-b-lg">{branchProductData.Discount.discount_type_id === 1 ? "Buy 1 Get 1" : "Discount"}</div>) : null}
                                     <img
@@ -78,7 +80,26 @@ export default function SingleProductContent() {
                             <div className='sm:hidden grid p-4'>
                                 <div>{branchProductData?.Product?.name}</div>
                                 <div className='text-sm text-darkgrey flex items-center'>{`${branchProductData?.Product?.weight}${branchProductData?.Product?.unitOfMeasurement} / pack`}</div>
-                                <div className='text-reddanger font-bold'>Rp 18.900</div>
+                                <div className='py-3'> {branchProductData.discount_id && branchProductData?.Discount?.isExpired === false ? (
+                                    <>
+                                        {branchProductData.Discount.discount_type_id === 1 ? (
+                                            <div className="text-reddanger font-bold">{rupiah(branchProductData.Product.basePrice)}</div>
+                                        ) : branchProductData.Discount.discount_type_id === 2 ? (
+                                            <><div className="text-reddanger font-bold">{rupiah(branchProductData.Product.basePrice - (branchProductData.Product.basePrice * branchProductData.Discount.amount / 100))}</div>
+                                                <div className="text-xs flex items-center gap-3">
+                                                    <div><Label labelColor={"red"} text={`${branchProductData.Discount.amount} %`} /></div>
+                                                    <del>{rupiah(branchProductData.Product.basePrice)}</del>
+                                                </div></>
+                                        ) : branchProductData.Discount.discount_type_id === 3 ? (
+                                            <><div className="text-reddanger font-bold">{rupiah(branchProductData.Product.basePrice - branchProductData.Discount.amount)}</div>
+                                                <div className="text-xs flex items-center gap-3">
+                                                    <del>{rupiah(branchProductData.Product.basePrice)}</del>
+                                                </div></>
+                                        ) : null}
+                                    </>
+                                ) : (
+                                    <div className="text-reddanger font-bold">{rupiah(branchProductData?.Product?.basePrice)}</div>
+                                )} </div>
                             </div>
                         </div>
                         <div>
@@ -89,6 +110,10 @@ export default function SingleProductContent() {
                                         <tr><th className='py-2 text-left' colSpan={2}>Product Details</th></tr>
                                     </thead>
                                     <tbody className='text-sm'>
+                                        <tr>
+                                            <td className="py-2 text-maindarkgreen align-top" style={{ width: '40%' }}>Stock</td>
+                                            <td className="p-2" style={{ width: '60%' }}>{branchProductData?.quantity} Qty</td>
+                                        </tr>
                                         <tr>
                                             <td className="py-2 text-maindarkgreen align-top" style={{ width: '40%' }}>Origin</td>
                                             <td className="p-2" style={{ width: '60%' }}>{branchProductData?.origin}</td>
@@ -105,14 +130,33 @@ export default function SingleProductContent() {
                                 </table>
                             </div>
                             <div className='p-4 hidden sm:block'>
-                                <div className='text-reddanger font-bold'>Rp 18.900</div>
+                                {branchProductData.discount_id && branchProductData?.Discount?.isExpired === false ? (
+                                    <>
+                                        {branchProductData.Discount.discount_type_id === 1 ? (
+                                            <div className="text-reddanger font-bold">{rupiah(branchProductData.Product.basePrice)}</div>
+                                        ) : branchProductData.Discount.discount_type_id === 2 ? (
+                                            <><div className="text-reddanger font-bold">{rupiah(branchProductData.Product.basePrice - (branchProductData.Product.basePrice * branchProductData.Discount.amount / 100))}</div>
+                                                <div className="text-xs flex items-center gap-3">
+                                                    <div><Label labelColor={"red"} text={`${branchProductData.Discount.amount} %`} /></div>
+                                                    <del>{rupiah(branchProductData.Product.basePrice)}</del>
+                                                </div></>
+                                        ) : branchProductData.Discount.discount_type_id === 3 ? (
+                                            <><div className="text-reddanger font-bold">{rupiah(branchProductData.Product.basePrice - branchProductData.Discount.amount)}</div>
+                                                <div className="text-xs flex items-center gap-3">
+                                                    <del>{rupiah(branchProductData.Product.basePrice)}</del>
+                                                </div></>
+                                        ) : null}
+                                    </>
+                                ) : (
+                                    <div className="text-reddanger font-bold">{rupiah(branchProductData?.Product?.basePrice)}</div>
+                                )}
                             </div>
                         </div>
                     </div>
                     <div className='flex gap-2'>
                         <div className='basis-1/2 flex justify-around content-center items-center'>
                             <Button condition={"minus"} size={"3xl"} />
-                            <div className='h-fit'>10</div>
+                            <div className='h-fit'>{quantity}</div>
                             <Button condition={"plus"} size={"3xl"} />
                         </div>
                         <div className='basis-1/2 p-4'>
