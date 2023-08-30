@@ -141,16 +141,16 @@ module.exports = {
       const uniqueCategories = [];
 
       branchProducts.forEach((branchProduct) => {
-        branchProduct.Product.Categories.forEach((category) => {
-          if (!uniqueCategoryIds.has(category.id)) {
-            uniqueCategoryIds.add(category.id);
-            uniqueCategories.push({
-              id: category.id,
-              name: category.name,
-              imgCategory: category.imgCategory,
-            });
-          }
-        });
+        const product = branchProduct.Product;
+        const category = product.Category; // Access the associated Category
+        if (category && !uniqueCategoryIds.has(category.id)) {
+          uniqueCategoryIds.add(category.id);
+          uniqueCategories.push({
+            id: category.id,
+            name: category.name,
+            imgCategory: category.imgCategory,
+          });
+        }
       });
 
       return res.status(200).send({
@@ -702,9 +702,9 @@ module.exports = {
       });
     }
   },
-  async productsFromNearestBranch(req,res) {
-    const latitude = req.query.latitude ? req.query.latitude : "" 
-    const longitude = req.query.longitude ? req.query.longitude : ""
+  async productsFromNearestBranch(req, res) {
+    const latitude = req.query.latitude ? req.query.latitude : "";
+    const longitude = req.query.longitude ? req.query.longitude : "";
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
@@ -713,7 +713,7 @@ module.exports = {
       name: req.query.sortName,
       price: req.query.sortPrice,
     };
-    try{
+    try {
       const where = {};
       const order = [];
 
@@ -729,60 +729,71 @@ module.exports = {
       }
       if (pagination.name) {
         if (pagination.name.toUpperCase() === "DESC") {
-          order.push([{model: db.Product, as: "Product"}, "name", "DESC"]);
+          order.push([{ model: db.Product, as: "Product" }, "name", "DESC"]);
         } else {
-          order.push([{model: db.Product, as: "Product"}, "name", "ASC"]);
+          order.push([{ model: db.Product, as: "Product" }, "name", "ASC"]);
         }
       }
       if (pagination.price) {
         if (pagination.price.toUpperCase() === "DESC") {
-          order.push([{model: db.Product, as: "Product"}, "basePrice", "DESC"]);
+          order.push([
+            { model: db.Product, as: "Product" },
+            "basePrice",
+            "DESC",
+          ]);
         } else {
-          order.push([{model: db.Product, as: "Product"}, "basePrice", "ASC"]);
+          order.push([
+            { model: db.Product, as: "Product" },
+            "basePrice",
+            "ASC",
+          ]);
         }
       }
 
-      const userLocation = { latitude: latitude, longitude: longitude }
+      const userLocation = { latitude: latitude, longitude: longitude };
 
-      const branchData = await db.Branch.findAll()
-      let nearestBranchId = 0
-      let nearest = 50000
-      let outOfReach = false
+      const branchData = await db.Branch.findAll();
+      let nearestBranchId = 0;
+      let nearest = 50000;
+      let outOfReach = false;
 
-      if(latitude && longitude){
+      if (latitude && longitude) {
         branchData.map((branch) => {
-          const branchLocation = {latitude: branch.latitude, longitude: branch.longitude}
-          const distance = geolib.getDistance(userLocation, branchLocation)
-          if(distance < nearest){
-            nearest = distance
-            nearestBranchId = branch.id
-            outOfReach = false
+          const branchLocation = {
+            latitude: branch.latitude,
+            longitude: branch.longitude,
+          };
+          const distance = geolib.getDistance(userLocation, branchLocation);
+          if (distance < nearest) {
+            nearest = distance;
+            nearestBranchId = branch.id;
+            outOfReach = false;
           } else {
-            nearestBranchId = branchData[0].id
-            outOfReach = true
+            nearestBranchId = branchData[0].id;
+            outOfReach = true;
           }
-        })
+        });
       } else {
-        nearestBranchId = branchData[0].id
+        nearestBranchId = branchData[0].id;
       }
 
       const nearestBranchData = await db.Branch.findOne({
         where: {
-          id: nearestBranchId
+          id: nearestBranchId,
         },
         include: [
           {
             model: db.City,
             include: {
-              model: db.Province
-            }
-          }
-        ]
-      })
+              model: db.Province,
+            },
+          },
+        ],
+      });
 
       const branchProductData = await db.Branch_Product.findAndCountAll({
         where: {
-          branch_id: nearestBranchId
+          branch_id: nearestBranchId,
         },
         include: [
           {
@@ -797,15 +808,15 @@ module.exports = {
         ],
         order: order,
         limit: pagination.perPage,
-        offset: (pagination.page - 1) * pagination.perPage, 
-      })
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
       const totalCount = branchProductData.count;
       pagination.totalData = totalCount;
 
       if (branchProductData.rows.length === 0) {
         return res.status(200).send({
           message: "No products found",
-          branchData: nearestBranchData
+          branchData: nearestBranchData,
         });
       }
 
@@ -814,13 +825,13 @@ module.exports = {
         outOfReach: outOfReach,
         branchData: nearestBranchData,
         pagination,
-        data: branchProductData
-      })
-    }catch(error){
+        data: branchProductData,
+      });
+    } catch (error) {
       return res.status(500).send({
         message: "Server error",
-        error: error.message
-      })
+        error: error.message,
+      });
     }
-  }
+  },
 };
