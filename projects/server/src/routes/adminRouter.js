@@ -181,12 +181,36 @@ router.get(
   authMiddleware.verifyAdmin,
   adminController.getAllVoucherType
 );
-
+//get stock history branch admin
 router.get(
   "/stock-history",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   adminController.getStockHistory
+);
+
+//get stock history superadmin
+router.get(
+  "/stock-history-sa",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.getStockHistorySuperAdmin
+);
+
+//get all branch no pagination
+router.get(
+  "/no-pagination-all-branch",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.allBranchNoPagination
+);
+
+//get all branch product no pagination (SA)
+router.get(
+  "/no-pagination-branch-products-sa",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  adminController.allBranchProductNoPaginationSuperAdmin
 );
 
 module.exports = router;

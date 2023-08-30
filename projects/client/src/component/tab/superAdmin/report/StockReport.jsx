@@ -3,25 +3,50 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 
-import CustomDropDowm from "../../../CustomDropdown";
+import CustomDropDown from "../../../CustomDropdown";
 
 export default function StockReport() {
   const [dataStockHistory, setDataStockHistory] = useState([]);
   const [dataAllBranchProduct, setDataAllBranchProduct] = useState([]);
+  const [dataAllBranch, setDataAllBranch] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState({
+    branch: "1",
     sort: "",
     status: "",
     branch_product_id: "",
     startDate: "",
     endDate: "",
   });
+  const fetchDataAllBranch = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-all-branch`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = response.data.data.rows;
+      if (data) {
+        let options = data.map((d) => ({
+          label: `${d.City?.city_name}, ${d.City?.Province.province_name}`,
+          value: d.id,
+        }));
+
+        setDataAllBranch(options);
+      } else {
+        setDataAllBranch([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchDataStockHistory = async () => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${currentPage}&sortDate=${filter.sort}&filterStatus=${filter.status}&filterBranchProduct=${filter.branch_product_id}&startDate=${filter.startDate}&endDate=${filter.endDate}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history-sa?page=${currentPage}&filterBranch=${filter.branch}&sortDate=${filter.sort}&filterStatus=${filter.status}&filterBranchProduct=${filter.branch_product_id}&startDate=${filter.startDate}&endDate=${filter.endDate}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
@@ -41,16 +66,21 @@ export default function StockReport() {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/no-pagination-branch-products`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-branch-products-sa`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
         const data = response.data.data;
+        console.log(data, "ini data");
         if (data) {
-          let options = data.map((d) => ({
+          const filteredData = data.filter(
+            (d) => d.branch_id === parseInt(filter.branch)
+          );
+          const options = filteredData.map((d) => ({
             label: `${d.Product?.name} [ ${d.Product?.weight}${d.Product.unitOfMeasurement} / pack ]`,
             value: d.id,
           }));
+
           options.splice(0, 0, { label: "filter by name", value: "" });
           setDataAllBranchProduct(options);
         } else {
@@ -61,10 +91,11 @@ export default function StockReport() {
       console.log(error);
     }
   };
-
+  console.log(filter.branch, "ini filter");
   useEffect(() => {
     fetchDataStockHistory();
     fetchAllBranchProduct();
+    fetchDataAllBranch();
   }, [currentPage, filter]);
 
   const onPageChange = (page) => {
@@ -106,6 +137,7 @@ export default function StockReport() {
         </tr>
       );
     });
+
     return arrayData;
   };
 
@@ -136,15 +168,30 @@ export default function StockReport() {
       [e.target.id]: e.target.value,
     });
   };
-
+  console.log(dataAllBranch, "ini branch");
   return (
     <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
-          <CustomDropDowm
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Branch
+          </label>
+          <select
+            id="branch"
+            defaultValue={dataAllBranch[0]?.value}
+            onChange={(e) => handleFilterChange(e)}
+            className="w-full mt-1 bg-lightgrey rounded-md focus:border-maindarkgreen border-none"
+          >
+            {dataAllBranch.map((obj) => {
+              return <option value={obj.value}>{obj.label}</option>;
+            })}
+          </select>
+        </div>
+        <div className="mx-auto py-2 w-5/6">
+          <CustomDropDown
             options={dataAllBranchProduct}
             onChange={(e) => handleChangeDropdown(e, "branch_product_id")}
-            placeholder={"Filter by product"}
+            placeholder={"filter by product"}
           />
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
@@ -155,7 +202,7 @@ export default function StockReport() {
             <input
               id="startDate"
               type="date"
-              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
+              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0 "
               value={filter.startDate}
               onChange={handleFilterChange}
             />
@@ -174,12 +221,12 @@ export default function StockReport() {
           </div>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropDowm
+          <CustomDropDown
             options={options}
             onChange={(e) => handleChangeDropdown(e, "sort")}
             placeholder={"Sort by create date"}
           />
-          <CustomDropDowm
+          <CustomDropDown
             options={options2}
             onChange={(e) => handleChangeDropdown(e, "status")}
             placeholder={"filter by status"}
@@ -212,7 +259,7 @@ export default function StockReport() {
               ) : (
                 <tr>
                   <td colSpan="7" className="py-4 text-center  text-base">
-                    no discounts found
+                    no branch product found
                   </td>
                 </tr>
               )}

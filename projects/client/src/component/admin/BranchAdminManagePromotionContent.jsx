@@ -17,7 +17,7 @@ export default function BranchAdminManagePromotionContent() {
       isActive: false,
       tab: <Discount />,
     },
-    { name: "My Voucher", icon: <MdOutlineDiscount/>, isActive: false, tab: <Voucher /> },
+    { name: "My Voucher", icon: <MdOutlineDiscount size={25}/>, isActive: false, tab: <Voucher /> },
   ];
   return (
     <div className="flex flex-col w-9/12 py-4">
