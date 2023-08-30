@@ -3,6 +3,7 @@ const {
   user: userController,
   product: productController,
   coordinate: coordinateController,
+  transaction: transactionController,
 } = require("../controllers");
 const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
@@ -33,6 +34,17 @@ router.patch(
   openCageMiddleware.addressUserCoordinate,
   userController.modifyAddress
 );
-
+router.post(
+  "/carts/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.addToCart
+);
+router.get(
+  "/carts/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getCart
+);
 
 module.exports = router;
