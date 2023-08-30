@@ -147,6 +147,14 @@ module.exports = {
                 transaction
             })
 
+            const newReferralVoucher = await db.Voucher.create({
+                branch_id: newBranch.id,
+                voucher_type_id: 1,
+                isReferral: true
+            }, {
+                transaction
+            })
+
             const link = `${process.env.BASE_PATH_FE}/set-password/${verificationToken}`
             const template = fs.readFileSync("./src/helpers/template/setaccount.html", "utf-8")
             const templateCompile = handlebars.compile(template)
@@ -164,7 +172,8 @@ module.exports = {
             return res.status(200).send({
                 message: "Successfully add admin branch",
                 admin: newAdmin,
-                branch: newBranch
+                branch: newBranch,
+                voucher: newReferralVoucher
             })
 
         }catch(error){
