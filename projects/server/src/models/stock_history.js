@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Stock_History.belongsTo(models.Branch_Product, {
         foreignKey: "branch_product_id",
-        targetKey:"id"
       });
     }
   }
