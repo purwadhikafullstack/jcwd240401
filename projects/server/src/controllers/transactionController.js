@@ -36,20 +36,22 @@ module.exports = {
           .send({ message: "Quantity exceeds available stock" });
       }
 
+      await user.addBranch_Product(product, { through: { quantity } })
+
       // Add the product to the user's cart
-      const isExistCart = await db.Cart.findOne({
-        where: { branch_product_id: req.params.id, user_id: req.user.id },
-      });
-      if (isExistCart) {
-        isExistCart.quantity = isExistCart.quantity + quantity;
-        await isExistCart.save();
-      } else {
-        await db.Cart.create({
-          user_id: req.user.id,
-          branch_product_id: req.params.id,
-          quantity: quantity,
-        });
-      }
+      //   const isExistCart = await db.Cart.findOne({
+      //     where: { branch_product_id: req.params.id, user_id: req.user.id },
+      //   });
+      //   if (isExistCart) {
+      //     isExistCart.quantity = isExistCart.quantity + quantity;
+      //     await isExistCart.save();
+      //   } else {
+      //     await db.Cart.create({
+      //       user_id: req.user.id,
+      //       branch_product_id: req.params.id,
+      //       quantity: quantity,
+      //     });
+      //   }
 
       res.send({ message: "Product added to cart successfully" });
     } catch (error) {

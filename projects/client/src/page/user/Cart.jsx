@@ -30,6 +30,8 @@ export default function Cart() {
     }
   };
 
+
+
   useEffect(() => {
     getAllCart();
   }, []);
@@ -50,10 +52,10 @@ export default function Cart() {
             UOM={data.Branch_Product.Product.unitOfMeasurement}
             productImg={data.Branch_Product.Product.imgProduct}
             discountId={data.Branch_Product.discount_id}
-            discountType={data.Branch_Product.Discount.discount_type_id}
-            isExpired={data.Branch_Product.Discount.isExpired}
+            discountType={data.Branch_Product.Discount?.discount_type_id}
+            isExpired={data.Branch_Product.Discount?.isExpired}
             basePrice={data.Branch_Product.Product.basePrice}
-            discountAmount={data.Branch_Product.Discount.amount}
+            discountAmount={data.Branch_Product.Discount?.amount}
           />
         ))}
       </div>
