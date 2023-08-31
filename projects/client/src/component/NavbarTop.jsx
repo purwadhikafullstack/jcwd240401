@@ -28,7 +28,7 @@ export default function NavbarTop({city, province}) {
     <div className='hidden lg:w-full lg:h-24 lg:shadow-md lg:bg-cover lg:bg-center lg:grid lg:grid-cols-2 lg:px-10' style={{backgroundImage: `url(${background})`, backgroundSize: 'cover'}}>
         <div className="w-full h-full col-span-1 grid grid-cols-2 items-center">
             <div><img src={logo} alt="logo" /></div>
-            <div className='flex gap-4'>
+            <div className='flex gap-4 items-center'>
                 <HiOutlineLocationMarker className="w-6 h-6" />
                 <div>{ city && province ? `${city}, ${province}` : ""}</div> 
             </div>
