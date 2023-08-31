@@ -709,6 +709,7 @@ module.exports = {
               {
                 where: {
                   isReferral: true,
+                  branch_id: user.Branch.id
                 },
               }
             );
@@ -784,6 +785,7 @@ module.exports = {
               {
                 where: {
                   isReferral: true,
+                  branch_id: user.Branch.id
                 },
               }
             );
@@ -872,6 +874,7 @@ module.exports = {
               {
                 where: {
                   isReferral: true,
+                  branch_id: user.Branch.id
                 },
               }
             );
