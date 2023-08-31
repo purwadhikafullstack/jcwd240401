@@ -754,8 +754,9 @@ module.exports = {
 
       const branchData = await db.Branch.findAll();
       let nearestBranchId = 0;
+      let max = 50000;
       let nearest = 50000;
-      let outOfReach = false;
+      let outOfReach = true;
 
       if (latitude && longitude) {
         branchData.map((branch) => {
@@ -764,17 +765,19 @@ module.exports = {
             longitude: branch.longitude,
           };
           const distance = geolib.getDistance(userLocation, branchLocation);
-          if (distance < nearest) {
-            nearest = distance;
-            nearestBranchId = branch.id;
-            outOfReach = false;
-          } else {
-            nearestBranchId = branchData[0].id;
-            outOfReach = true;
-          }
+          if (distance < max) {
+            outOfReach = false
+            if(distance < nearest){
+              nearest = distance;
+              nearestBranchId = branch.id;
+            }
+          } 
         });
       } else {
         nearestBranchId = branchData[0].id;
+      }
+      if (outOfReach) {
+        nearestBranchId = branchData[0].id
       }
 
       const nearestBranchData = await db.Branch.findOne({
