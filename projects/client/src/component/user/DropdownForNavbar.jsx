@@ -31,7 +31,7 @@ export default function DropdownForNavbar() {
           className="h-10 w-10 rounded-full bg-darkgrey"
           onClick={(event) => toggleDropdown(event)}
         >
-         {profile.imgProfile ? <img src={profile.imgProfile} alt="Profile Picture" /> : null}   
+         {profile.imgProfile ? <img src={`${process.env.REACT_APP_BASE_URL}${profile.imgProfile}`} alt="Profile Picture" /> : null}   
         </button>
       </div>
       {isOpen && (
