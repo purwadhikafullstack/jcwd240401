@@ -9,7 +9,7 @@ export default function SearchBar({ id, value, type, onChange, placeholder }) {
         type={type}
         onChange={onChange}
         placeholder={placeholder}
-        className="h-10 border-none w-full bg-lightgrey rounded-md p-2 pl-10 pr-10 focus:outline-none"
+        className="h-10 border-none w-full bg-lightgrey rounded-md p-2 pl-10 pr-10 focus:outline-none shadow-md"
       />
       <svg
         className="absolute left-3 top-2.5 h-5 w-5 text-gray-500"

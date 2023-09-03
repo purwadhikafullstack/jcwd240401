@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
+import { HiOutlineLocationMarker } from 'react-icons/hi'
 import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
@@ -274,20 +275,28 @@ export default function Home() {
         <>
             <NavbarTop city={city} province={province} />
             <div className="w-full flex flex-col items-center">
-                <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 my-10">
-                    <SearchBar value={params.get("search") || ""} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
+                <div className='relative mb-52 flex flex-col items-center w-full lg:w-6/12 lg:flex lg:flex-col lg:static lg:my-10'>
+                    <div className="w-full relative z-10 lg:hidden flex justify-center items-center h-10 min-h-max mb-2" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 50%, transparent 100%)'}}>
+                        <div className='w-11/12 flex gap-2'>
+                            <HiOutlineLocationMarker className='w-6 h-6 text-white' />
+                            <div className='font-inter text-white'>{`${city}, ${province}`}</div>
+                        </div>
+                    </div>
+                    <div className="w-11/12 gap-2 lg:w-full mb-10 relative z-10">
+                        <SearchBar value={params.get("search") || ""} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
+                    </div>
+                    <div className="w-full gap-2 lg:w-full h-80 lg:h-64 absolute top-0 lg:static">
+                        <CarouselContent branchId={branchId}/>
+                    </div>
                 </div>
-                <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-64 mb-10">
-                    <CarouselContent />
-                </div>
-                <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-fit flex overflow-x-auto mb-10">
+                <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-fit flex overflow-x-auto lg:mb-10 mb-4">
                     {categories.map((category) => (
                         <div key={category.value} className='relative inline-block rounded-md' style={{ backgroundImage: `${category.imgCategory}`, backgroundSize: 'cover' }}>
                             <button id="category_id" onClick={() => handleCategoryChange(category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className="absolute inset-0 bg-black bg-opacity-40 w-full h-full rounded-md z-5"></div><span className='relative font-inter text-white z-90'>{category.label}</span></button>
                         </div>
                     ))}
                 </div>
-                <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 flex mb-10'>
+                <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 flex lg:mb-10 mb-4'>
                     <CustomDropdownProduct id="sortName" options={nameOptions} onChange={handleFilterChange} placeholder={"Sort by Name"} />
                     <CustomDropdownProduct id="sortPrice" options={priceOptions} onChange={handleFilterChange} placeholder={"Sort by Price"} />
                 </div>
