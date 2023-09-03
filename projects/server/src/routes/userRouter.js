@@ -10,6 +10,7 @@ const validatorMiddleware = require("../middleware/validatorMiddleware");
 const profileMulterMiddleware = require("../middleware/multerMiddleware/profile");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
+router.get("/promoted-products", productController.promotedProducts)
 router.get("/branch-products/:name", userController.branchProductByName);
 router.get("/location", coordinateController.coordinateToPlacename);
 router.get(

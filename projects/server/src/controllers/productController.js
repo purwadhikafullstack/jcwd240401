@@ -837,4 +837,35 @@ module.exports = {
       });
     }
   },
+  async promotedProducts(req,res){
+    const branchId = req.query.branchId
+    try {
+      const promotedProducts = await db.Branch_Product.findAll({
+        where: {
+          branch_id: branchId
+        },
+        include: [
+          {
+            model: db.Product,
+            include: { model: db.Category, where: { isRemoved: 0 } },
+          },
+          {
+            model: db.Discount,
+            where: { isExpired: false},
+            include: { model: db.Discount_Type },
+          },
+        ]
+      })
+
+      return res.status(200).send({
+        message: "Promoted products",
+        data: promotedProducts
+      })
+    }catch(error){
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message
+      })
+    }
+  }
 };
