@@ -89,7 +89,7 @@ export default function UserAddressContent() {
             {allAddress.length !== 0 ? (
                 allAddress.map((data) => (
                     <div key={data.id} className="grid grid-cols-1 gap-2 mt-2">
-                        <div className="flex border-b-2 border-lightgrey px-2 py-4">
+                        <div className="flex border-b border-lightgrey px-2 py-4">
                             <div className="basis-3/4">
                                 <div className="">{data.streetName}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.city_name}</div>

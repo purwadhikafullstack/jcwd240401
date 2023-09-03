@@ -24,15 +24,35 @@ const fileFilter = (req, file, cb) => {
     case "image/jpg":
     case "image/png":
     case "image/gif":
-      if (file.size > 1 * 1000 * 1000) {
-        cb(new Error("File size exceeds 1MB"));
-        return;
-      }
       cb(null, true);
       break;
     default:
-      cb(new Error("File format is not matched"));
+      req.fileValidationError = "File format is not matched";
+      cb(
+        new multer.MulterError("LIMIT_UNEXPECTED_FILE", "Invalid file format"),
+        false
+      );
   }
 };
 
-module.exports = multer({ storage, fileFilter });
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 1 * 1000 * 1000 },
+});
+
+module.exports = handleProfileUpload = (req, res, next) => {
+  upload.single("file")(req, res, (err) => {
+    if (err) {
+      if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          res.status(400).send({ error: "File size exceeded the limit" });
+        } else if (err.code === "LIMIT_UNEXPECTED_FILE") {
+          res.status(400).send({ error: "Invalid file format" });
+        }
+      }
+    } else {
+      next();
+    }
+  });
+};
