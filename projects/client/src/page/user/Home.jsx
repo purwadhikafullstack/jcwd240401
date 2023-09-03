@@ -286,7 +286,7 @@ export default function Home() {
                         <SearchBar value={params.get("search") || ""} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
                     </div>
                     <div className="w-full gap-2 lg:w-full h-80 lg:h-64 absolute top-0 lg:static">
-                        <CarouselContent />
+                        <CarouselContent branchId={branchId}/>
                     </div>
                 </div>
                 <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-fit flex overflow-x-auto lg:mb-10 mb-4">

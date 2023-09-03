@@ -9,6 +9,7 @@ const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
+router.get("/promoted-products", productController.promotedProducts)
 router.get("/branch-products/:name", userController.branchProductByName);
 router.get("/location", coordinateController.coordinateToPlacename);
 router.get(
