@@ -7,6 +7,7 @@ const {
 const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
+const profileMulterMiddleware = require("../middleware/multerMiddleware/profile");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
 router.get("/branch-products/:name", userController.branchProductByName);
@@ -33,6 +34,16 @@ router.patch(
   openCageMiddleware.addressUserCoordinate,
   userController.modifyAddress
 );
-
+router.get("/profile", userController.getProfile);
+router.patch(
+  "/profile/credential",
+  validatorMiddleware.validateChangeCredential,
+  userController.modifyCredential
+);
+router.patch(
+  "/profile/image-profile",
+  profileMulterMiddleware,
+  userController.modifyImgProfile
+);
 
 module.exports = router;

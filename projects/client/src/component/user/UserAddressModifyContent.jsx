@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as yup from "yup";
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Modal from '../Modal';
 import InputField from '../InputField';
@@ -143,7 +143,7 @@ export default function UserAddressModifyContent() {
                 setErrorMessage(`${errMsg}`);
             }
             if (response.status === 500) {
-                setErrorMessage("Create address failed: Server error")
+                setErrorMessage("Modify address failed: Server error")
             }
             handleShowAlert()
             resetForm()
@@ -190,28 +190,28 @@ export default function UserAddressModifyContent() {
                 {(props) => (
                     <Form className='mx-4'>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="receiver" className="">Receiver</label>
+                            <label htmlFor="receiver" className="font-bold">Receiver</label>
                             <div className='relative'>
                                 <InputField value={props.values.receiver} id={"receiver"} type={"string"} name="receiver" onChange={props.handleChange} />
                                 {props.errors.receiver && props.touched.receiver && <div className="text-sm text-reddanger absolute top-12">{props.errors.receiver}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="contact" className="">Phone Number</label>
+                            <label htmlFor="contact" className="font-bold">Phone Number</label>
                             <div className='relative'>
                                 <InputField value={props.values.contact} id={"contact"} type={"string"} name="contact" onChange={props.handleChange} />
                                 {props.errors.contact && props.touched.contact && <div className="text-sm text-reddanger absolute top-12">{props.errors.contact}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="streetName" className="">Address Details</label>
+                            <label htmlFor="streetName" className="font-bold">Address Details</label>
                             <div className='relative'>
                                 <InputField value={props.values.streetName} id={"streetName"} type={"string"} name="streetName" onChange={props.handleChange} />
                                 {props.errors.streetName && props.touched.streetName && <div className="text-sm text-reddanger absolute top-12">{props.errors.streetName}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="province" className="">Province</label>
+                            <label htmlFor="province" className="font-bold">Province</label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='province' onChange={(e) => { setSelectedProvince(e.target.value); props.setFieldValue('province', e.target.value) }}>
                                     <option key="empty" value=''>--choose a province--</option>
@@ -225,7 +225,7 @@ export default function UserAddressModifyContent() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="city" className="">City</label>
+                            <label htmlFor="city" className="font-bold">City</label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='city' onChange={(e) => { setSelectedCity(e.target.value); props.setFieldValue('city', e.target.value) }} >
                                     <option key="empty" value=''>--choose a city--</option>
@@ -239,7 +239,7 @@ export default function UserAddressModifyContent() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="addressLabel" className="">Label As:</label>
+                            <label htmlFor="addressLabel" className="font-bold">Label As:</label>
                             <div className='relative'>
                                 <label>
                                     <Field type="radio" name="addressLabel" value={"Home"} checked={props.values.addressLabel === "Home"} onChange={() => props.setFieldValue("addressLabel", "Home")} className=" checked:bg-maingreen mx-2 focus:ring-0" id="Home" />
