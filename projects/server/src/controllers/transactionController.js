@@ -36,7 +36,7 @@ module.exports = {
           .send({ message: "Quantity exceeds available stock" });
       }
 
-      await user.addBranch_Product(product, { through: { quantity } })
+      await user.addBranch_Product(product, { through: { quantity } });
 
       // Add the product to the user's cart
       //   const isExistCart = await db.Cart.findOne({
@@ -63,6 +63,62 @@ module.exports = {
     }
   },
   // user remove from cart
+  async removeFromCart(req, res) {
+    const productId = req.params.id;
+
+    try {
+      const user = await db.User.findByPk(req.user.id);
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+      // Check if the product exists
+      const product = await db.Branch_Product.findByPk(productId);
+      if (!product) {
+        return res.status(404).send({ message: "Product not found" });
+      }
+
+      await user.removeBranch_Product(product);
+      res.send({ message: "Product removed from cart successfully" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
+  //delete cart
+  async deleteCart(req, res) {
+    const { cartList } = req.body;
+    const transaction = await db.sequelize.transaction();
+    try {
+      const user = await db.User.findByPk(req.user.id);
+      if (!user) {
+        await transaction.rollback();
+        return res.status(401).send({ message: "User not found" });
+      }
+      if (!cartList) {
+        await transaction.rollback();
+        return res.status(400).send({ message: "carts not found" });
+      } else {
+        for (const item of cartList) {
+          await db.Cart.destroy({
+            where: {
+              id: item,
+            },
+            transaction,
+          });
+        }
+        await transaction.commit();
+        return res.status(200).send({
+          message: "cart successfully deleted",
+        });
+      }
+    } catch (error) {
+      await transaction.rollback();
+      res.status(500).send({ error: "Internal Server Error" });
+    }
+  },
   // user get all cart
   async getCart(req, res) {
     try {
@@ -77,7 +133,13 @@ module.exports = {
         include: [
           {
             model: db.Branch_Product,
-            attributes: ["product_id", "origin", "discount_id"],
+            attributes: [
+              "id",
+              "product_id",
+              "origin",
+              "discount_id",
+              "quantity",
+            ],
             include: [
               {
                 model: db.Discount,

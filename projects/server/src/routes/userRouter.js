@@ -41,10 +41,24 @@ router.post(
   transactionController.addToCart
 );
 router.get(
-  "/carts/",
+  "/carts",
   authMiddleware.verifyToken,
   authMiddleware.verifyUser,
   transactionController.getCart
+);
+
+router.delete(
+  "/carts/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.removeFromCart
+);
+
+router.delete(
+  "/carts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.deleteCart
 );
 
 module.exports = router;

@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
-import * as yup from "yup";
 import axios from "axios";
-import { Formik, Form, Field } from "formik";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updateCart } from "../../store/reducer/cartSlice";
 
-import Modal from "../Modal";
 import AlertPopUp from "../AlertPopUp";
 import Button from "../Button";
 import Label from "../Label";
@@ -19,7 +16,9 @@ export default function SingleProductContent() {
   const [branchProductData, setBranchProductData] = useState({});
   const [quantity, setQuantity] = useState(1);
   const { name } = useParams();
+  const dispatch = useDispatch();
   const token = localStorage.getItem("token");
+  const cartItems = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
 
   const goBack = () => {
@@ -47,20 +46,39 @@ export default function SingleProductContent() {
     }
   };
 
+  console.log(branchProductData, "branch");
+
   useEffect(() => {
     getOneBranchProduct();
   }, [successMessage]);
+
+  useEffect(() => {
+    const cartItem = cartItems.find(
+      (item) => item.branch_product_id === branchProductData.id
+    );
+    if (cartItem) {
+      setQuantity(cartItem.quantity);
+    } else {
+      setQuantity(0);
+    }
+  }, [cartItems, branchProductData.id]);
+
+  const isProductInCart = cartItems.some(
+    (item) => item.branch_product_id === branchProductData.id
+  );
+
+  console.log(cartItems, "ini cartitems");
 
   const handleImageError = (event) => {
     event.target.src =
       "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
   };
 
-  const handleQuantityChange = (action) => {
-    if (action === "increase") {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    } else if (action === "decrease" && quantity > 1) {
-      setQuantity((prevQuantity) => prevQuantity - 1);
+  const updateQuantity = (action) => {
+    if (action === "add" && quantity < branchProductData.quantity) {
+      setQuantity(quantity + 1);
+    } else if (action === "reduce" && quantity > 0) {
+      setQuantity(quantity - 1);
     }
   };
 
@@ -68,26 +86,62 @@ export default function SingleProductContent() {
     setShowAlert(false);
   };
 
-  const handleAddToCart = async (qty, id) => {
-    const token = localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/users/carts/${id}`,
-        { quantity: qty },
-        {
+  const handleSubmit = (id) => {
+    if (!token) {
+      navigate("/login");
+    }
+    if (quantity === 0 && isProductInCart) {
+      axios
+        .delete(`http://localhost:8000/api/users/carts/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      console.log(response, "ini response");
-      if (response.status == 200) {
-        setSuccessMessage(response.data.message);
-        setShowAlert(true);
-        setQuantity(1);
-      }
-    } catch (error) {
-      console.log(error);
+        })
+        .then((response) => {
+          axios
+            .get("http://localhost:8000/api/users/carts", {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+              dispatch(updateCart(response.data.data));
+              setSuccessMessage("Successfully removed from cart");
+              setShowAlert(true);
+            })
+            .catch((error) => {
+              console.error("Failed to fetch cart data", error.message);
+            });
+        })
+        .catch((error) => {
+          console.error("Failed to remove from cart", error.message);
+        });
+    } else if (quantity > 0 && quantity <= branchProductData.quantity) {
+      axios
+        .post(
+          `http://localhost:8000/api/users/carts/${id}`,
+          { quantity },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          axios
+            .get("http://localhost:8000/api/users/carts", {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+              dispatch(updateCart(response.data.data));
+              setSuccessMessage("Successfully add to cart");
+              setShowAlert(true);
+            })
+            .catch((error) => {
+              console.error("Failed to fetch cart data", error.message);
+            });
+        })
+        .catch((error) => {
+          console.error("Failed to add to cart", error.message);
+        });
     }
   };
+
+  if (!branchProductData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -99,19 +153,21 @@ export default function SingleProductContent() {
                 <Button condition={"back"} onClick={goBack} />
               </div>
               <div className="flex mx-auto">
-                {showAlert ? (
-                  <AlertPopUp
-                    condition={errorMessage ? "fail" : "success"}
-                    content={errorMessage ? errorMessage : successMessage}
-                    setter={handleHideAlert}
-                  />
-                ) : null}
                 <div className="text-xl font-bold px-2">
                   {branchProductData?.Product?.name}
                 </div>
                 <div className="text-sm text-darkgrey px-2 flex items-center">{`${branchProductData?.Product?.weight}${branchProductData?.Product?.unitOfMeasurement} / pack`}</div>
               </div>
             </div>
+          </div>
+          <div className="flex self-center justify-center w-96">
+            {showAlert ? (
+              <AlertPopUp
+                condition={errorMessage ? "fail" : "success"}
+                content={errorMessage ? errorMessage : successMessage}
+                setter={handleHideAlert}
+              />
+            ) : null}
           </div>
           <div className="sm:grid sm:grid-cols-2 sm:gap-4 sm:mt-9">
             <div>
@@ -314,21 +370,31 @@ export default function SingleProductContent() {
               <Button
                 condition={"minus"}
                 size={"3xl"}
-                onClick={(e) => handleQuantityChange("decrease")}
+                onClick={(e) => updateQuantity("reduce")}
               />
               <div className="h-fit">{quantity}</div>
               <Button
                 condition={"plus"}
                 size={"3xl"}
-                onClick={(e) => handleQuantityChange("increase")}
+                onClick={(e) => updateQuantity("add")}
               />
             </div>
             <div className="basis-1/2 p-4">
               <Button
                 condition={"positive"}
-                label={"Add to Cart"}
-                onClick={(e) => handleAddToCart(quantity, branchProductData.id)}
+                label={
+                  isProductInCart && quantity === 0
+                    ? "Remove from Cart"
+                    : "Add to Cart"
+                }
+                onClick={(e) => handleSubmit(branchProductData.id)}
+                isDisabled={!isProductInCart && quantity === 0 ? true : false}
               />
+              {quantity >= branchProductData.quantity && (
+                <div className="text-sm text-reddanger">
+                  insufficient stock available
+                </div>
+              )}
             </div>
           </div>
         </div>
