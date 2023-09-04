@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 import { useDispatch } from "react-redux";
 import Home from "./page/user/Home";
@@ -37,34 +37,57 @@ import UserAddressCreate from "./page/user/UserAddressCreate";
 import UserAddressModify from "./page/user/UserAddressModify";
 import UserAddress from "./page/user/UserAddress";
 import SingleProduct from "./page/user/SingleProduct";
+import { updateCart } from "./store/reducer/cartSlice";
+
 
 function App() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const keepLogin = async () => {
-    let token = localStorage.getItem("token")
+    let token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await axios.get("http://localhost:8000/api/auth/keep-login", {
-          headers: {
-            "Authorization": `Bearer ${token}`
+        const response = await axios.get(
+          "http://localhost:8000/api/auth/keep-login",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        })
+        );
 
         if (response.data.userId) {
-          localStorage.setItem("token", response.data.refreshToken)
-          const decoded = jwtDecode(token)
-          dispatch(keep(decoded))
+          localStorage.setItem("token", response.data.refreshToken);
+          const decoded = jwtDecode(token);
+          dispatch(keep(decoded));
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     }
-  }
+  };
+
+  const userCart = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        dispatch(updateCart(response.data.data));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   useEffect(() => {
-    keepLogin()
-  }, [])
+    keepLogin();
+    userCart()
+  }, []);
 
   return (
     <Router>
@@ -73,10 +96,19 @@ function App() {
         <Route element={<PublicWrapper />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<UserRegister />} />
-          <Route path="/verify-account/:verificationToken" element={<VerifyAccount />} />
-          <Route path="/set-password/:verificationToken" element={<BranchAdminSetAccount />} />
+          <Route
+            path="/verify-account/:verificationToken"
+            element={<VerifyAccount />}
+          />
+          <Route
+            path="/set-password/:verificationToken"
+            element={<BranchAdminSetAccount />}
+          />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:resetPasswordToken" element={<ResetPassword />} />
+          <Route
+            path="/reset-password/:resetPasswordToken"
+            element={<ResetPassword />}
+          />
         </Route>
 
         <Route path="/unauthorized" element={<Unauthorized />} />
@@ -86,17 +118,35 @@ function App() {
         </Route>
 
         <Route element={<PrivateAdminWrapper allowedRoles={[1]} />}>
-          <Route path="/admin/manage-branch" element={<SuperAdminManageBranch />} />
-          <Route path="/admin/manage-product" element={<SuperAdminManageProduct />} />
-          <Route path="/admin/manage-category" element={<SuperAdminManageCategory />} />
+          <Route
+            path="/admin/manage-branch"
+            element={<SuperAdminManageBranch />}
+          />
+          <Route
+            path="/admin/manage-product"
+            element={<SuperAdminManageProduct />}
+          />
+          <Route
+            path="/admin/manage-category"
+            element={<SuperAdminManageCategory />}
+          />
           <Route path="/admin/report" element={<SuperAdminReport />} />
           <Route path="/admin/order" element={<SuperAdminOrder />} />
         </Route>
 
         <Route element={<PrivateAdminWrapper allowedRoles={[2]} />}>
-          <Route path="/admin/branch/manage-product" element={<BranchAdminManageProduct />} />
-          <Route path="/admin/branch/manage-promotion" element={<BranchAdminManagePromotion />} />
-          <Route path="/admin/branch/manage-order" element={<BranchAdminManageOrder />} />
+          <Route
+            path="/admin/branch/manage-product"
+            element={<BranchAdminManageProduct />}
+          />
+          <Route
+            path="/admin/branch/manage-promotion"
+            element={<BranchAdminManagePromotion />}
+          />
+          <Route
+            path="/admin/branch/manage-order"
+            element={<BranchAdminManageOrder />}
+          />
           <Route path="/admin/branch/report" element={<BranchAdminReport />} />
         </Route>
 
@@ -106,12 +156,24 @@ function App() {
         <Route path="/user/orders" element={<Orders />} />
         <Route path="/user/account" element={<Account />} />
         <Route path="/user/account/my-profile" element={<UserProfile />} />
-        <Route path="/user/account/my-profile/edit" element={<UserProfileEdit />} />
-        <Route path="/user/account/my-profile/change-password" element={<UserProfileChangePassword />} />
+        <Route
+          path="/user/account/my-profile/modify"
+          element={<UserProfileEdit />}
+        />
+        <Route
+          path="/user/account/my-profile/change-password"
+          element={<UserProfileChangePassword />}
+        />
         <Route path="/user/account/my-address" element={<UserAddress />} />
-        <Route path="/user/account/my-address/create" element={<UserAddressCreate />} />
-        <Route path="/user/account/my-address/edit/:name" element={<UserAddressModify />} />
-        <Route path="/product/:name" element={<SingleProduct />} />
+        <Route
+          path="/user/account/my-address/create"
+          element={<UserAddressCreate />}
+        />
+        <Route
+          path="/user/account/my-address/modify/:name"
+          element={<UserAddressModify />}
+        />
+        <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

@@ -89,7 +89,7 @@ export default function UserAddressContent() {
             {allAddress.length !== 0 ? (
                 allAddress.map((data) => (
                     <div key={data.id} className="grid grid-cols-1 gap-2 mt-2">
-                        <div className="flex border-b-2 border-lightgrey px-2 py-4">
+                        <div className="flex border-b border-lightgrey px-2 py-4">
                             <div className="basis-3/4">
                                 <div className="">{data.streetName}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.city_name}</div>
@@ -98,7 +98,7 @@ export default function UserAddressContent() {
                             </div>
                             <div className="basis-1/4 grid grid-cols-2 content-center">
                                 <div className={` ${data.isMain ? 'col-start-2' : 'col-start-1'} grid justify-center`}>
-                                    <Link to={`/user/account/my-address/edit/${encodeURIComponent(data.streetName)}`}>  <BiSolidEditAlt size={20} className="text-maingreen" /> </Link>
+                                    <Link to={`/user/account/my-address/modify/${encodeURIComponent(data.streetName)}`}>  <BiSolidEditAlt size={20} className="text-maingreen" /> </Link>
                                 </div>
                                 <div className={`${data.isMain ? "opacity-0" : ""}px-4 text-reddanger grid justify-center`}>
                                     {!data.isMain && <Modal modalTitle="Delete Address" buttonCondition="trash" content="Deleting this address will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleAction(data.id, "remove")} />}

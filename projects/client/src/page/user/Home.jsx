@@ -276,7 +276,7 @@ export default function Home() {
             <NavbarTop city={city} province={province} />
             <div className="w-full flex flex-col items-center">
                 <div className='relative mb-52 flex flex-col items-center w-full lg:w-6/12 lg:flex lg:flex-col lg:static lg:my-10'>
-                    <div className="w-full relative z-10 lg:hidden flex justify-center items-center h-10 min-h-max mb-2" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 50%, transparent 100%)'}}>
+                    <div className="w-full relative z-10 lg:hidden flex justify-center items-center h-10 min-h-max mb-2" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 50%, transparent 100%)' }}>
                         <div className='w-11/12 flex gap-2'>
                             <HiOutlineLocationMarker className='w-6 h-6 text-white' />
                             <div className='font-inter text-white'>{`${city}, ${province}`}</div>
@@ -286,7 +286,7 @@ export default function Home() {
                         <SearchBar value={params.get("search") || ""} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
                     </div>
                     <div className="w-full gap-2 lg:w-full h-80 lg:h-64 absolute top-0 lg:static">
-                        <CarouselContent branchId={branchId}/>
+                        <CarouselContent branchId={branchId} />
                     </div>
                 </div>
                 <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-fit flex overflow-x-auto lg:mb-10 mb-4">
@@ -302,7 +302,7 @@ export default function Home() {
                 </div>
                 <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
                     {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (
-                        <Link to={`/product/${product.Product?.name}`}><div key={index} className='flex justify-center mb-2 sm:mb-0'>
+                        <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`}><div key={index} className='flex justify-center mb-2 sm:mb-0'>
                             <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach} />
                         </div> </Link>))
                     ) : (<div className='font-inter col-span-2 text-center text-maingreen'>No Product Found</div>)}
