@@ -61,6 +61,30 @@ const checkValidProduct = async (value, { req }) => {
   }
 };
 
+const checkEmailUnique = async (value, { req }) => {
+  try {
+    const user = await db.User.findOne({ where: { email: value } });
+    if (user) {
+      throw new Error("Email already taken");
+    }
+    return true;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+const checkPhoneUnique = async (value, { req }) => {
+  try {
+    const user = await db.User.findOne({ where: { phone: value } });
+    if (user) {
+      throw new Error("Phone number already taken");
+    }
+    return true;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 module.exports = {
   validateLogin: validate([
     body("email").notEmpty().withMessage("Email is required"),
@@ -406,6 +430,43 @@ module.exports = {
       .custom((value, { req }) => {
         if (value !== "" && !["Home", "Work"].includes(value)) {
           throw new Error("Label must be 'Home' or 'Work'");
+        }
+        return true;
+      }),
+  ]),
+  validateChangeCredential: validate([
+    body("name")
+      .trim()
+      .optional()
+      .isLength({ max: 50 })
+      .withMessage("Maximum character is 50"),
+    body("email")
+      .optional()
+      .isEmail()
+      .withMessage("Please enter with email format")
+      .custom(checkEmailUnique),
+    body("phone")
+      .optional()
+      .isMobilePhone()
+      .withMessage("Invalid phone number")
+      .custom(checkPhoneUnique),
+    body("gender")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && !["male", "female"].includes(value)) {
+          throw new Error("Gender must be 'male' or 'female'");
+        }
+        return true;
+      }),
+    body("birthdate")
+      .optional()
+      .custom((value, { req }) => {
+        if (value !== "" && value) {
+          const currentDate = new Date();
+          const selectedDate = new Date(value);
+          if (selectedDate > currentDate) {
+            throw new Error("Birthdate cannot be in the future");
+          }
         }
         return true;
       }),

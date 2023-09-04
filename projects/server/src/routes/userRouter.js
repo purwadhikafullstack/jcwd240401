@@ -8,8 +8,10 @@ const {
 const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
+const profileMulterMiddleware = require("../middleware/multerMiddleware/profile");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
+router.get("/promoted-products", productController.promotedProducts)
 router.get("/branch-products/:name", userController.branchProductByName);
 router.get("/location", coordinateController.coordinateToPlacename);
 router.get(
@@ -34,7 +36,17 @@ router.patch(
   openCageMiddleware.addressUserCoordinate,
   userController.modifyAddress
 );
-router.post(
+router.get("/profile", userController.getProfile);
+router.patch(
+  "/profile/credential",
+  validatorMiddleware.validateChangeCredential,
+  userController.modifyCredential
+);
+router.patch(
+  "/profile/image-profile",
+  profileMulterMiddleware,
+  userController.modifyImgProfile
+);router.post(
   "/carts/:id",
   authMiddleware.verifyToken,
   authMiddleware.verifyUser,

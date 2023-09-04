@@ -169,9 +169,9 @@ export default function UserRegister() {
                         </div>
                         </div>
                         <div className='mt-10 lg:mt-0 flex flex-col gap-2'>
-                            <div className="font-inter text-xl text-maingreen">Referal Code</div>
+                            <div className="font-inter text-xl text-maingreen">Referral Code</div>
                             <div className="w-full">
-                                <label htmlFor="referralCode" className="font-inter">Have a referal code? Type it in to get special promotions</label>
+                                <label htmlFor="referralCode" className="font-inter">Have a referral code? Type it in to get special promotions</label>
                                 <InputField value={values.referralCode} id={"referralCode"} type={"string"} onChange={handleChange} onBlur={handleBlur}/>
                                 {errors.referralCode && touched.referralCode && <p className="text-reddanger text-sm font-inter">{errors.referralCode}</p>}
                             </div>

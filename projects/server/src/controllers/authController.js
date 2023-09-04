@@ -7,6 +7,7 @@ const axios = require("axios")
 const handlebars = require("handlebars")
 const fs = require("fs")
 const geolib = require('geolib')
+const refCode = require('referral-codes')
 // login
 // keep login
 
@@ -21,6 +22,34 @@ const geolib = require('geolib')
 // reset password
 const secretKey = process.env.JWT_SECRET_KEY
 const opencageKey = process.env.OPENCAGE_API_KEY
+
+const findNearestBranch = (userLocation, branchData) => {
+    let nearestBranchId = 0;
+    let max = 50000;
+    let nearest = 50000;
+    let outOfReach = true;
+              
+    branchData.map((branch) => {
+        const branchLocation = {
+            latitude: branch.latitude,
+            longitude: branch.longitude,
+        };
+        const distance = geolib.getDistance(userLocation, branchLocation);
+        if (distance < max) {
+            outOfReach = false
+            if(distance < nearest){
+                nearest = distance;
+                nearestBranchId = branch.id;
+            }
+        } 
+    });
+                
+    if (outOfReach) {
+        nearestBranchId = branchData[0].id
+    }
+
+    return nearestBranchId
+}
 
 module.exports = {
     async login(req,res) {
@@ -147,6 +176,14 @@ module.exports = {
                 transaction
             })
 
+            const newReferralVoucher = await db.Voucher.create({
+                branch_id: newBranch.id,
+                voucher_type_id: 1,
+                isReferral: true
+            }, {
+                transaction
+            })
+
             const link = `${process.env.BASE_PATH_FE}/set-password/${verificationToken}`
             const template = fs.readFileSync("./src/helpers/template/setaccount.html", "utf-8")
             const templateCompile = handlebars.compile(template)
@@ -164,7 +201,8 @@ module.exports = {
             return res.status(200).send({
                 message: "Successfully add admin branch",
                 admin: newAdmin,
-                branch: newBranch
+                branch: newBranch,
+                voucher: newReferralVoucher
             })
 
         }catch(error){
@@ -354,19 +392,10 @@ module.exports = {
                 }
             })
             if(userData) {
-                if(userData.email === email) {
-                    await transaction.rollback()
-                    return res.status(400).send({
-                        message: "There's already an account with this email"
-                    })
-                }
-                
-                if(userData.phone === phone) {
-                    await transaction.rollback()
-                    return res.status(400).send({
-                        message: "There's already an account with this phone number"
-                    })
-                }
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "There is already an account with this email or phone"
+                })
             }
 
             const salt = await bcrypt.genSalt(10)
@@ -404,6 +433,12 @@ module.exports = {
                 })
             }
 
+            const automatedReferralCode = refCode.generate({
+                length: 8,
+                count: 1,
+                charset: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            })
+
             const verificationToken = crypto.randomBytes(16).toString("hex")
             const newUser = await db.User.create({
                 role_id: 3,
@@ -411,7 +446,7 @@ module.exports = {
                 email: email,
                 phone: phone,
                 password: hashPassword,
-                referralCode: referralCode,
+                referralCode: automatedReferralCode[0],
                 verificationToken
             }, {
                 transaction,
@@ -432,6 +467,66 @@ module.exports = {
                 transaction
             })
 
+            if(referralCode){
+                const userReferral = await db.User.findOne({
+                    where: {
+                        referralCode: referralCode
+                    }
+                })
+    
+                if(!userReferral){
+                    await transaction.rollback()
+                    return res.status(400).send({
+                        message: "Invalid referral code"
+                    })
+                }
+
+                const userReferralAddress = await db.Address.findOne({
+                    where: {
+                        user_id: userReferral.id,
+                        isMain: true
+                    }
+                })
+
+                const userLocation = { latitude: req.geometry.lat, longitude: req.geometry.lng };
+                const userReferralLocation = {latitude: userReferralAddress.latitude, longitude: userReferralAddress.longitude}
+
+                const branchData = await db.Branch.findAll();
+
+                const nearestBranchToUser = findNearestBranch(userLocation, branchData)
+                const nearestBranchToUserReferral = findNearestBranch(userReferralLocation, branchData)
+                
+                const branchVoucherForUser = await db.Voucher.findOne({
+                    where: {
+                        branch_id: nearestBranchToUser,
+                        isReferral: true,
+                    }
+                })
+
+                const branchVoucherForUserReferral = await db.Voucher.findOne({
+                    where: {
+                        branch_id: nearestBranchToUserReferral,
+                        isReferral: true,
+                    }
+                })
+
+                await db.User_Voucher.create({
+                    user_id: userReferral.id,
+                    voucher_id: branchVoucherForUserReferral.id,
+                    isUsed: false,
+                }, {
+                    transaction
+                })
+
+                await db.User_Voucher.create({
+                    user_id: newUser.id,
+                    voucher_id: branchVoucherForUser.id,
+                    isUsed: false,
+                }, {
+                    transaction
+                })
+            }
+
             const link = `${process.env.BASE_PATH_FE}/verify-account/${verificationToken}`
             const template = fs.readFileSync("./src/helpers/template/verifyaccount.html", "utf-8")
             const templateCompile = handlebars.compile(template)
@@ -446,10 +541,20 @@ module.exports = {
 
             await transaction.commit()
 
+            if(referralCode){
+                const userReferral = await db.User.findOne({
+                    where: {
+                        referralCode: referralCode
+                    }
+                })
+                userReferral.referralCode = null
+                await userReferral.save()
+            }
+
             return res.status(200).send({
                 message: "You have registered to Groceer-e! Please check your email to verify your account",
                 User: newUser,
-                Address: userAddress
+                Address: userAddress,
             })
 
         }catch(error){

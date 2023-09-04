@@ -1,6 +1,15 @@
 const db = require("../models");
-const opencageKey = process.env.OPENCAGE_API_KEY;
 const axios = require("axios");
+const hbs = require("handlebars");
+const fs = require("fs");
+const crypto = require("crypto");
+const { join } = require("path");
+const transporter = require("../helpers/transporter");
+const {
+  setFromFileNameToDBValueProfile,
+  getAbsolutePathPublicFileProfile,
+  getFileNameFromDbValue,
+} = require("../helpers/fileConverter");
 
 module.exports = {
   async getProfileWithVerificationToken(req, res) {
@@ -465,14 +474,160 @@ module.exports = {
       });
     }
   },
+  async modifyCredential(req, res) {
+    const { name, email, phone, gender, birthdate } = req.body;
+    let message;
+    const transaction = await db.sequelize.transaction();
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        transaction,
+      });
+
+      if (!user) {
+        await transaction.rollback();
+        return res.status(404).send({
+          message: "User not found",
+        });
+      }
+      if (name) user.name = name;
+      if (phone) user.phone = phone;
+      if (gender) user.gender = gender;
+      if (birthdate) user.birthdate = birthdate;
+      if (email) {
+        const verifyToken = crypto.randomBytes(16).toString("hex");
+        user.email = email;
+        user.isVerify = false;
+        user.verificationToken = verifyToken;
+        const verifyLink = `${process.env.BASE_PATH_FE}/verify-account/${verifyToken}`;
+        const templatePath = join(
+          __dirname,
+          "../helpers/template/resendVerify.html"
+        );
+        const template = fs.readFileSync(templatePath, "utf-8");
+        const templateCompile = hbs.compile(template);
+        const htmlResult = templateCompile({ name: user.name, verifyLink });
+
+        const nodemailerEmail = {
+          from: "Groceer-e",
+          to: email,
+          subject:
+            "Proccessing your update request. Please re-verify your email!",
+          html: htmlResult,
+        };
+
+        transporter.sendMail(nodemailerEmail, (error, info) => {
+          if (error) {
+            transaction.rollback();
+            return res.status(500).json({ error: "Error sending email" });
+          }
+        });
+
+        message =
+          "Successfully update profile. Please check your email to re-verify your account";
+      } else {
+        message = "Successfully update profile";
+      }
+
+      await user.save({ transaction });
+
+      await transaction.commit();
+
+      return res.status(200).send({
+        message,
+        data: {
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          gender: user.gender,
+          birthdate: user.birthdate,
+        },
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
+  async modifyImgProfile(req, res) {
+    const transaction = await db.sequelize.transaction();
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        transaction,
+      });
+
+      if (!user) {
+        await transaction.rollback();
+        return res.status(404).send({
+          message: "User not found",
+        });
+      }
+
+      if (!req.file) {
+        await transaction.rollback();
+        return res
+          .status(400)
+          .send({ message: "No file found. Please upload the file" });
+      }
+
+      const realImgProfile = user.getDataValue("imgProfile");
+      const oldFileName = getFileNameFromDbValue(realImgProfile);
+      if (oldFileName) {
+        fs.unlinkSync(getAbsolutePathPublicFileProfile(oldFileName));
+      }
+      user.imgProfile = setFromFileNameToDBValueProfile(req.file.filename);
+
+      await user.save({ transaction });
+
+      await transaction.commit();
+
+      return res.status(200).send({
+        message: "Successfully updated the image profile",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
+  async getProfile(req, res) {
+    try {
+      const myProfile = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        attributes: {
+          exclude: ["password"],
+        },
+      });
+
+      if (!myProfile) {
+        return res.status(404).send({
+          message: "Profile not found",
+          errors: error.message,
+        });
+      }
+      res.send({ message: "Get profile success", data: myProfile });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
 };
 
 // get profile (all account)
 
-// modify name
-// modify email
-// modify phone
-// modify birthdate
 // modify password
 // modify img profile
 

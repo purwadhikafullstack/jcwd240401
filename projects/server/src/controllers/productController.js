@@ -754,8 +754,9 @@ module.exports = {
 
       const branchData = await db.Branch.findAll();
       let nearestBranchId = 0;
+      let max = 50000;
       let nearest = 50000;
-      let outOfReach = false;
+      let outOfReach = true;
 
       if (latitude && longitude) {
         branchData.map((branch) => {
@@ -764,17 +765,19 @@ module.exports = {
             longitude: branch.longitude,
           };
           const distance = geolib.getDistance(userLocation, branchLocation);
-          if (distance < nearest) {
-            nearest = distance;
-            nearestBranchId = branch.id;
-            outOfReach = false;
-          } else {
-            nearestBranchId = branchData[0].id;
-            outOfReach = true;
-          }
+          if (distance < max) {
+            outOfReach = false
+            if(distance < nearest){
+              nearest = distance;
+              nearestBranchId = branch.id;
+            }
+          } 
         });
       } else {
         nearestBranchId = branchData[0].id;
+      }
+      if (outOfReach) {
+        nearestBranchId = branchData[0].id
       }
 
       const nearestBranchData = await db.Branch.findOne({
@@ -834,4 +837,35 @@ module.exports = {
       });
     }
   },
+  async promotedProducts(req,res){
+    const branchId = req.query.branchId
+    try {
+      const promotedProducts = await db.Branch_Product.findAll({
+        where: {
+          branch_id: branchId
+        },
+        include: [
+          {
+            model: db.Product,
+            include: { model: db.Category, where: { isRemoved: 0 } },
+          },
+          {
+            model: db.Discount,
+            where: { isExpired: false},
+            include: { model: db.Discount_Type },
+          },
+        ]
+      })
+
+      return res.status(200).send({
+        message: "Promoted products",
+        data: promotedProducts
+      })
+    }catch(error){
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message
+      })
+    }
+  }
 };
