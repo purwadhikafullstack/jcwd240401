@@ -440,12 +440,14 @@ module.exports = {
   async branchProductByName(req, res) {
     try {
       const result = await db.Branch_Product.findOne({
-        where: { isRemoved: false },
+        where: { branch_id: req.params.branchId, isRemoved: false },
         include: [
           {
             model: db.Product,
             where: {
               name: decodeURIComponent(req.params.name),
+              weight: req.params.weight,
+              unitOfMeasurement: req.params.unitOfMeasurement,
               isRemoved: 0,
             },
             include: { model: db.Category, where: { isRemoved: 0 } },

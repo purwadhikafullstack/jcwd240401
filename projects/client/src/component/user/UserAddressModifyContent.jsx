@@ -151,7 +151,7 @@ export default function UserAddressModifyContent() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setSubmitting(false);
             if (streetName !== addressDetails.streetName) {
-                navigate(`/user/account/my-address/edit/${encodeURIComponent(data.streetName)}`)
+                navigate(`/user/account/my-address/modify/${encodeURIComponent(data.streetName)}`)
             }
             setTimeout(() => {
                 navigate('/user/account/my-address');

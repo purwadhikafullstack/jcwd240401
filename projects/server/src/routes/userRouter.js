@@ -11,8 +11,11 @@ const validatorMiddleware = require("../middleware/validatorMiddleware");
 const profileMulterMiddleware = require("../middleware/multerMiddleware/profile");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
-router.get("/promoted-products", productController.promotedProducts)
-router.get("/branch-products/:name", userController.branchProductByName);
+router.get("/promoted-products", productController.promotedProducts);
+router.get(
+  "/branch-products/:branchId/:name/:weight/:unitOfMeasurement",
+  userController.branchProductByName
+);
 router.get("/location", coordinateController.coordinateToPlacename);
 router.get(
   "/branchs/:id/categories",
@@ -46,7 +49,8 @@ router.patch(
   "/profile/image-profile",
   profileMulterMiddleware,
   userController.modifyImgProfile
-);router.post(
+);
+router.post(
   "/carts/:id",
   authMiddleware.verifyToken,
   authMiddleware.verifyUser,

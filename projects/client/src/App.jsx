@@ -150,14 +150,14 @@ function App() {
           <Route path="/admin/branch/report" element={<BranchAdminReport />} />
         </Route>
 
-        <Route path="/user/cart" element={<Cart/>} />
+        <Route path="/user/cart" element={<Cart />} />
         <Route path="/user/checkout" element={<Checkout />} />
         <Route path="/user/payment" element={<Payment />} />
         <Route path="/user/orders" element={<Orders />} />
         <Route path="/user/account" element={<Account />} />
         <Route path="/user/account/my-profile" element={<UserProfile />} />
         <Route
-          path="/user/account/my-profile/edit"
+          path="/user/account/my-profile/modify"
           element={<UserProfileEdit />}
         />
         <Route
@@ -170,10 +170,10 @@ function App() {
           element={<UserAddressCreate />}
         />
         <Route
-          path="/user/account/my-address/edit/:name"
+          path="/user/account/my-address/modify/:name"
           element={<UserAddressModify />}
         />
-        <Route path="/product/:name" element={<SingleProduct />} />
+        <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>
