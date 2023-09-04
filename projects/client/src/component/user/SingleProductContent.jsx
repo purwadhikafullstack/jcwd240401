@@ -75,10 +75,22 @@ export default function SingleProductContent() {
   };
 
   const updateQuantity = (action) => {
-    if (action === "add" && quantity < branchProductData.quantity) {
-      setQuantity(quantity + 1);
-    } else if (action === "reduce" && quantity > 0) {
-      setQuantity(quantity - 1);
+    if (
+      branchProductData.Discount?.isExpired === false &&
+      branchProductData.Discount?.discount_type_id === 1
+    ) {
+      if (action === "add" && quantity < 2) {
+        setQuantity(quantity + 2);
+      } else if (action === "reduce" && quantity >= 2) {
+        setQuantity(quantity - 2);
+      }
+    } else {
+      // For other types of discounts or no discount
+      if (action === "add" && quantity < branchProductData.quantity) {
+        setQuantity(quantity + 1);
+      } else if (action === "reduce" && quantity > 0) {
+        setQuantity(quantity - 1);
+      }
     }
   };
 
@@ -390,10 +402,18 @@ export default function SingleProductContent() {
                 onClick={(e) => handleSubmit(branchProductData.id)}
                 isDisabled={!isProductInCart && quantity === 0 ? true : false}
               />
-              {quantity >= branchProductData.quantity && (
+              {branchProductData.Discount?.isExpired == false &&
+              branchProductData.Discount?.discount_type_id === 1 &&
+              quantity >= 2 ? (
                 <div className="text-sm text-reddanger">
-                  insufficient stock available
+                  you can only add 2 for buy on get one product
                 </div>
+              ) : (
+                quantity >= branchProductData.quantity && (
+                  <div className="text-sm text-reddanger">
+                    insufficient stock available
+                  </div>
+                )
               )}
             </div>
           </div>

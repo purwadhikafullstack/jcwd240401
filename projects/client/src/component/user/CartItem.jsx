@@ -78,6 +78,7 @@ const CartItem = ({
     }
   };
 
+  
   return (
     <div key={cartId} className="mx-auto my-1 px-2 sm:px-4 lg:px-8 xl:px-16">
       <div className="flex bg-white border-b-2 border-x-lightgrey overflow-hidden items-center justify-start">
@@ -149,22 +150,22 @@ const CartItem = ({
                 )}
               </div>
             </div>
-              </div>
-            <div className="col-span-1 flex justify-around content-center items-center">
-              <Button
-                condition={"minus"}
-                size={"3xl"}
-                onClick={() =>
-                  reduceQuantity(productId, quantity, productStock)
-                }
-              />
-              <div className="h-fit mx-2 sm:mx-4">{quantity}</div>
-              <Button
-                condition={"plus"}
-                size={"3xl"}
-                onClick={() => addQuantity(productId, quantity, productStock)}
-              />
-            </div>
+          </div>
+          <div className="col-span-1 flex justify-around content-center items-center">
+            <Button
+              condition={"minus"}
+              size={"3xl"}
+              onClick={() => reduceQuantity(productId, quantity, productStock)}
+              isDisabled={discountType == 1 && isExpired == false}
+            />
+            <div className="h-fit mx-2 sm:mx-4">{quantity}</div>
+            <Button
+              condition={"plus"}
+              size={"3xl"}
+              onClick={() => addQuantity(productId, quantity, productStock)}
+              isDisabled={discountType == 1 && isExpired == false}
+            />
+          </div>
         </div>
       </div>
     </div>
