@@ -3,6 +3,7 @@ const {
   user: userController,
   product: productController,
   coordinate: coordinateController,
+  transaction: transactionController,
 } = require("../controllers");
 const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
@@ -45,6 +46,31 @@ router.patch(
   "/profile/image-profile",
   profileMulterMiddleware,
   userController.modifyImgProfile
+);router.post(
+  "/carts/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.addToCart
+);
+router.get(
+  "/carts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getCart
+);
+
+router.delete(
+  "/carts/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.removeFromCart
+);
+
+router.delete(
+  "/carts",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.deleteCart
 );
 
 module.exports = router;
