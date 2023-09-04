@@ -538,12 +538,13 @@ module.exports = {
           const updateProductDiscount = await db.Branch_Product.findOne({
             where: {
               product_id: data,
+              branch_id: user.Branch.id,
             },
           });
           updateProductDiscount.discount_id = newDiscount.id;
+          console.log(updateProductDiscount, "ini updateProductDiscount");
           await updateProductDiscount.save();
         });
-
         await transaction.commit();
         return res.status(200).send({
           message: "new discount created",
@@ -567,6 +568,7 @@ module.exports = {
           const updateProductDiscount = await db.Branch_Product.findOne({
             where: {
               product_id: data,
+              branch_id: user.Branch.id,
             },
           });
           updateProductDiscount.discount_id = newDiscount.id;
@@ -709,7 +711,7 @@ module.exports = {
               {
                 where: {
                   isReferral: true,
-                  branch_id: user.Branch.id
+                  branch_id: user.Branch.id,
                 },
               }
             );
@@ -785,7 +787,7 @@ module.exports = {
               {
                 where: {
                   isReferral: true,
-                  branch_id: user.Branch.id
+                  branch_id: user.Branch.id,
                 },
               }
             );
@@ -874,7 +876,7 @@ module.exports = {
               {
                 where: {
                   isReferral: true,
-                  branch_id: user.Branch.id
+                  branch_id: user.Branch.id,
                 },
               }
             );
