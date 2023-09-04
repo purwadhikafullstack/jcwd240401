@@ -92,7 +92,7 @@ export default function UserProfileContent() {
     ]
 
     const routes = [
-        { name: "Edit My Profile", to: `/user/account/my-profile/edit` },
+        { name: "Edit My Profile", to: `/user/account/my-profile/modify` },
         { name: "Change My Password", to: `/user/account/my-profile/change-password` },
     ]
 
