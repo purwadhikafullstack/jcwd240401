@@ -11,10 +11,12 @@ import Button from "../../component/Button";
 import rupiah from "../../helpers/rupiah";
 import AlertPopUp from "../../component/AlertPopUp";
 import { updateCart } from "../../store/reducer/cartSlice";
+import Modal from "../../component/Modal";
+import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 
-export default function CartCopy() {
-  // const [cart, setCart] = useState([]);
-  const [selectedItems, setSelectedItems] = useState([]); // State to store selected items
+export default function Cart() {
+  
+
   const [totalPrice, setTotalPrice] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -23,6 +25,7 @@ export default function CartCopy() {
   const dispatch = useDispatch();
 
   const cartItems = useSelector((state) => state.cart.cart);
+  const selectedItems = useSelector((state) => state.cart.selectedCartItems);
 
   const calculateTotalPrice = (selectedCartItems) => {
     let total = 0;
@@ -42,6 +45,11 @@ export default function CartCopy() {
           } else if (discount.discount_type_id === 3) {
             const discountAmount = discount.amount;
             total += (basePrice - discountAmount) * quantity;
+          } else if (discount.discount_type_id === 1) {
+            // Adjust the calculation for "buy one get one" discount
+            const discountAmount = discount.amount;
+            // Calculate the total price as if it's only one item, not two
+            total += basePrice;
           }
         } else {
           total += basePrice * quantity;
@@ -73,10 +81,10 @@ export default function CartCopy() {
       // If not selected, add it
       updatedSelectedItems.push(cartId);
     }
-    setSelectedItems(updatedSelectedItems); // Update the selected items
-    console.log(updatedSelectedItems, "ini selected");
-  };
 
+    // Dispatch the action to update selectedItems in the Redux store
+    dispatch(setSelectedCartItems(updatedSelectedItems));
+  };
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -92,7 +100,7 @@ export default function CartCopy() {
       );
 
       dispatch(updateCart(cartResponse.data.data));
-      setSelectedItems([]);
+      dispatch(setSelectedCartItems([]));
 
       if (cartResponse.status == 200) {
         setErrorMessage("");
@@ -137,10 +145,17 @@ export default function CartCopy() {
           />
         ) : null}
         <div className="flex justify-end mx-6 lg:px-20">
-          {selectedItems.length === 0 ? null : selectedItems.length > 0 ? (
-            <button onClick={handleDelete}>
-              <BsTrash size={25} color="red" />
-            </button>
+          {selectedItems.length === 0 ? (
+            <div className="flex justify-end mx-6 lg:px-20 text-white">_</div>
+          ) : selectedItems.length > 0 ? (
+            <Modal
+              modalTitle="Delete Cart"
+              buttonCondition="trash"
+              content="are you sure you want to remove this from your cart?"
+              buttonLabelOne="Cancel"
+              buttonLabelTwo="Yes"
+              onClickButton={handleDelete}
+            />
           ) : (
             <button disabled>
               <BsTrash size={25} color="grey" />
@@ -186,8 +201,24 @@ export default function CartCopy() {
                 selected={selectedItems.includes(data.id)} // Check if item is selected
               />
             ))}
-            <div className="font-bold text-2xl mt-4">
-              Total Price: {rupiah(totalPrice)}
+            <div className=" flex flex-row  lg:justify-end lg:mx-16 sm:justify-between">
+              <span className="font-semibold text-xl text-maingreen mx-10 ">
+                Total
+              </span>
+              <span className="text-reddanger text-xl font-bold ">
+                {rupiah(totalPrice)}
+              </span>
+            </div>
+            <div className="flex sm:justify-center lg:justify-end mx-16 mt-2">
+              <div className="w-72">
+                <Button
+                  label="Checkout"
+                  condition="positive"
+                  onClick={() => {
+                    navigate("/user/checkout");
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
