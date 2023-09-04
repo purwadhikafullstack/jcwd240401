@@ -38,7 +38,7 @@ import UserAddressModify from "./page/user/UserAddressModify";
 import UserAddress from "./page/user/UserAddress";
 import SingleProduct from "./page/user/SingleProduct";
 import { updateCart } from "./store/reducer/cartSlice";
-import CartCopy from "./page/user/CartCopy";
+
 
 function App() {
   const dispatch = useDispatch();
@@ -150,7 +150,7 @@ function App() {
           <Route path="/admin/branch/report" element={<BranchAdminReport />} />
         </Route>
 
-        <Route path="/user/cart" element={<CartCopy/>} />
+        <Route path="/user/cart" element={<Cart/>} />
         <Route path="/user/checkout" element={<Checkout />} />
         <Route path="/user/payment" element={<Payment />} />
         <Route path="/user/orders" element={<Orders />} />
