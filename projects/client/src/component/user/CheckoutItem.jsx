@@ -5,7 +5,7 @@ import { updateCart } from "../../store/reducer/cartSlice";
 import Button from "../Button";
 import Label from "../Label";
 
-const CartItem = ({
+const CheckoutItem = ({
   quantity,
   name,
   weight,
@@ -30,65 +30,9 @@ const CartItem = ({
       "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
   };
 
-  const addQuantity = async (productId, currentQuantity, stock) => {
-    try {
-      if (currentQuantity <= stock) {
-        const updatedQuantity = currentQuantity + 1;
-        const response = await axios.post(
-          `http://localhost:8000/api/users/carts/${productId}`,
-          { quantity: updatedQuantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const cartResponse = await axios.get(
-          "http://localhost:8000/api/users/carts",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        dispatch(updateCart(cartResponse.data.data));
-      }
-    } catch (error) {
-      console.error("Error:", error.message);
-    }
-  };
-
-  const reduceQuantity = async (productId, currentQuantity) => {
-    try {
-      if (currentQuantity >= 0) {
-        const updatedQuantity = currentQuantity - 1;
-        const response = await axios.post(
-          `http://localhost:8000/api/users/carts/${productId}`,
-          { quantity: updatedQuantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const cartResponse = await axios.get(
-          "http://localhost:8000/api/users/carts",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        dispatch(updateCart(cartResponse.data.data));
-      }
-    } catch (error) {
-      console.error("Error:", error.message);
-    }
-  };
-
   return (
     <div key={cartId} className="mx-auto my-1 px-2 sm:px-4 lg:px-8 xl:px-16">
       <div className="flex bg-white border-b-2 border-x-lightgrey overflow-hidden items-center justify-start">
-        <input
-          type="checkbox"
-          checked={selected} // Bind the selected state to the checkbox
-          onChange={() => onSelect(cartId)} // Call the onSelect function when checkbox is clicked
-          className={`rounded-md border-maingreen border-2 p-2 m-2 ${
-            selected ? " text-maingreen" : ""
-          }`}
-        />
         <div className="relative w-24 sm:w-32 h-24 sm:h-32 flex-shrink-0 hidden sm:block">
           <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center">
             <img
@@ -154,19 +98,7 @@ const CartItem = ({
             </div>
           </div>
           <div className="col-span-1 flex justify-around content-center items-center">
-            <Button
-              condition={"minus"}
-              size={"3xl"}
-              onClick={() => reduceQuantity(productId, quantity, productStock)}
-              isDisabled={discountType == 1 && isExpired == false}
-            />
-            <div className="h-fit mx-2 sm:mx-4">{quantity}</div>
-            <Button
-              condition={"plus"}
-              size={"3xl"}
-              onClick={() => addQuantity(productId, quantity, productStock)}
-              isDisabled={discountType == 1 && isExpired == false}
-            />
+            qty: {quantity}
           </div>
         </div>
       </div>
@@ -174,4 +106,4 @@ const CartItem = ({
   );
 };
 
-export default CartItem;
+export default CheckoutItem;
