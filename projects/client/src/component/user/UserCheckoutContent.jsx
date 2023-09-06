@@ -7,13 +7,15 @@ import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 import CheckoutItem from "./CheckoutItem";
 import InputField from "../InputField";
 import rupiah from "../../helpers/rupiah";
+import CustomDropdown from "../CustomDropdown";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
   const dispatch = useDispatch();
   const [checkoutItems, setCheckoutItems] = useState([]);
   const [userAddress, setUserAddress] = useState("");
-  const [branchAddress, setBranchAddress] = useState("")
+  const [courier, setCourier] = useState("");
+  const [shipping, setShipping] = useState({});
   const token = localStorage.getItem("token");
 
   const fetchCartItems = async () => {
@@ -55,13 +57,6 @@ export default function UserCheckoutContent() {
     }
   };
 
-  const cityFormatter = (address) => {
-    const response = address.City.city_name;
-    const parts = response.split(" ");
-    const city = parts.slice(1).join(" ");
-    return city;
-  };
-
   const calculateSubTotalPrice = (responseData) => {
     let total = 0;
 
@@ -94,12 +89,55 @@ export default function UserCheckoutContent() {
 
     return total;
   };
+  const calculateTotalWeight = (responseData) => {
+    let total = 0;
+    if (responseData.length > 0) {
+      for (const item of responseData) {
+        const itemWeight = item.Branch_Product?.Product?.weight;
+        const itemQuantity = item.quantity;
+        total += itemWeight * itemQuantity;
+      }
+    }
+    return total;
+  };
+
+  const fetchRajaOngkir = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/users/shipping-cost`,
+        {
+          origin: origin,
+          destination: destination,
+          weight: totalWeight,
+          courier: courier,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response?.data?.data?.results[0]?.costs) {
+        let data = response?.data?.data?.results[0]?.costs;
+        if (data) {
+          let option = data?.map((d) => ({
+            label: `${d.service} - ${rupiah(d.cost[0]?.value)}  [${
+              d.cost[0]?.etd
+            } hari] `,
+            value: d.cost[0].value,
+          }));
+          setShipping(option);
+        }
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const subTotal = calculateSubTotalPrice(checkoutItems);
+  const totalWeight = calculateTotalWeight(checkoutItems);
   useEffect(() => {
     fetchUserAddress();
   }, []);
-
+  console.log(shipping, "ini shipping");
   useEffect(() => {
     fetchCartItems();
   }, [selectedItems]);
@@ -110,16 +148,23 @@ export default function UserCheckoutContent() {
     }
   }, [dispatch]);
 
-  const shippingSchema = yup.object().shape({});
-  const handleCheckout = () => {};
+  useEffect(() => {
+    fetchRajaOngkir();
+  }, [courier]);
+
   const courrierList = [
-    { label: "JNE", value: "JNE" },
-    { label: "POS Indonesia", value: "POS Indonesia" },
-    { label: "TIKI", value: "TIKI" },
+    { label: "--select courier--", value: "" },
+    { label: "JNE", value: "jne" },
+    { label: "POS Indonesia", value: "pos" },
+    { label: "TIKI", value: "tiki" },
   ];
 
-  const destination = cityFormatter(userAddress);
-
+  const handleChangeDropdown = (obj) => {
+    setCourier(obj.value);
+  };
+  console.log(shipping);
+  const destination = userAddress?.city_id;
+  const origin = checkoutItems[0]?.Branch_Product?.Branch?.city_id;
   return (
     <div>
       <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
@@ -127,46 +172,24 @@ export default function UserCheckoutContent() {
       </div>
       <div className="text-maingreen font-semibold">My Selected Address</div>
       <div>{`${userAddress?.streetName}, ${userAddress?.City?.city_name}`}</div>
-      <Formik
-        initialValues={{
-          origin: "",
-          destination: destination,
-          weight: "",
-          courrier: "",
-          voucher: "",
-        }}
-        validationSchema={shippingSchema}
-        onSubmit={handleCheckout}
-      >
-        {(props) => (
-          <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-            <label htmlFor="courrier" className="">
-              Courrier
-            </label>
-            <Field
-              as="select"
-              className="w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              name="courrier"
-            >
-              <option key="empty" value="">
-                --choose a courrier--
-              </option>
-              {courrierList.map((data) => (
-                <option key={data.value} value={data.value}>
-                  {data.label}
-                </option>
-              ))}
-            </Field>
-          </div>
-        )}
-      </Formik>
+
       <div className="flex flex-col gap-2 py-4 font-inter mb-4">
+        <label htmlFor="name" className="">
+          Courier
+        </label>
+        <CustomDropdown
+          options={courrierList}
+          onChange={handleChangeDropdown}
+          placeholder={"--select courier--"}
+        />
         <label htmlFor="name" className="">
           Shipping method
         </label>
-        <div className="relative">
-          <InputField id={"name"} type={"string"} name="name" />
-        </div>
+        <CustomDropdown
+          options={shipping}
+          onChange={handleChangeDropdown}
+          placeholder={"--select shipping--"}
+        />
         <label htmlFor="name" className="">
           Voucher
         </label>
