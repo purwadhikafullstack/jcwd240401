@@ -77,4 +77,18 @@ router.delete(
   transactionController.deleteCart
 );
 
+router.post(
+  "/shipping-cost",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getCost
+);
+
+router.post(
+  "/checkout",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.checkout
+);
+
 module.exports = router;
