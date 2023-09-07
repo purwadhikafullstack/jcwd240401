@@ -1,11 +1,16 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const CustomHeader = ({ tabContent, titleContent, setContent }) => {
-  const [activeTab, setActiveTab] = useState(`${tabContent[0].name}`);
+  const [activeTab, setActiveTab] = useState(`${tabContent[0].name}`); // ganti ambil dari url
   const handleTabClick = (tabId, content) => {
     setActiveTab(tabId);
     setContent(content);
   };
+
+  useEffect(() => {
+    //setUrl disni
+    console.log("testing useEffect")
+  }, [activeTab])
   return (
     <div className="flex flex-col items-center">
       <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">{titleContent}</div>

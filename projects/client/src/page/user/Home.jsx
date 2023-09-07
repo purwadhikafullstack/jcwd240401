@@ -10,7 +10,7 @@ import ProductCard from '../../component/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CarouselContent from '../../component/user/CarouselContent'
 import { Link, useNavigate } from 'react-router-dom'
-import CustomDropdownProduct from '../../component/CustomDropdownProduct'
+import CustomDropdownURLSearch from '../../component/CustomDropdownURLSearch'
 
 export default function Home() {
     const [latitude, setLatitude] = useState("")
@@ -210,10 +210,8 @@ export default function Home() {
     const onPageChange = (page) => {
         setProductData([]);
         setCurrentPage(page);
-
         const newFilter = new URLSearchParams(filter.toString());
         newFilter.set("page", page.toString());
-
         setFilter(newFilter);
         const params = new URLSearchParams(window.location.search);
         params.set("page", page.toString());
@@ -297,8 +295,8 @@ export default function Home() {
                     ))}
                 </div>
                 <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 flex lg:mb-10 mb-4'>
-                    <CustomDropdownProduct id="sortName" options={nameOptions} onChange={handleFilterChange} placeholder={"Sort by Name"} />
-                    <CustomDropdownProduct id="sortPrice" options={priceOptions} onChange={handleFilterChange} placeholder={"Sort by Price"} />
+                    <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleFilterChange} placeholder={"Sort by Name"} />
+                    <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={handleFilterChange} placeholder={"Sort by Price"} />
                 </div>
                 <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
                     {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (

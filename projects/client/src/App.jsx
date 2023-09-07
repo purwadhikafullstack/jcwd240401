@@ -38,6 +38,9 @@ import UserAddressModify from "./page/user/UserAddressModify";
 import UserAddress from "./page/user/UserAddress";
 import SingleProduct from "./page/user/SingleProduct";
 import { updateCart } from "./store/reducer/cartSlice";
+import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyBranchProduct";
+import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
+import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
 
 
 function App() {
@@ -169,11 +172,11 @@ function App() {
           path="/user/account/my-address/create"
           element={<UserAddressCreate />}
         />
-        <Route
-          path="/user/account/my-address/modify/:name"
-          element={<UserAddressModify />}
-        />
+        <Route path="/user/account/my-address/modify/:name" element={<UserAddressModify />} />
         <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
+        <Route path="/admin/branch/manage-product/branch-product/:id/modify" element={<BranchAdminModifyBranchProduct />} />
+        <Route path="/admin/manage-category/category/:id/modify" element={<SuperAdminModifyCategory />} />
+        <Route path="/admin/manage-product/product/:id/modify" element={<SuperAdminModifyProduct />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

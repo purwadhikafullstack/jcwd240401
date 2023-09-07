@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Pagination } from "flowbite-react";
+import { Link, useNavigate } from "react-router-dom";
+import { BiSolidEditAlt } from "react-icons/bi";
 
-import SearchBar from '../../../SearchBar';
 import Modal from '../../../Modal';
-import CustomDropDowm from '../../../CustomDropdown';
 import AlertPopUp from '../../../AlertPopUp';
+import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
+import SearchInputBar from '../../../SearchInputBar';
 
 export default function AllCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -14,10 +16,9 @@ export default function AllCategory() {
     const [allCategory, setAllCategory] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [filter, setFilter] = useState({
-        search: "",
-        sort: ""
-    })
+    const [filter, setFilter] = useState(new URLSearchParams());
+    const params = new URLSearchParams(window.location.search);
+    const navigate = useNavigate();
 
     const token = localStorage.getItem("token")
     const handleRemove = async (categoryId) => {
@@ -45,16 +46,24 @@ export default function AllCategory() {
         }
     }
 
-    const handleSearchValue = (e) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            search: e.target.value,
-        }));
-    }
+    const handleSearchSubmit = (searchValue) => {
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", "1");
+        if (searchValue === "") {
+            newFilter.delete("search");
+        } else {
+            newFilter.set("search", searchValue);
+        }
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("search", searchValue);
+        params.set("page", "1");
+        navigate({ search: params.toString() });
+    };
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${params.get("page") || 1}&search=${params.get("search") || ""}&sortName=${params.get("sortName") || ""}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {
@@ -75,6 +84,12 @@ export default function AllCategory() {
     const onPageChange = (page) => {
         setAllCategory([]);
         setCurrentPage(page)
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", page.toString());
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", page.toString());
+        navigate({ search: params.toString() });
     }
 
     const handleImageError = (event) => {
@@ -88,11 +103,19 @@ export default function AllCategory() {
 
     const options = [{ label: "Sort By Name", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
 
-    const handleChangeDropdown = (obj) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            sort: obj.value,
-        }));
+    const handleChangeDropdown = (e) => {
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", "1");
+        if (e.target.value === "") {
+            newFilter.delete("sortName");
+        } else {
+            newFilter.set("sortName", e.target.value);
+        }
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", "1");
+        params.set("sortName", e.target.value);
+        navigate({ search: params.toString() });
     };
 
     const handleShowAlert = () => {
@@ -109,9 +132,9 @@ export default function AllCategory() {
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
-            <div className='flex gap-4 w-10/12 mx-auto my-6'>
-                <SearchBar value={filter.search} type="text" onChange={handleSearchValue} placeholder="Enter here to search category by name..." />
-                <CustomDropDowm options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />
+            <div className='flex flex-col sm:flex-row gap-4 w-10/12 mx-auto my-6'>
+                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search category by name..." />
+                <CustomDropdownURLSearch id="sortName" options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />
             </div>
             <div className='w-full'>
                 <div className="grid gap-2">
@@ -135,7 +158,7 @@ export default function AllCategory() {
                                         />
                                     </td>
                                     <td className="py-2 px-4 text-center" style={{ width: '75%' }}>{item.name}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center'><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`category/${item.id}/modify`}>  <BiSolidEditAlt className="text-maingreen text-xl sm:text-2xl mx-auto" /> </Link><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allCategory.length === 0 && (
