@@ -86,7 +86,7 @@ export default function CreateCategory() {
   };
 
   return (
-    <div className="w-8/12 mx-auto flex flex-col justify-center font-inter">
+    <div className="w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter">
       {showAlert ? (
         <AlertPopUp
           condition={errorMessage ? "fail" : "success"}
@@ -101,66 +101,32 @@ export default function CreateCategory() {
       >
         {(props) => (
           <Form>
+            <div className="text-xs text-reddanger">* required</div>
             <div className="flex flex-col gap-2 py-4 font-inter mb-4">
               <label htmlFor="name" className="">
                 Category Name{" "}
-                <span className="text-xs text-reddanger">* required</span>
+                <span className="text-sm font-normal">(max. 50 characters)</span>
+                <span className="text-reddanger font-normal">*</span>
               </label>
               <div className="relative">
-                <InputField
-                  value={props.values.name}
-                  id={"name"}
-                  type={"string"}
-                  name="name"
-                  onChange={props.handleChange}
-                />
-                {props.errors.name && props.touched.name && (
-                  <div className="text-sm text-reddanger absolute top-12">
-                    {props.errors.name}
-                  </div>
-                )}
+                <InputField value={props.values.name} id={"name"} type={"string"} name="name" onChange={props.handleChange} />
+                {props.errors.name && props.touched.name && (<div className="text-sm text-reddanger absolute top-12"> {props.errors.name} </div>)}
               </div>
             </div>
             <div className="flex flex-col gap-2 py-4 mb-4">
               <label htmlFor="file" className="">
                 Category Image{" "}
-                <span className="text-xs text-reddanger">* required</span>
+                <span className="text-sm font-normal">(.jpg, .jpeg, .png)</span>
+                <span className="text-reddanger font-normal">*</span>
               </label>
               <div className="relative">
-                <input
-                  className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0"
-                  type="file"
-                  id="file"
-                  name="file"
-                  onChange={(e) => {
-                    props.setFieldValue("file", e.currentTarget.files[0]);
-                  }}
-                  required
+                <input className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0" type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); }} required
                 />
-                {props.errors.file && props.touched.file && (
-                  <div className="text-sm text-reddanger absolute top-12">
-                    {props.errors.file}
-                  </div>
-                )}
+                {props.errors.file && props.touched.file && (<div className="text-sm text-reddanger absolute top-12"> {props.errors.file} </div>)}
               </div>
             </div>
             <div className="mt-20">
-              <Modal
-                isDisabled={
-                  !props.dirty || !(props.values.name && props.values.file)
-                }
-                modalTitle={"Create New Category"}
-                toggleName={"Create Category"}
-                content={
-                  "By creating this category, you're adding content for future accessibility. Are you sure?"
-                }
-                buttonCondition={"positive"}
-                buttonLabelOne={"Cancel"}
-                buttonLabelTwo={"Yes"}
-                buttonTypeOne={"button"}
-                buttonTypeTwo={"submit"}
-                onClickButton={props.handleSubmit}
-              />
+              <Modal isDisabled={!props.dirty || !(props.values.name && props.values.file)} modalTitle={"Create New Category"} toggleName={"Create Category"} content={"By creating this category, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
             </div>
           </Form>
         )}

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import * as yup from "yup";
-import { Formik, Form } from "formik";
-import axios from "axios";
+import axios from 'axios';
+import { Formik, Form } from 'formik';
+import { useNavigate, useParams } from "react-router-dom";
 
-import Modal from '../../../Modal';
-import AlertPopUp from '../../../AlertPopUp';
-import CustomDropdown from '../../../CustomDropdown';
-import InputField from '../../../InputField';
+import Modal from '../Modal';
+import InputField from '../InputField';
+import AlertPopUp from '../AlertPopUp';
+import Button from '../Button';
+import FarmersMarket from '../../assets/FarmersMarket.png';
 
-export default function ModifyCategory() {
-    const [allCategory, setAllCategory] = useState([])
-    const [selectedCategoryId, setSelectedCategoryId] = useState("")
+export default function SuperAdminModifyCategory() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const [showAlert, setShowAlert] = useState(false)
@@ -24,15 +24,16 @@ export default function ModifyCategory() {
     const categorySchema = yup.object().shape({
         name: yup.string().max(50, 'Category name must not exceed 50 characters').typeError("Name must be a valid text"),
     })
+    const { id } = useParams()
+    const navigate = useNavigate()
 
     const getOneCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {
                 const data = response.data.data;
-                console.log(data)
                 if (data) {
                     setCategoryDetails({
                         name: data.name,
@@ -47,47 +48,15 @@ export default function ModifyCategory() {
         }
     }
 
-    const getCategory = async () => {
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (response.data) {
-                const data = response.data.data;
-                if (data) {
-                    let options = data.map((d) => ({
-                        label: d.name,
-                        value: d.id,
-                    }));
-                    setAllCategory(options);
-                } else {
-                    setAllCategory([]);
-                }
-            }
-        } catch (error) {
-            console.warn(error);
-        }
-    }
-
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues, setFieldValue }) => {
         setSubmitting(true)
         const { name, file } = values;
-        console.log(name)
-        console.log(file)
-
-        console.log("berhasil click submit", selectedCategoryId)
+        console.log("berhasil click submit")
         const formData = new FormData();
-
-        if (name !== categoryDetails.name) {
-            formData.append('name', name);
-        }
-
-        if (file) {
-            formData.append('file', file);
-        }
-
+        if (name !== categoryDetails.name) { formData.append('name', name); }
+        if (file) { formData.append('file', file); }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${selectedCategoryId}/modify`, formData, {
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${id}/modify`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`
@@ -142,46 +111,35 @@ export default function ModifyCategory() {
         setShowAlert(false)
     }
 
-    useEffect(() => {
-        getCategory()
-        if (selectedCategoryId) {
-            getOneCategory()
-        }
-    }, [successMessage, selectedCategoryId])
-
-    const handleChangeDropdown = (obj) => {
-        setSelectedCategoryId(obj.value)
-    };
-
     const handleImageError = (event) => {
         event.target.src =
             'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
     };
 
+    useEffect(() => {
+        getOneCategory()
+    }, [successMessage])
+
     function preview(event) {
         const file = event.target.files[0];
-        console.log("file here:", file)
         if (file) {
             const previewUrl = URL.createObjectURL(file);
-            console.log(previewUrl)
             setImagePreview(previewUrl);
         }
     }
 
     return (
-        <div className="w-8/12 mx-auto flex flex-col justify-center font-inter">
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
-            <div className="flex flex-col gap-2 py-4 font-inter border-b-2 pb-10">
-                <div className="">
-                    Selected Category: <span className="text-xs text-reddanger">* required</span>
-                </div>
-                <CustomDropdown options={allCategory} onChange={handleChangeDropdown} placeholder={"--select a category to modify--"} />
+        <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-screen'>
+            <div className='flex lg:pt-10'>
+                <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
+                <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Category</div>
             </div>
-            <div className='flex flex-col gap-2 py-6'>
-                <div className=''>
-                    Modify Below:
+            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <div className='grid grid-cols-1 lg:grid-cols-2 h-full justify-center content-center gap-4'>
+                <div className='hidden lg:grid content-center justify-center p-4'>
+                    <img src={FarmersMarket} alt="illustration" className='w-full h-full object-cover' />
                 </div>
-                {(selectedCategoryId) ? (
+                <div className='lg:p-4 grid content-center'>
                     <Formik enableReinitialize initialValues={{ name: categoryDetails.name, file: null, }} validationSchema={categorySchema} onSubmit={handleSubmit}>
                         {(props) => (
                             <Form>
@@ -193,7 +151,7 @@ export default function ModifyCategory() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2 py-4 mb-24">
-                                    <label htmlFor="img" className="text-sm">Category Image</label>
+                                    <label htmlFor="img" className="">Category Image</label>
                                     <div>
                                         {(imagePreview) ? (
                                             <img
@@ -223,10 +181,8 @@ export default function ModifyCategory() {
                             </Form>
                         )}
                     </Formik>
-                ) : (
-                    <div className='text-center text-darkgrey'>No Category Selected</div>
-                )}
+                </div>
             </div>
-        </div>
+        </div >
     )
 }
