@@ -1,8 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import rupiah from "../../helpers/rupiah";
-import { updateCart } from "../../store/reducer/cartSlice";
-import Button from "../Button";
 import Label from "../Label";
 
 const CheckoutItem = ({
@@ -22,7 +19,6 @@ const CheckoutItem = ({
   onSelect, // Add onSelect prop
   selected, // Add selected prop
 }) => {
-  const dispatch = useDispatch();
   const token = localStorage.getItem("token");
 
   const handleImageError = (event) => {
@@ -31,7 +27,7 @@ const CheckoutItem = ({
   };
 
   return (
-    <div key={cartId} className="mx-auto my-1 px-2 sm:px-4 lg:px-8 xl:px-16">
+    <div key={cartId} className="mx-auto my-1">
       <div className="flex bg-white border-b-2 border-x-lightgrey overflow-hidden items-center justify-start">
         <div className="relative w-24 sm:w-32 h-24 sm:h-32 flex-shrink-0 hidden sm:block">
           <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center">

@@ -387,5 +387,50 @@ module.exports = {
 
   // user payment
   // user cancel order
+  async cancelOrder(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const transaction = await db.sequelize.transaction();
+    const { refundReason } = req.body;
+
+    try {
+      const orderData = await db.Order.findOne({
+        where: { id: orderId, user_id: userId },
+      });
+      if (!orderData) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "no order data found",
+        });
+      }
+      if (
+        orderData.orderStatus === "Waiting for payment" ||
+        orderData.orderStatus === "Waiting for payment confirmation"
+      ) {
+        await orderData.update(
+          { 
+            orderStatus: "Canceled",
+            refundReason,
+          },
+          { transaction }
+        );
+      } else {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "you can't cancel this order",
+        });
+      }
+      await transaction.commit();
+      return res.status(200).send({
+        message: "your oder successfully canceled",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
   // user confirm order
 };

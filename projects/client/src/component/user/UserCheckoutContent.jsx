@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { Field, Formik } from "formik";
-import * as yup from "yup";
+import { useNavigate } from "react-router-dom";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 import CheckoutItem from "./CheckoutItem";
 import InputField from "../InputField";
 import rupiah from "../../helpers/rupiah";
 import CustomDropdown from "../CustomDropdown";
+import Modal from "../Modal";
+import AlertPopUp from "../AlertPopUp";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [checkoutItems, setCheckoutItems] = useState([]);
   const [userAddress, setUserAddress] = useState("");
   const [courier, setCourier] = useState("");
-  const [shipping, setShipping] = useState({});
+  const [shipping, setShipping] = useState([]);
+  const [deliveryFee, setDeliveryFee] = useState("");
+  const [grandTotal, setGrandTotal] = useState("");
   const token = localStorage.getItem("token");
 
   const fetchCartItems = async () => {
@@ -136,6 +140,7 @@ export default function UserCheckoutContent() {
   const totalWeight = calculateTotalWeight(checkoutItems);
   useEffect(() => {
     fetchUserAddress();
+    setGrandTotal(Number(subTotal + deliveryFee));
   }, []);
   console.log(shipping, "ini shipping");
   useEffect(() => {
@@ -152,6 +157,10 @@ export default function UserCheckoutContent() {
     fetchRajaOngkir();
   }, [courier]);
 
+  useEffect(() => {
+    setGrandTotal(Number(subTotal + deliveryFee));
+  }, [deliveryFee]);
+
   const courrierList = [
     { label: "--select courier--", value: "" },
     { label: "JNE", value: "jne" },
@@ -159,88 +168,144 @@ export default function UserCheckoutContent() {
     { label: "TIKI", value: "tiki" },
   ];
 
-  const handleChangeDropdown = (obj) => {
-    setCourier(obj.value);
+  const handleChangeDropdown = (obj, action) => {
+    if (action === "courier") {
+      if (!obj.value) {
+        setCourier("");
+        setShipping([]);
+        setDeliveryFee("");
+        setGrandTotal("");
+      }
+      setCourier(obj.value);
+    }
+    if (action === "fee") {
+      if (obj.value) {
+        setDeliveryFee(obj.value);
+      }
+    }
   };
-  console.log(shipping);
+  const handleCheckout = async () => {
+    const cart = localStorage.getItem("selectedCartItems");
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/users/checkout`,
+        {
+          shippingMethod: courier,
+          shippingCost: deliveryFee,
+          totalPrice: grandTotal,
+          cartItems: cart,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.status === 200) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   const destination = userAddress?.city_id;
   const origin = checkoutItems[0]?.Branch_Product?.Branch?.city_id;
-  return (
-    <div>
-      <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
-        Checkout
-      </div>
-      <div className="text-maingreen font-semibold">My Selected Address</div>
-      <div>{`${userAddress?.streetName}, ${userAddress?.City?.city_name}`}</div>
 
-      <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-        <label htmlFor="name" className="">
-          Courier
-        </label>
-        <CustomDropdown
-          options={courrierList}
-          onChange={handleChangeDropdown}
-          placeholder={"--select courier--"}
-        />
-        <label htmlFor="name" className="">
-          Shipping method
-        </label>
-        <CustomDropdown
-          options={shipping}
-          onChange={handleChangeDropdown}
-          placeholder={"--select shipping--"}
-        />
-        <label htmlFor="name" className="">
-          Voucher
-        </label>
-        <div className="relative">
-          <InputField id={"name"} type={"string"} name="name" />
+  return (
+    <div className="flex flex-col items-center">
+      <div className="sm:w-full lg:w-4/6">
+        <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
+          Checkout
         </div>
-      </div>
-      <div className="text-maingreen font-semibold">My Order Summary</div>
-      {checkoutItems.map((data) => (
-        <CheckoutItem
-          key={data.id}
-          quantity={data.quantity}
-          name={data.Branch_Product.Product.name}
-          weight={data.Branch_Product.Product.weight}
-          UOM={data.Branch_Product.Product.unitOfMeasurement}
-          productImg={data.Branch_Product.Product.imgProduct}
-          discountId={data.Branch_Product.discount_id}
-          discountType={data.Branch_Product.Discount?.discount_type_id}
-          isExpired={data.Branch_Product.Discount?.isExpired}
-          basePrice={data.Branch_Product.Product.basePrice}
-          discountAmount={data.Branch_Product.Discount?.amount}
-          productStock={data.Branch_Product.quantity}
-          cartId={data.id}
-          productId={data.Branch_Product.id}
-        />
-      ))}
-      <div className="flex justify-between">
-        <span className="font-semibold text-xl text-maingreen">Sub total</span>
-        <span className="text-reddanger text-xl font-bold ">
-          {rupiah(subTotal)}
-        </span>
-      </div>
-      <div className="flex justify-between">
-        <span className="font-semibold text-xl text-maingreen">Voucher</span>
-        <span className="text-reddanger text-xl font-bold ">
-          {rupiah(subTotal)}
-        </span>
-      </div>
-      <div className="flex justify-between">
-        <span className="font-semibold text-xl text-maingreen">
-          Delivery fee
-        </span>
-        <span className="text-reddanger text-xl font-bold ">
-          {rupiah(subTotal)}
-        </span>
-      </div>
-      <div className="flex justify-between">
-        <span className="font-semibold text-xl text-maingreen">Total</span>
-        <span className="text-reddanger text-xl font-bold ">
-          {rupiah(subTotal)}
-        </span>
+        <div className="text-maingreen font-semibold">My Selected Address</div>
+        <div>{`${userAddress?.streetName}, ${userAddress?.City?.city_name}`}</div>
+
+        <div className="flex flex-col gap-2 py-4 font-inter mb-4">
+          <label htmlFor="name" className="">
+            Courier
+          </label>
+          <CustomDropdown
+            options={courrierList}
+            onChange={(e) => handleChangeDropdown(e, "courier")}
+            placeholder={"--select courier--"}
+          />
+          {shipping.length !== 0 && (
+            <div>
+              <label htmlFor="name" className="flex flex-col">
+                Shipping method
+              </label>
+              <CustomDropdown
+                options={shipping}
+                onChange={(e) => handleChangeDropdown(e, "fee")}
+                placeholder={"--select shipping--"}
+              />
+            </div>
+          )}
+          <label htmlFor="name" className="">
+            Voucher
+          </label>
+          <div className="relative">
+            <InputField id={"name"} type={"string"} name="name" />
+          </div>
+        </div>
+        <div className="text-maingreen font-semibold">My Order Summary</div>
+        {checkoutItems.map((data) => (
+          <CheckoutItem
+            key={data.id}
+            quantity={data.quantity}
+            name={data.Branch_Product.Product.name}
+            weight={data.Branch_Product.Product.weight}
+            UOM={data.Branch_Product.Product.unitOfMeasurement}
+            productImg={data.Branch_Product.Product.imgProduct}
+            discountId={data.Branch_Product.discount_id}
+            discountType={data.Branch_Product.Discount?.discount_type_id}
+            isExpired={data.Branch_Product.Discount?.isExpired}
+            basePrice={data.Branch_Product.Product.basePrice}
+            discountAmount={data.Branch_Product.Discount?.amount}
+            productStock={data.Branch_Product.quantity}
+            cartId={data.id}
+            productId={data.Branch_Product.id}
+          />
+        ))}
+        <div className="flex justify-between">
+          <span className="font-semibold text-xl text-maingreen">
+            Sub total
+          </span>
+          <span className="text-reddanger text-xl font-bold ">
+            {rupiah(subTotal)}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold text-xl text-maingreen">Voucher</span>
+          <span className="text-reddanger text-xl font-bold ">
+            {rupiah(subTotal)}
+          </span>
+        </div>
+        {deliveryFee && (
+          <div className="flex justify-between border-b-2 border-x-lightgrey">
+            <span className="font-semibold text-xl text-maingreen">
+              Delivery fee
+            </span>
+            <span className="text-reddanger text-xl font-bold ">
+              {rupiah(deliveryFee)}
+            </span>
+          </div>
+        )}
+        <div className="flex justify-between ">
+          <span className="font-semibold text-xl text-maingreen">Total</span>
+          <span className="text-reddanger text-xl font-bold ">
+            {rupiah(grandTotal)}
+          </span>
+        </div>
+        <div className="mb-14 my-4 sm:mx-10 lg:mx-64">
+          <Modal
+            onClickButton={handleCheckout}
+            modalTitle={"Checkout"}
+            toggleName={"Checkout"}
+            content={"Are you sure you want to checkout?"}
+            buttonLabelOne={"Cancel"}
+            buttonCondition={"positive"}
+            buttonLabelTwo={"Yes"}
+            isDisabled={!deliveryFee}
+          />
+        </div>
       </div>
     </div>
   );

@@ -91,4 +91,11 @@ router.post(
   transactionController.checkout
 );
 
+router.patch(
+  "/orders/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.cancelOrder
+);
+
 module.exports = router;
