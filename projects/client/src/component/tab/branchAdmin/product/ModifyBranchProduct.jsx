@@ -4,7 +4,7 @@ import CustomAccordion from "../../../CustomAccordion";
 import ModifyProductDetails from "../../../accordion/product/ModifyProductDetails";
 import ModifyProductStocks from "../../../accordion/product/ModifyProductStocks";
 
-export default function ModifyBranchProduct() {
+export default function ModifyBranchProduct({ branchProductId }) {
     const [activeTab, setActiveTab] = useState("stock");
 
     const handleTabClick = (name) => {
@@ -18,7 +18,7 @@ export default function ModifyBranchProduct() {
                 title="Modify Product's Stock"
                 onClick={handleTabClick}
             >
-                <ModifyProductStocks />
+                <ModifyProductStocks branchProductId={branchProductId} />
             </CustomAccordion>
             <CustomAccordion
                 activeTab={activeTab}
@@ -26,7 +26,7 @@ export default function ModifyBranchProduct() {
                 title="Modify Product's Details"
                 onClick={handleTabClick}
             >
-                <ModifyProductDetails />
+                <ModifyProductDetails branchProductId={branchProductId} />
             </CustomAccordion>
         </>
     )

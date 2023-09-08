@@ -52,7 +52,7 @@ module.exports = {
       page: Number(req.query.page) || 1,
       perPage: 12,
       search: req.query.search,
-      name: req.query.sortOrder || "ASC",
+      name: req.query.sortName || "ASC",
     };
 
     const where = {};
@@ -766,18 +766,18 @@ module.exports = {
           };
           const distance = geolib.getDistance(userLocation, branchLocation);
           if (distance < max) {
-            outOfReach = false
-            if(distance < nearest){
+            outOfReach = false;
+            if (distance < nearest) {
               nearest = distance;
               nearestBranchId = branch.id;
             }
-          } 
+          }
         });
       } else {
         nearestBranchId = branchData[0].id;
       }
       if (outOfReach) {
-        nearestBranchId = branchData[0].id
+        nearestBranchId = branchData[0].id;
       }
 
       const nearestBranchData = await db.Branch.findOne({
@@ -837,12 +837,12 @@ module.exports = {
       });
     }
   },
-  async promotedProducts(req,res){
-    const branchId = req.query.branchId
+  async promotedProducts(req, res) {
+    const branchId = req.query.branchId;
     try {
       const promotedProducts = await db.Branch_Product.findAll({
         where: {
-          branch_id: branchId
+          branch_id: branchId,
         },
         include: [
           {
@@ -851,21 +851,21 @@ module.exports = {
           },
           {
             model: db.Discount,
-            where: { isExpired: false},
+            where: { isExpired: false },
             include: { model: db.Discount_Type },
           },
-        ]
-      })
+        ],
+      });
 
       return res.status(200).send({
         message: "Promoted products",
-        data: promotedProducts
-      })
-    }catch(error){
+        data: promotedProducts,
+      });
+    } catch (error) {
       return res.status(500).send({
         message: "Server error",
-        error: error.message
-      })
+        error: error.message,
+      });
     }
-  }
+  },
 };

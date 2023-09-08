@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Pagination } from "flowbite-react";
+import { Link, useNavigate } from "react-router-dom";
+import { BiSolidEditAlt } from "react-icons/bi";
 
-import SearchBar from '../../../SearchBar';
 import Modal from '../../../Modal';
-import CustomDropDowm from '../../../CustomDropdown';
 import ModalProduct from '../../../ModalProduct';
 import AlertPopUp from '../../../AlertPopUp';
 import rupiah from '../../../../helpers/rupiah';
+import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
+import SearchInputBar from '../../../SearchInputBar';
 
 export default function AllProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -16,12 +18,9 @@ export default function AllProduct() {
     const [allProduct, setAllProduct] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [filter, setFilter] = useState({
-        search: "",
-        category: "",
-        sortName: "",
-        sortPrice: "",
-    })
+    const [filter, setFilter] = useState(new URLSearchParams());
+    const params = new URLSearchParams(window.location.search);
+    const navigate = useNavigate();
     const [allCategory, setAllCategory] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const token = localStorage.getItem("token")
@@ -64,7 +63,7 @@ export default function AllProduct() {
 
     const getProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${currentPage}&search=${filter.search}&filterCategory=${filter.category}&sortName=${filter.sortName}&sortPrice=${filter.sortPrice}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&sortName=${params.get("sortName") || ""}&sortPrice=${params.get("sortPrice") || ""}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {
@@ -87,19 +86,43 @@ export default function AllProduct() {
 
     const onPageChange = (page) => {
         setAllProduct([]);
-        setCurrentPage(page)
-    }
-    const handleFilterChange = (e) => {
-        setFilter({
-            ...filter, [e.target.id]: e.target.value
-        })
+        setCurrentPage(page);
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", page.toString());
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", page.toString());
+        navigate({ search: params.toString() });
     }
 
-    const handleDropdownChange = (obj, name) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            [name]: obj.value,
-        }));
+    const handleSearchSubmit = (searchValue) => {
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", "1");
+        if (searchValue === "") {
+            newFilter.delete("search");
+        } else {
+            newFilter.set("search", searchValue);
+        }
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("search", searchValue);
+        params.set("page", "1");
+        navigate({ search: params.toString() });
+    };
+
+    const handleDropdownChange = (e) => {
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", "1");
+        if (e.target.value === "") {
+            newFilter.delete(e.target.id);
+        } else {
+            newFilter.set(e.target.id, e.target.value);
+        }
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", "1");
+        params.set(e.target.id, e.target.value);
+        navigate({ search: params.toString() });
     }
 
     const handleRemove = async (productId) => {
@@ -140,10 +163,10 @@ export default function AllProduct() {
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
-                <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Enter here to search product by name..." />
-                <CustomDropDowm options={allCategory} onChange={(e) => handleDropdownChange(e, "category")} placeholder={"Filter by Category"} />
-                <CustomDropDowm options={nameOptions} onChange={(e) => handleDropdownChange(e, "sortName")} placeholder={"Sort by Name"} />
-                <CustomDropDowm options={priceOptions} onChange={(e) => handleDropdownChange(e, "sortPrice")} placeholder={"Sort by Price"} />
+                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search product by name..." />
+                <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={handleDropdownChange} placeholder={"Filter By Category"} />
+                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleDropdownChange} placeholder={"Sort by Name"} />
+                <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={handleDropdownChange} placeholder={"Sort by Price"} />
             </div>
             <div className=''>
                 <div className="grid gap-2">
@@ -183,7 +206,7 @@ export default function AllProduct() {
                                         )}
                                     </td>
                                     <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{rupiah(item.basePrice)}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center'><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`product/${item.id}/modify`}>  <BiSolidEditAlt className="text-maingreen text-xl sm:text-2xl mx-auto" /> </Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allProduct.length === 0 && (

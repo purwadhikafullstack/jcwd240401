@@ -22,7 +22,7 @@ export default function DropdownNew({ options, onChange, placeholder }) {
         <button
           id="dropdownDefaultButton"
           data-dropdown-toggle="dropdown"
-          className={`${selectedOption?.label ? 'text-black' : 'text-darkgrey'} w-full font-inter bg-lightgrey focus:ring-1 focus:outline-none focus:ring-[#2E6930] rounded-lg px-5 py-2 text-center inline-flex items-center justify-between`}
+          className={`${selectedOption?.label ? 'text-black' : 'text-darkgrey'} w-full font-inter bg-lightgrey focus:ring-1 focus:outline-none focus:ring-[#2E6930] rounded-lg px-5 py-2 text-center inline-flex items-center justify-between shadow-md`}
           onClick={(event) => toggleDropdown(event)}
         >
           {selectedOption ? selectedOption?.label : placeholder}
