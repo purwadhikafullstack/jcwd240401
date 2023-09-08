@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { product: productController } = require("../controllers");
 const { admin: adminController } = require("../controllers");
+const { transaction: transactionController } = require("../controllers")
 const categorymulterMiddleware = require("../middleware/multerMiddleware/category");
 const productmulterMiddleware = require("../middleware/multerMiddleware/product");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
@@ -213,4 +214,25 @@ router.get(
   adminController.allBranchProductNoPaginationSuperAdmin
 );
 
+//get transactions for branch Admin
+router.get(
+  "/branch-orders",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  transactionController.allOrdersByBranch
+)
+
+router.get(
+  "/orders",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  transactionController.allOrders
+)
+
+router.get(
+  "/order",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyIsAdmin,
+  transactionController.orderById
+)
 module.exports = router;
