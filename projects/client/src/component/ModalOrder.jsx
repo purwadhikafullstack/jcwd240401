@@ -152,7 +152,7 @@ export default function ModalOrder({orderId, onClose}) {
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Voucher
-                            <p className="text-black">Voucher</p>
+                            <p className="text-black">{selectedOrder?.Voucher ? "": "-"}</p>
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Total
@@ -160,11 +160,11 @@ export default function ModalOrder({orderId, onClose}) {
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Payment Proof
-                            <p className="text-black">Payment Proof</p>
+                            <div className="h-52 w-40 bg-darkgrey"></div>
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Refund Image
-                            <p className="text-black">Refund Image</p>
+                            <div className="h-52 w-40 bg-darkgrey"></div>
                         </div>
                     </div>
                 </div>

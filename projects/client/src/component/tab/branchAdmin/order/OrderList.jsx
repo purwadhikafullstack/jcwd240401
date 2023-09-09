@@ -7,24 +7,23 @@ import CustomDropdown from '../../../CustomDropdown'
 import { Pagination } from 'flowbite-react';
 import Label from '../../../Label';
 import ModalOrder from '../../../ModalOrder';
+import SearchInputBar from '../../../SearchInputBar';
+import {Link, useNavigate} from 'react-router-dom'
+import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 
 export default function OrderList() {
     const [orderData, setOrderData] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const [filter, setFilter] = useState({
-        search: "",
-        status: "",
-        sort: "",
-        startDate: "",
-        endDate: "",
-      });
+    const [filter, setFilter] = useState(new URLSearchParams());
+    const params = new URLSearchParams(window.location.search);
+    const navigate = useNavigate()
     const token = localStorage.getItem("token")
 
     const orders = async() => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch-orders?page=${currentPage}&search=${filter.search}&filterStatus=${filter.status}&sortDate=${filter.sort}&startDate=${filter.startDate}&endDate=${filter.endDate}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch-orders?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterStatus=${params.get("status") || ""}&sortDate=${params.get("sort") || ""}&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`, {
                 headers: {
                     'Authorization' : `Bearer ${token}`
                 }
@@ -62,19 +61,6 @@ export default function OrderList() {
         { label: "Canceled", value: "Canceled" },
     ];
 
-    const handleChangeDropdown = (obj, name) => {
-        setFilter((prevFilter) => ({
-          ...prevFilter,
-          [name]: obj.value,
-        }));
-    };
-    const handleFilterChange = (e) => {
-        setFilter({
-          ...filter,
-          [e.target.id]: e.target.value,
-        });
-    };
-
     const onPageChange = (page) => {
         setOrderData([]);
         setCurrentPage(page);
@@ -105,12 +91,41 @@ export default function OrderList() {
                 break;
         }
     }
+    const handleSearchSubmit = (searchValue) => {
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", "1");
+        if (searchValue === "") {
+            newFilter.delete("search");
+        } else {
+            newFilter.set("search", searchValue);
+        }
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("search", searchValue);
+        params.set("page", "1");
+        navigate({ search: params.toString() });
+    };
+
+    const handleDropdownChange = (e) => {
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", "1");
+        if (e.target.value === "") {
+            newFilter.delete(e.target.id);
+        } else {
+            newFilter.set(e.target.id, e.target.value);
+        }
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", "1");
+        params.set(e.target.id, e.target.value);
+        navigate({ search: params.toString() });
+    }
     
     return (
         <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
-          <SearchBar id={"search"} value={filter.search} type="text" onChange={handleFilterChange} placeholder="Search by Invoice Code"/>
+            <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Search by invoice code" />
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div>
@@ -121,8 +136,7 @@ export default function OrderList() {
               id="startDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={filter.startDate}
-              onChange={handleFilterChange}
+              onChange={handleDropdownChange}
             />
           </div>
           <div>
@@ -133,20 +147,21 @@ export default function OrderList() {
               id="endDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={filter.endDate}
-              onChange={handleFilterChange}
+              onChange={handleDropdownChange}
             />
           </div>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropdown
+          <CustomDropdownURLSearch
+            id="sort"
             options={options}
-            onChange={(e) => handleChangeDropdown(e, "sort")}
+            onChange={handleDropdownChange}
             placeholder={"Sort by order date"}
           />
-          <CustomDropdown
+          <CustomDropdownURLSearch
+            id="status"
             options={options2}
-            onChange={(e) => handleChangeDropdown(e, "status")}
+            onChange={handleDropdownChange}
             placeholder={"Filter by status"}
           />
         </div>
