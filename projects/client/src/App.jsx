@@ -59,13 +59,15 @@ function App() {
           }
         );
 
-        if (response.data.userId) {
+        if(response.status === 200){
+          if (response.data.userId) {
           localStorage.setItem("token", response.data.refreshToken);
           const decoded = jwtDecode(token);
           dispatch(keep(decoded));
         }
+      }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
   };
