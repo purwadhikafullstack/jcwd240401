@@ -8,8 +8,8 @@ export default function BranchAdminManageProductContent() {
     const [content, setContent] = useState(<AllBranchProduct />);
     const title = "Manage Branch Product";
     const tabList = [
-        { name: "My Branch Product", icon: <LuFolderOpen size={25} />, isActive: false, tab: <AllBranchProduct /> },
-        { name: "Create Branch Product", icon: <LuFolderPlus size={25} />, isActive: false, tab: <CreateBranchProduct /> },
+        { name: "My Branch Product", icon: <LuFolderOpen size={25} />, isActive: false, param: "my-branch-product", tab: <AllBranchProduct /> },
+        { name: "Create Branch Product", icon: <LuFolderPlus size={25} />, isActive: false, param: "create-branch-product", tab: <CreateBranchProduct /> },
     ];
     return (
         <div className="flex flex-col w-9/12 py-4">
