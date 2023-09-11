@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import * as yup from "yup";
-import axios from "axios";
-import { Formik, Form, Field } from "formik";
+import axios from 'axios';
+import { Formik, Form, Field } from 'formik';
+import { useNavigate, useParams } from "react-router-dom";
 
-import Modal from '../../../Modal';
-import AlertPopUp from '../../../AlertPopUp';
-import CustomDropdown from '../../../CustomDropdown';
-import InputField from '../../../InputField';
+import Modal from '../Modal';
+import InputField from '../InputField';
+import AlertPopUp from '../AlertPopUp';
+import Button from '../Button';
 
-export default function ModifyProduct() {
+export default function SuperAdminModifyProduct() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const [showAlert, setShowAlert] = useState(false)
-    const [allProduct, setAllProduct] = useState([])
-    const [selectedProductId, setSelectedProductId] = useState("")
     const [allCategory, setAllCategory] = useState([])
     const [productDetails, setProductDetails] = useState({
         name: "",
@@ -29,20 +28,16 @@ export default function ModifyProduct() {
     const [imagePreview, setImagePreview] = useState(null);
     const uOMOptions = [{ label: "GR", value: "gr" }, { label: "ML", value: "ml" }]
     const token = localStorage.getItem("token")
+    const { id } = useParams()
+    const navigate = useNavigate()
 
     const modifyProductSchema = yup.object().shape({
         name: yup.string().trim().max(50, "Maximum character is 50").typeError("Name must be a valid text"),
         category_id: yup.string().trim(),
         description: yup.string().trim().max(500, "Maximum character is 500").typeError("Description must be a valid text"),
-        weight: yup.number()
-            .test("is-positive-integer", "Weight must be a positive integer", (value) => {
-                return !isNaN(value) && parseInt(value) > 0;
-            }),
+        weight: yup.number().test("is-positive-integer", "Weight must be a positive integer", (value) => { return !isNaN(value) && parseInt(value) > 0; }),
         unitOfMeasurement: yup.string().trim().oneOf(["gr", "ml"], "Unit of measurement must be 'gr' or 'ml'"),
-        basePrice: yup.number()
-            .test("is-valid-number", "Price must be a valid number", (value) => {
-                return !isNaN(value);
-            })
+        basePrice: yup.number().test("is-valid-number", "Price must be a valid number", (value) => { return !isNaN(value); })
             .test("is-price-valid-range", "Price must be between 0 and 100,000,000", (value) => {
                 const numericValue = parseInt(value);
                 return numericValue >= 0 && numericValue <= 100000000;
@@ -53,7 +48,7 @@ export default function ModifyProduct() {
 
     const getOneProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${selectedProductId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {
@@ -72,28 +67,6 @@ export default function ModifyProduct() {
                     })
                 } else {
                     setProductDetails([]);
-                }
-            }
-        } catch (error) {
-            console.warn(error);
-        }
-    }
-
-    const getProduct = async () => {
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-products`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            if (response.data) {
-                const data = response.data.data;
-                if (data) {
-                    let options = data.map((d) => ({
-                        label: `${d.name} [ ${d.weight}${d.unitOfMeasurement} / pack ]`,
-                        value: d.id,
-                    }));
-                    setAllProduct(options);
-                } else {
-                    setAllProduct([]);
                 }
             }
         } catch (error) {
@@ -139,7 +112,7 @@ export default function ModifyProduct() {
         if (storageInstruction !== productDetails.storageInstruction) { formData.append('storageInstruction', storageInstruction); }
         if (storagePeriod !== productDetails.storagePeriod) { formData.append('storagePeriod', storagePeriod); }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${selectedProductId}/modify`, formData, {
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${id}/modify`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     "Authorization": `Bearer ${token}`
@@ -198,49 +171,36 @@ export default function ModifyProduct() {
         setShowAlert(false)
     }
 
-    useEffect(() => {
-        getCategory()
-        getProduct()
-        if (selectedProductId) {
-            getOneProduct()
-        }
-    }, [successMessage, selectedProductId])
-
-    const handleChangeDropdown = (obj) => {
-        setSelectedProductId(obj.value)
-    };
-
     const handleImageError = (event) => {
         event.target.src =
             'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
     };
 
+    useEffect(() => {
+        getCategory()
+        getOneProduct()
+    }, [successMessage])
+
     function preview(event) {
         const file = event.target.files[0];
-        console.log("file here:", file)
         if (file) {
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
         }
     }
-
     return (
-        <div className="w-8/12 mx-auto flex flex-col justify-center font-inter">
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
-            <div className="flex flex-col gap-2 py-4 font-inter border-b-2 pb-10">
-                <div className="">
-                    Selected Product: <span className="text-xs text-reddanger">* required</span>
-                </div>
-                <CustomDropdown options={allProduct} onChange={handleChangeDropdown} placeholder={"--select a product to modify--"} />
+        <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-full'>
+            <div className='flex lg:pt-10'>
+                <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
+                <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Product</div>
             </div>
-            <div className='flex flex-col gap-2 py-6'>
-                {(selectedProductId) ? (
-                    <><div className=''>
-                        Modify Below:
-                    </div>
-                        <Formik enableReinitialize initialValues={{ name: productDetails.name, description: productDetails.description, category_id: productDetails.category_id, weight: productDetails.weight, unitOfMeasurement: productDetails.unitOfMeasurement, basePrice: productDetails.basePrice, storageInstruction: productDetails.storageInstruction, storagePeriod: productDetails.storagePeriod, file: null, }} validationSchema={modifyProductSchema} onSubmit={handleSubmit}>
-                            {(props) => (
-                                <Form>
+            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <div className='grid'>
+                <div className='lg:p-4 grid content-center'>
+                    <Formik enableReinitialize initialValues={{ name: productDetails.name, description: productDetails.description, category_id: productDetails.category_id, weight: productDetails.weight, unitOfMeasurement: productDetails.unitOfMeasurement, basePrice: productDetails.basePrice, storageInstruction: productDetails.storageInstruction, storagePeriod: productDetails.storagePeriod, file: null, }} validationSchema={modifyProductSchema} onSubmit={handleSubmit}>
+                        {(props) => (
+                            <Form className='flex flex-col lg:grid lg:grid-cols-2 gap-4'>
+                                <div className='lg:p-4'>
                                     <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                                         <label htmlFor="name" className="">Product Name</label>
                                         <div className='relative'>
@@ -290,6 +250,8 @@ export default function ModifyProduct() {
                                             {props.errors.unitOfMeasurement && props.touched.unitOfMeasurement && <div className="text-reddanger absolute top-12">{props.errors.unitOfMeasurement}</div>}
                                         </div>
                                     </div>
+                                </div>
+                                <div className='lg:p-4'>
                                     <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                                         <label htmlFor="basePrice" className="">Base Price</label>
                                         <div className='relative'>
@@ -311,7 +273,7 @@ export default function ModifyProduct() {
                                             {props.errors.storagePeriod && props.touched.storagePeriod && <div className="text-reddanger absolute top-12">{props.errors.storagePeriod}</div>}
                                         </div>
                                     </div>
-                                    <div className="flex flex-col gap-2 py-4 mb-24">
+                                    <div className="flex flex-col gap-2 py-4 mb-14 lg:mb-24">
                                         <label htmlFor="file" className="">Product Image</label>
                                         <div>
                                             {(imagePreview) ? (
@@ -336,16 +298,15 @@ export default function ModifyProduct() {
                                             {props.errors.file && props.touched.file && <div className="text-reddanger absolute top-12">{props.errors.file}</div>}
                                         </div>
                                     </div>
-                                    <div className="mt-8">
-                                        <Modal isDisabled={!props.dirty} modalTitle={"Modify Product"} toggleName={"Modify"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
-                                    </div>
-                                </Form>
-                            )}
-                        </Formik> </>
-                ) : (
-                    <div className='text-center text-darkgrey'>No Product Selected</div>
-                )}
+                                </div>
+                                <div className="my-8 lg:col-span-2 lg:px-20">
+                                    <Modal isDisabled={!props.dirty} modalTitle={"Modify Product"} toggleName={"Modify"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                                </div>
+                            </Form>
+                        )}
+                    </Formik>
+                </div>
             </div>
-        </div>
+        </div >
     )
 }

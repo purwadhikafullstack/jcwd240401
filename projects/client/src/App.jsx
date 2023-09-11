@@ -39,6 +39,7 @@ import UserAddress from "./page/user/UserAddress";
 import SingleProduct from "./page/user/SingleProduct";
 import { updateCart } from "./store/reducer/cartSlice";
 
+
 function App() {
   const dispatch = useDispatch();
 
@@ -168,14 +169,11 @@ function App() {
           path="/user/account/my-address/create"
           element={<UserAddressCreate />}
         />
-        <Route
-          path="/user/account/my-address/modify/:name"
-          element={<UserAddressModify />}
-        />
-        <Route
-          path="/product/:branchId/:name/:weight/:unitOfMeasurement"
-          element={<SingleProduct />}
-        />
+        <Route path="/user/account/my-address/modify/:name" element={<UserAddressModify />} />
+        <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
+        <Route path="/admin/branch/manage-product/branch-product/:id/modify" element={<BranchAdminModifyBranchProduct />} />
+        <Route path="/admin/manage-category/category/:id/modify" element={<SuperAdminModifyCategory />} />
+        <Route path="/admin/manage-product/product/:id/modify" element={<SuperAdminModifyProduct />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>
