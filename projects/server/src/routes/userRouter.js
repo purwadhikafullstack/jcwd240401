@@ -112,4 +112,11 @@ router.get(
   transactionController.userOrderById
 );
 
+router.get(
+  "/orders",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  userController.getOrderList
+);
+
 module.exports = router;
