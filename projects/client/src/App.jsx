@@ -41,6 +41,7 @@ import { updateCart } from "./store/reducer/cartSlice";
 import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyBranchProduct";
 import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
 import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
+import { keepLocation } from "./store/reducer/locationSlice";
 
 
 function App() {
@@ -87,9 +88,21 @@ function App() {
     }
   };
 
+  const userLocation = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        dispatch(keepLocation("false"));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   useEffect(() => {
     keepLogin();
-    userCart()
+    userCart();
+    userLocation();
   }, []);
 
   return (
