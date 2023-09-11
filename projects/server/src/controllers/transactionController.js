@@ -255,7 +255,6 @@ module.exports = {
   },
   // user checkout
   async checkout(req, res) {
-    const now = dayjs();
     const userId = req.user.id;
     const transaction = await db.sequelize.transaction();
     const { totalPrice, shippingMethod, shippingCost, voucher_id, cartItems } =
@@ -352,8 +351,12 @@ module.exports = {
           shippingCost,
           shippingDate: fullDate,
           voucher_id: voucher_id || null, // Use the provided voucher_id or null
-          createdAt: now,
-          updatedAt: now,
+          createdAt: fullDate.toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta",
+          }),
+          updatedAt: fullDate.toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta",
+          }),
         },
         { transaction: transaction }
       );
