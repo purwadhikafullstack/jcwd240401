@@ -38,6 +38,9 @@ import UserAddressModify from "./page/user/UserAddressModify";
 import UserAddress from "./page/user/UserAddress";
 import SingleProduct from "./page/user/SingleProduct";
 import { updateCart } from "./store/reducer/cartSlice";
+import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyBranchProduct";
+import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
+import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
 
 
 function App() {
@@ -86,7 +89,7 @@ function App() {
 
   useEffect(() => {
     keepLogin();
-    userCart();
+    userCart()
   }, []);
 
   return (
