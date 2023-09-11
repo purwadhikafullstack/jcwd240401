@@ -98,4 +98,18 @@ router.patch(
   transactionController.cancelOrder
 );
 
+router.get(
+  "/vouchers",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getUserVoucher
+);
+
+router.get(
+  "/order/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.userOrderById
+);
+
 module.exports = router;

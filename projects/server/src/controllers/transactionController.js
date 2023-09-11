@@ -1,6 +1,7 @@
 const db = require("../models");
 const axios = require("axios");
 const refCode = require("referral-codes");
+const dayjs = require("dayjs");
 
 module.exports = {
   // admin
@@ -254,6 +255,7 @@ module.exports = {
   },
   // user checkout
   async checkout(req, res) {
+    const now = dayjs()
     const userId = req.user.id;
     const transaction = await db.sequelize.transaction();
     const { totalPrice, shippingMethod, shippingCost, voucher_id, cartItems } =
@@ -350,8 +352,8 @@ module.exports = {
           shippingCost,
           shippingDate: fullDate,
           voucher_id: voucher_id || null, // Use the provided voucher_id or null
-          createdAt: fullDate,
-          updatedAt: fullDate,
+          createdAt: now,
+          updatedAt: now,
         },
         { transaction: transaction }
       );
@@ -374,12 +376,107 @@ module.exports = {
       await transaction.commit();
       return res.status(200).send({
         message: "New order created successfully",
+        data: checkoutData,
       });
     } catch (error) {
       await transaction.rollback();
       console.error(error); // Log the error for debugging purposes
       return res.status(500).send({
         message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
+  //get user Voucher
+  async getUserVoucher(req, res) {
+    const userId = req.user.id;
+    try {
+      const userVoucher = await db.User_Voucher.findAll({
+        where: { user_id: userId },
+        include: [
+          {
+            model: db.Voucher,
+            include: [
+              {
+                model: db.Voucher_Type,
+              },
+            ],
+          },
+        ],
+      });
+      if (userVoucher.length === 0) {
+        return res.status(200).send({
+          message: "no vouchers found",
+          data: [],
+        });
+      }
+      return res.status(200).send({
+        message: "user vouchers successfully retrieved",
+        data: userVoucher,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "fatal error",
+        error: error.message,
+      });
+    }
+  },
+
+  //get user order by id
+  async userOrderById(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    try {
+      const order = await db.Order.findOne({
+        where: {
+          id: orderId,
+          user_id: userId,
+        },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+              {
+                model: db.Discount,
+                include: [
+                  {
+                    model: db.Discount_Type,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: db.User,
+          },
+          {
+            model: db.Voucher,
+            include: [
+              {
+                model: db.Voucher_Type,
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!order) {
+        return res.status(400).send({
+          message: "Order not found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Order found",
+        data: order,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Server error",
         error: error.message,
       });
     }
@@ -408,7 +505,7 @@ module.exports = {
         orderData.orderStatus === "Waiting for payment confirmation"
       ) {
         await orderData.update(
-          { 
+          {
             orderStatus: "Canceled",
             refundReason,
           },

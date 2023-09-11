@@ -39,7 +39,6 @@ import UserAddress from "./page/user/UserAddress";
 import SingleProduct from "./page/user/SingleProduct";
 import { updateCart } from "./store/reducer/cartSlice";
 
-
 function App() {
   const dispatch = useDispatch();
 
@@ -86,7 +85,7 @@ function App() {
 
   useEffect(() => {
     keepLogin();
-    userCart()
+    userCart();
   }, []);
 
   return (
@@ -152,7 +151,7 @@ function App() {
 
         <Route path="/user/cart" element={<Cart />} />
         <Route path="/user/checkout" element={<Checkout />} />
-        <Route path="/user/payment" element={<Payment />} />
+        <Route path="/user/payment/:id" element={<Payment />} />
         <Route path="/user/orders" element={<Orders />} />
         <Route path="/user/account" element={<Account />} />
         <Route path="/user/account/my-profile" element={<UserProfile />} />
@@ -173,7 +172,10 @@ function App() {
           path="/user/account/my-address/modify/:name"
           element={<UserAddressModify />}
         />
-        <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
+        <Route
+          path="/product/:branchId/:name/:weight/:unitOfMeasurement"
+          element={<SingleProduct />}
+        />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

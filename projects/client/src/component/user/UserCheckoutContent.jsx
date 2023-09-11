@@ -4,11 +4,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 import CheckoutItem from "./CheckoutItem";
-import InputField from "../InputField";
 import rupiah from "../../helpers/rupiah";
 import CustomDropdown from "../CustomDropdown";
 import Modal from "../Modal";
-import AlertPopUp from "../AlertPopUp";
+import { updateCart } from "../../store/reducer/cartSlice";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -20,8 +19,38 @@ export default function UserCheckoutContent() {
   const [shipping, setShipping] = useState([]);
   const [deliveryFee, setDeliveryFee] = useState("");
   const [grandTotal, setGrandTotal] = useState("");
+  const [vouchersList, setVouchersList] = useState([]);
+  const [selectedVoucher, setSelectedVoucher] = useState("");
   const token = localStorage.getItem("token");
 
+  const fetchUserVouchers = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/users/vouchers`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.data.length === 0) {
+        setVouchersList(response.data.data);
+      } else {
+        const data = response?.data?.data;
+        if (data) {
+          let option = data?.map((d) => ({
+            label: `${d.Voucher.Voucher_Type.type} ${
+              d.Voucher.voucher_type_id === 2 ? `${d.Voucher.amount}%` : ""
+            }${
+              d.Voucher.voucher_type_id === 3
+                ? `${rupiah(d.Voucher.amount)}`
+                : ""
+            }`,
+            value: d.Voucher.maxDiscount || 0,
+          }));
+          setVouchersList(option);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const fetchCartItems = async () => {
     try {
       // Make a GET request to retrieve all cart items
@@ -52,7 +81,6 @@ export default function UserCheckoutContent() {
         `${process.env.REACT_APP_API_BASE_URL}/users/main-address`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log(response.data.data, "ini alamat");
       if (response.data.data) {
         setUserAddress(response.data.data);
       }
@@ -104,6 +132,31 @@ export default function UserCheckoutContent() {
     }
     return total;
   };
+  console.log(selectedVoucher, "ini selected vouchers");
+  const calculateTotalPrice = () => {
+    const selectedVoucherObject = vouchersList.find(
+      (voucher) => voucher.value === selectedVoucher
+    );
+    console.log(selectedVoucherObject, "ini");
+    if (selectedVoucher === "") {
+      setGrandTotal(Number(subTotal) + Number(deliveryFee));
+      console.log("gaada voucher");
+    } else {
+      if (selectedVoucherObject) {
+        const selectedVoucherType = selectedVoucherObject?.label;
+
+        if (selectedVoucher === 0) {
+          setGrandTotal(Number(subTotal));
+          console.log("gratis ongkir");
+        } else if (selectedVoucher !== 0) {
+          setGrandTotal(
+            Number(subTotal) + Number(deliveryFee) - Number(selectedVoucher)
+          );
+          console.log("pake voucher");
+        }
+      }
+    }
+  };
 
   const fetchRajaOngkir = async () => {
     try {
@@ -140,9 +193,8 @@ export default function UserCheckoutContent() {
   const totalWeight = calculateTotalWeight(checkoutItems);
   useEffect(() => {
     fetchUserAddress();
-    setGrandTotal(Number(subTotal + deliveryFee));
+    fetchUserVouchers();
   }, []);
-  console.log(shipping, "ini shipping");
   useEffect(() => {
     fetchCartItems();
   }, [selectedItems]);
@@ -158,8 +210,9 @@ export default function UserCheckoutContent() {
   }, [courier]);
 
   useEffect(() => {
-    setGrandTotal(Number(subTotal + deliveryFee));
-  }, [deliveryFee]);
+    calculateTotalPrice();
+    console.log(subTotal, deliveryFee, selectedVoucher, "ini ngitung");
+  }, [deliveryFee, selectedVoucher]);
 
   const courrierList = [
     { label: "--select courier--", value: "" },
@@ -167,6 +220,7 @@ export default function UserCheckoutContent() {
     { label: "POS Indonesia", value: "pos" },
     { label: "TIKI", value: "tiki" },
   ];
+  console.log(grandTotal, "ini total ");
 
   const handleChangeDropdown = (obj, action) => {
     if (action === "courier") {
@@ -181,6 +235,13 @@ export default function UserCheckoutContent() {
     if (action === "fee") {
       if (obj.value) {
         setDeliveryFee(obj.value);
+      }
+    }
+    if (action === "vouchers") {
+      if (!obj.value && obj.value !== 0) {
+        setSelectedVoucher("");
+      } else {
+        setSelectedVoucher(obj.value);
       }
     }
   };
@@ -198,7 +259,19 @@ export default function UserCheckoutContent() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.status === 200) {
-        navigate("/");
+        const orderId = response.data.data.id;
+        navigate(`/user/payment/${orderId}`);
+        const cart = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        dispatch(updateCart(cart.data.data));
+        dispatch(setSelectedCartItems([]));
+        localStorage.removeItem("selectedCartItems");
       }
     } catch (error) {
       console.log(error.message);
@@ -242,7 +315,11 @@ export default function UserCheckoutContent() {
             Voucher
           </label>
           <div className="relative">
-            <InputField id={"name"} type={"string"} name="name" />
+            <CustomDropdown
+              options={vouchersList}
+              onChange={(e) => handleChangeDropdown(e, "vouchers")}
+              placeholder={"--select vouchers--"}
+            />
           </div>
         </div>
         <div className="text-maingreen font-semibold">My Order Summary</div>
@@ -272,19 +349,38 @@ export default function UserCheckoutContent() {
             {rupiah(subTotal)}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="font-semibold text-xl text-maingreen">Voucher</span>
-          <span className="text-reddanger text-xl font-bold ">
-            {rupiah(subTotal)}
-          </span>
-        </div>
+        {selectedVoucher === "" ? (
+          ""
+        ) : selectedVoucher === 0 ? (
+          <div className="flex justify-between">
+            <span className="font-semibold text-xl text-maingreen">
+              Voucher
+            </span>
+            <span className="text-reddanger text-xl font-bold ">
+              gratis ongkir
+            </span>
+          </div>
+        ) : (
+          <div className="flex justify-between">
+            <span className="font-semibold text-xl text-maingreen">
+              Voucher
+            </span>
+            <span className="text-reddanger text-xl font-bold ">
+              {rupiah(selectedVoucher)}
+            </span>
+          </div>
+        )}
         {deliveryFee && (
           <div className="flex justify-between border-b-2 border-x-lightgrey">
             <span className="font-semibold text-xl text-maingreen">
               Delivery fee
             </span>
             <span className="text-reddanger text-xl font-bold ">
-              {rupiah(deliveryFee)}
+              {selectedVoucher === 0 ? (
+                <s>{rupiah(deliveryFee)}</s>
+              ) : (
+                rupiah(deliveryFee)
+              )}
             </span>
           </div>
         )}
