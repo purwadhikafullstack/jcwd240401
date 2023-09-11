@@ -255,7 +255,7 @@ module.exports = {
   },
   // user checkout
   async checkout(req, res) {
-    const now = dayjs()
+    const now = dayjs();
     const userId = req.user.id;
     const transaction = await db.sequelize.transaction();
     const { totalPrice, shippingMethod, shippingCost, voucher_id, cartItems } =
@@ -488,7 +488,7 @@ module.exports = {
     const userId = req.user.id;
     const orderId = req.params.id;
     const transaction = await db.sequelize.transaction();
-    const { refundReason } = req.body;
+    const { cancelReason } = req.body;
 
     try {
       const orderData = await db.Order.findOne({
@@ -507,7 +507,7 @@ module.exports = {
         await orderData.update(
           {
             orderStatus: "Canceled",
-            refundReason,
+            cancelReason,
           },
           { transaction }
         );
