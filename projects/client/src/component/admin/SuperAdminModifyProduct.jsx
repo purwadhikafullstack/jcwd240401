@@ -124,7 +124,6 @@ export default function SuperAdminModifyProduct() {
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
                 handleShowAlert()
-                setSelectedProductId("")
                 setFieldValue("file", null)
             }
         } catch (error) {
@@ -179,6 +178,7 @@ export default function SuperAdminModifyProduct() {
     useEffect(() => {
         getCategory()
         getOneProduct()
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [successMessage])
 
     function preview(event) {
