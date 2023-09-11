@@ -29,12 +29,13 @@ export default function UserCheckoutContent() {
         `${process.env.REACT_APP_API_BASE_URL}/users/vouchers`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       if (response.data.data.length === 0) {
         setVouchersList(response.data.data);
       } else {
         const data = response?.data?.data;
         if (data) {
-          let option = data?.map((d) => ({
+          let options = data?.map((d) => ({
             label: `${d.Voucher.Voucher_Type.type} ${
               d.Voucher.voucher_type_id === 2 ? `${d.Voucher.amount}%` : ""
             }${
@@ -43,14 +44,16 @@ export default function UserCheckoutContent() {
                 : ""
             }`,
             value: d.Voucher.maxDiscount || 0,
+            voucher_id: d.Voucher.id, // Add voucher_id to options
           }));
-          setVouchersList(option);
+          setVouchersList(options);
         }
       }
     } catch (error) {
       console.log(error);
     }
   };
+
   const fetchCartItems = async () => {
     try {
       // Make a GET request to retrieve all cart items
@@ -132,7 +135,6 @@ export default function UserCheckoutContent() {
     }
     return total;
   };
-  console.log(selectedVoucher, "ini selected vouchers");
   const calculateTotalPrice = () => {
     const selectedVoucherObject = vouchersList.find(
       (voucher) => voucher.value === selectedVoucher
@@ -247,17 +249,33 @@ export default function UserCheckoutContent() {
   };
   const handleCheckout = async () => {
     const cart = localStorage.getItem("selectedCartItems");
+
     try {
+      let requestBody = {
+        shippingMethod: courier,
+        shippingCost: deliveryFee,
+        totalPrice: grandTotal,
+        cartItems: cart,
+      };
+
+      // Check if a voucher is selected
+      if (selectedVoucher !== "") {
+        // Find the selected voucher in vouchersList
+        const selectedVoucherObject = vouchersList.find(
+          (voucher) => voucher.value === selectedVoucher
+        );
+
+        if (selectedVoucherObject) {
+          requestBody.voucher_id = selectedVoucherObject.voucher_id;
+        }
+      }
+
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/users/checkout`,
-        {
-          shippingMethod: courier,
-          shippingCost: deliveryFee,
-          totalPrice: grandTotal,
-          cartItems: cart,
-        },
+        requestBody,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       if (response.status === 200) {
         const orderId = response.data.data.id;
         navigate(`/user/payment/${orderId}`);

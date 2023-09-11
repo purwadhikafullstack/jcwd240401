@@ -1,7 +1,10 @@
-import React from 'react'
+import React from "react";
+import UserOrderContent from "../../component/user/UserOrderContent";
 
 export default function Orders() {
-    return (
-        <div>Orders</div>
-    )
+  return (
+    <div>
+      <UserOrderContent />
+    </div>
+  );
 }
