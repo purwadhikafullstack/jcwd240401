@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import rupiah from "../../helpers/rupiah";
 import Modal from "../../component/Modal";
 import CheckoutItem from "../../component/user/CheckoutItem";
+import ModalCancelOrder from "../../component/ModalCancelOrder";
 
 export default function Payment() {
   const { id } = useParams();
@@ -15,6 +16,7 @@ export default function Payment() {
   const [deliveryFee, setDeliveryFee] = useState("");
   const [grandTotal, setGrandTotal] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
+  const navigate = useNavigate();
 
   const fetchOrder = async () => {
     try {
@@ -68,6 +70,20 @@ export default function Payment() {
     return total;
   };
 
+  const handleCancel = async (body, id) => {
+    try {
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/users/orders/${id}`,
+        body,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.status === 200) {
+        navigate("/user/orders");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   console.log(subTotal);
   useEffect(() => {
     if (id) {
@@ -183,14 +199,7 @@ export default function Payment() {
             </div>
             {orderStatus === "Waiting for payment" && (
               <div className="flex flex-row">
-                <Modal
-                  modalTitle={"Cancel"}
-                  toggleName={"Cancel"}
-                  content={"Are you sure you want to cancel this order?"}
-                  buttonLabelOne={"Cancel"}
-                  buttonCondition={"negative"}
-                  buttonLabelTwo={"Yes"}
-                />
+                <ModalCancelOrder onSubmit={(e) => handleCancel(e, id)} />
                 <Modal
                   modalTitle={"Checkout"}
                   toggleName={"Checkout"}
