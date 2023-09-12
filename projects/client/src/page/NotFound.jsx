@@ -1,14 +1,20 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import background from '../assets/BackgroundLeaves.jpg'
 import notFound from '../assets/NotFound.png'
 import Button from '../component/Button'
 
 export default function NotFound() {
     const navigate = useNavigate()
+    const profile = useSelector((state) => state.auth.profile)
 
     const goToHome = () => {
-        navigate("/")
+        if(profile.role === '1' || profile.role === '2') {
+            navigate("/admin")
+        }else {
+            navigate("/")
+        } 
     }
   return (
     <>
