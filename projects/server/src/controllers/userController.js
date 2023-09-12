@@ -626,11 +626,98 @@ module.exports = {
       });
     }
   },
+  async getOrderList(req, res) {
+    const userId = req.user.id;
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      search: req.query.search || "",
+      status: req.query.filterStatus || "",
+      date: req.query.sortDate || "DESC",
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
+    };
+    try {
+      let where = { user_id: userId };
+      const order = [];
+      if (pagination.startDate && pagination.endDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+
+        where["orderDate"] = {
+          [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
+        };
+      } else if (pagination.startDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        where["orderDate"] = {
+          [db.Sequelize.Op.gte]: startDateUTC,
+        };
+      } else if (pagination.endDate) {
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+
+        where["orderDate"] = {
+          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+        };
+      }
+      if (pagination.search) {
+        where["invoiceCode"] = {
+          [db.Sequelize.Op.like]: `%${pagination.search}%`,
+        };
+      }
+      if (pagination.status) {
+        where["orderStatus"] = pagination.status;
+      }
+      if (pagination.date) {
+        if (pagination.date.toUpperCase() === "DESC") {
+          order.push(["orderDate", "DESC"]);
+        } else {
+          order.push(["orderDate", "ASC"]);
+        }
+      }
+
+      const orders = await db.Order.findAndCountAll({
+        include: [
+          {
+            model: db.Branch_Product,
+          },
+        ],
+        where,
+        order,
+        distinct: true,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
+
+      if (!orders) {
+        return res.status(200).send({
+          message: "No transaction found",
+        });
+      }
+      const totalCount = orders.count;
+      pagination.totalData = totalCount;
+
+      return res.status(200).send({
+        message: "Success get all orders",
+        pagination,
+        data: orders,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  },
 };
 
 // get profile (all account)
 
 // modify password
 // modify img profile
-
-// order history

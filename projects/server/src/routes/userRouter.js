@@ -77,4 +77,46 @@ router.delete(
   transactionController.deleteCart
 );
 
+router.post(
+  "/shipping-cost",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getCost
+);
+
+router.post(
+  "/checkout",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.checkout
+);
+
+router.patch(
+  "/orders/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.cancelOrder
+);
+
+router.get(
+  "/vouchers",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getUserVoucher
+);
+
+router.get(
+  "/order/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.userOrderById
+);
+
+router.get(
+  "/orders",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  userController.getOrderList
+);
+
 module.exports = router;

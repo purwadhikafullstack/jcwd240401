@@ -119,13 +119,14 @@ export default function UserProfileEditContent() {
     }
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         getProfile()
     }, [successMessage])
 
     return (
         <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 justify-center font-inter'>
             <div>
-                <div className='flex'>
+                <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Edit My Profile</div>
                 </div>

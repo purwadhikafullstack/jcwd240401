@@ -249,6 +249,6 @@ router.patch(
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   refundMulterMiddleware,
-  transactionController.cancelOrder
+  transactionController.cancelOrderByAdmin
 )
 module.exports = router;

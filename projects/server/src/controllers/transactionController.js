@@ -1,7 +1,7 @@
 const db = require("../models");
-const {
-   setFromFileNameToDBValueRefund,
-  } = require("../helpers/fileConverter");
+const axios = require("axios");
+const refCode = require("referral-codes");
+const dayjs = require("dayjs");
 
 module.exports = {
   // admin
@@ -376,7 +376,7 @@ module.exports = {
         })
     }
   },
-  async cancelOrder(req,res){
+  async cancelOrderByAdmin(req,res){
     const orderId = Number(req.params.id)
     const { cancelReason } = req.body;
     const imgFileName = req.file ? req.file.filename : null;
@@ -568,6 +568,7 @@ module.exports = {
               "origin",
               "discount_id",
               "quantity",
+              "branch_id",
             ],
             include: [
               {
@@ -577,6 +578,16 @@ module.exports = {
                   {
                     model: db.Discount_Type,
                     attributes: ["type"],
+                  },
+                ],
+              },
+              {
+                model: db.Branch,
+                attributes: ["city_id"],
+                include: [
+                  {
+                    model: db.City,
+                    attributes: ["city_name"],
                   },
                 ],
               },
@@ -636,8 +647,316 @@ module.exports = {
       });
     }
   },
+  // user shipping method
+  async getCost(req, res) {
+    const { origin, destination, weight, courier } = req.body;
+    const body = {
+      origin,
+      destination,
+      weight,
+      courier: courier,
+    };
+    try {
+      const response = await axios.post(
+        `https://api.rajaongkir.com/starter/cost`,
+        body,
+        {
+          headers: {
+            key: "14f19958df605a9797c11f3eb17bffb9",
+            "content-type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+
+      return res.status(200).send({
+        message: "data successfully retrieved",
+        data: response.data.rajaongkir,
+      });
+    } catch (err) {
+      return res.status(500).send({
+        message: "fatal error on server",
+        error: err.message,
+      });
+    }
+  },
   // user checkout
+  async checkout(req, res) {
+    const userId = req.user.id;
+    const transaction = await db.sequelize.transaction();
+    const { totalPrice, shippingMethod, shippingCost, voucher_id, cartItems } =
+      req.body;
+    const randomCode = refCode.generate({
+      length: 5,
+      count: 1,
+      charset: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    });
+    const fullDate = new Date();
+    const date = fullDate.getDate();
+    const month = fullDate.getMonth();
+    const year = fullDate.getFullYear();
+    const invoiceNumber = `INV/${date}${month}${year}/${randomCode}`;
+
+    try {
+      // Check user
+      const user = await db.User.findByPk(userId);
+      if (!user) {
+        await transaction.rollback();
+        return res.status(401).send({ message: "User not found" });
+      }
+
+      // Check address
+      const address = await db.Address.findOne({
+        where: {
+          user_id: userId,
+          isMain: true,
+        },
+        include: [
+          {
+            model: db.City,
+            attributes: ["city_name", "province_id"],
+            include: [
+              {
+                model: db.Province,
+                attributes: ["province_name"],
+              },
+            ],
+          },
+        ],
+      });
+      if (!address) {
+        await transaction.rollback();
+        return res.status(401).send({ message: "Address not found" });
+      }
+
+      // Selected items on cart
+      const cart = await db.Cart.findAll({
+        where: {
+          user_id: userId,
+        },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+            ],
+          },
+        ],
+      });
+      if (!cart) {
+        await transaction.rollback();
+        return res.status(401).send({
+          message: "No items in the cart found",
+        });
+      }
+      const selectedItem = cart.filter((item) => cartItems.includes(item.id));
+      if (!selectedItem || selectedItem.length === 0) {
+        await transaction.rollback();
+        return res
+          .status(401)
+          .send({ message: "No items selected for checkout" });
+      }
+
+      // Create order
+      const checkoutData = await db.Order.create(
+        {
+          user_id: userId,
+          invoiceCode: invoiceNumber,
+          orderDate: fullDate,
+          orderStatus: "Waiting for payment",
+          totalPrice,
+          addressStreetName: address.streetName,
+          addressCity: address.City.city_name,
+          addressProvince: address.City.Province.province_name,
+          addressLabel: address.addressLabel,
+          receiver: address.receiver,
+          contact: address.contact,
+          postalCode: address.postalCode,
+          shippingMethod,
+          shippingCost,
+          shippingDate: fullDate,
+          voucher_id: voucher_id || null, // Use the provided voucher_id or null
+          createdAt: fullDate.toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta",
+          }),
+          updatedAt: fullDate.toLocaleString("en-US", {
+            timeZone: "Asia/Jakarta",
+          }),
+        },
+        { transaction: transaction }
+      );
+
+      // Create order items
+      for (const item of selectedItem) {
+        const orderList = await db.Order_Item.create(
+          {
+            order_id: checkoutData.id,
+            branch_product_id: item.branch_product_id,
+            discount_id: item.Branch_Product.discount_id,
+            quantity: item.quantity,
+            price: item.Branch_Product.Product.basePrice * item.quantity,
+          },
+          { transaction: transaction }
+        );
+        await item.destroy({ transaction: transaction });
+      }
+
+      await transaction.commit();
+      return res.status(200).send({
+        message: "New order created successfully",
+        data: checkoutData,
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.error(error); // Log the error for debugging purposes
+      return res.status(500).send({
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  },
+
+  //get user Voucher
+  async getUserVoucher(req, res) {
+    const userId = req.user.id;
+    try {
+      const userVoucher = await db.User_Voucher.findAll({
+        where: { user_id: userId },
+        include: [
+          {
+            model: db.Voucher,
+            include: [
+              {
+                model: db.Voucher_Type,
+              },
+            ],
+          },
+        ],
+      });
+      if (userVoucher.length === 0) {
+        return res.status(200).send({
+          message: "no vouchers found",
+          data: [],
+        });
+      }
+      return res.status(200).send({
+        message: "user vouchers successfully retrieved",
+        data: userVoucher,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "fatal error",
+        error: error.message,
+      });
+    }
+  },
+
+  //get user order by id
+  async userOrderById(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    try {
+      const order = await db.Order.findOne({
+        where: {
+          id: orderId,
+          user_id: userId,
+        },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+              {
+                model: db.Discount,
+                include: [
+                  {
+                    model: db.Discount_Type,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: db.User,
+          },
+          {
+            model: db.Voucher,
+            include: [
+              {
+                model: db.Voucher_Type,
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!order) {
+        return res.status(400).send({
+          message: "Order not found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Order found",
+        data: order,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  },
+
   // user payment
   // user cancel order
+  async cancelOrder(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const transaction = await db.sequelize.transaction();
+    const { cancelReason } = req.body;
+
+    try {
+      const orderData = await db.Order.findOne({
+        where: { id: orderId, user_id: userId },
+      });
+      if (!orderData) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "no order data found",
+        });
+      }
+      if (
+        orderData.orderStatus === "Waiting for payment" ||
+        orderData.orderStatus === "Waiting for payment confirmation"
+      ) {
+        await orderData.update(
+          {
+            orderStatus: "Canceled",
+            cancelReason,
+          },
+          { transaction }
+        );
+      } else {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "you can't cancel this order",
+        });
+      }
+      await transaction.commit();
+      return res.status(200).send({
+        message: "your oder successfully canceled",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
   // user confirm order
 };

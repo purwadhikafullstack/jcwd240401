@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
-import { BiSolidEditAlt } from "react-icons/bi";
+import { LuEdit } from "react-icons/lu"
 
 import Modal from '../../../Modal';
 import AlertPopUp from '../../../AlertPopUp';
@@ -158,7 +158,7 @@ export default function AllCategory() {
                                         />
                                     </td>
                                     <td className="py-2 px-4 text-center" style={{ width: '75%' }}>{item.name}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`category/${item.id}/modify`}>  <BiSolidEditAlt className="text-maingreen text-xl sm:text-2xl mx-auto" /> </Link><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`category/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allCategory.length === 0 && (

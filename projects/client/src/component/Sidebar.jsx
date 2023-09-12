@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import logo from '../assets/logo_Groceer-e.svg'
 import backgroundSideBar from '../assets/BackgroundLeaves.jpg'
 import { remove } from '../store/reducer/authSlice';
+import { clearLocation } from "../store/reducer/locationSlice";
 import Modal from './Modal';
 
 export default function Sidebar(props) {

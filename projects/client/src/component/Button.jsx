@@ -69,7 +69,7 @@ export default function Button({
       iconClass = "grid justify-center";
       break;
     case "trash":
-      mainButtonClass = "grid text-xl sm:text-2xl w-[24px] h-[24px]";
+      mainButtonClass = "grid text-xl sm:text-2xl justify-center content-center";
       hoverClass = !isDisabled && "hover:bg-slate-100";
       icon = <HiTrash className="text-reddanger" />;
       iconClass = "grid justify-center";
@@ -109,9 +109,7 @@ export default function Button({
       type={buttonType}
       disabled={isDisabled}
       onClick={onClick}
-      className={`${!isDisabled && mainButtonClass} ${
-        !isDisabled && hoverClass
-      } ${isDisabled && disabledStyle}`}
+      className={`${!isDisabled && mainButtonClass} ${!isDisabled && hoverClass} ${isDisabled && disabledStyle}`}
     >
       {icon ? <div className={iconClass}>{icon}</div> : label}
     </button>
