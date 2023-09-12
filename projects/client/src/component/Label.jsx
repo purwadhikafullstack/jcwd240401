@@ -24,6 +24,10 @@ export default function Label({ text, labelColor }) {
             style =
                 "bg-[#EFDBFB] px-3 rounded-md text-[#854D9F] text-xs w-fit mb-1 mt-2 mx-auto";
             break;
+        case "gray":
+            style =
+                "bg-[#EDEDED] px-3 rounded-md text-[#757575] text-xs w-fit mb-1 mt-2";
+            break;
         default:
             style = "";
             break;

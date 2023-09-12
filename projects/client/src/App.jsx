@@ -42,6 +42,7 @@ import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyB
 import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
 import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
 import { keepLocation } from "./store/reducer/locationSlice";
+import BranchAdminModifyOrder from "./component/admin/BranchAdminModifyOrder";
 
 
 function App() {
@@ -190,6 +191,7 @@ function App() {
         <Route path="/admin/branch/manage-product/branch-product/:id/modify" element={<BranchAdminModifyBranchProduct />} />
         <Route path="/admin/manage-category/category/:id/modify" element={<SuperAdminModifyCategory />} />
         <Route path="/admin/manage-product/product/:id/modify" element={<SuperAdminModifyProduct />} />
+        <Route path="/admin/branch/manage-order/order/:id/modify" element={<BranchAdminModifyOrder />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>
