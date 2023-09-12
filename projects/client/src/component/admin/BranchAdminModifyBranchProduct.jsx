@@ -32,6 +32,7 @@ export default function BranchAdminModifyBranchProduct() {
 
     useEffect(() => {
         getOneBranchProduct()
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [])
 
     const handleImageError = (event) => {

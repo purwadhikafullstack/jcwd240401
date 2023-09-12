@@ -68,7 +68,6 @@ export default function SuperAdminModifyCategory() {
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
                 handleShowAlert()
-                setSelectedCategoryId("")
                 setFieldValue("file", null)
             }
         } catch (error) {
@@ -118,6 +117,7 @@ export default function SuperAdminModifyCategory() {
 
     useEffect(() => {
         getOneCategory()
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [successMessage])
 
     function preview(event) {

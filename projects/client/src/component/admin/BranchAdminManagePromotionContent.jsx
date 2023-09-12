@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
-import {CiDiscount1} from "react-icons/ci"
-import {MdOutlineDiscount} from "react-icons/md"
+import { CiDiscount1 } from "react-icons/ci"
+import { MdOutlineDiscount } from "react-icons/md"
 
 import CustomHeader from "../CustomHeader";
 import Discount from "../tab/branchAdmin/promotion/Discount";
@@ -11,13 +11,8 @@ export default function BranchAdminManagePromotionContent() {
   const [content, setContent] = useState(<Discount />);
   const title = "Manage Promotion";
   const tabList = [
-    {
-      name: "My Discount",
-      icon: <CiDiscount1 size={25}/>,
-      isActive: false,
-      tab: <Discount />,
-    },
-    { name: "My Voucher", icon: <MdOutlineDiscount size={25}/>, isActive: false, tab: <Voucher /> },
+    { name: "My Discount", icon: <CiDiscount1 size={25} />, isActive: false, param: "my-discount", tab: <Discount /> },
+    { name: "My Voucher", icon: <MdOutlineDiscount size={25} />, isActive: false, param: "my-voucher", tab: <Voucher /> },
   ];
   return (
     <div className="flex flex-col w-9/12 py-4">

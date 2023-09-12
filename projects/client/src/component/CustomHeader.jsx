@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CustomHeader = ({ tabContent, titleContent, setContent }) => {
-  const [activeTab, setActiveTab] = useState(`${tabContent[0].name}`); // ganti ambil dari url
-  const handleTabClick = (tabId, content) => {
-    setActiveTab(tabId);
-    setContent(content);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const activeTabParam = queryParams.get("tab");
+
+  const activeTab = tabContent.find(tab => tab.param === activeTabParam) || tabContent[0];
+
+  const handleTabClick = (tabId, tabContent) => {
+    const newParams = new URLSearchParams();
+    newParams.set("tab", tabId);
+    navigate({ search: newParams.toString() });
+
+    setContent(tabContent);
   };
 
-  useEffect(() => {
-    //setUrl disni
-    console.log("testing useEffect")
-  }, [activeTab])
   return (
     <div className="flex flex-col items-center">
       <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">{titleContent}</div>
@@ -24,16 +30,16 @@ const CustomHeader = ({ tabContent, titleContent, setContent }) => {
           {tabContent.map((data) => (
             <li className="mr-2" role="presentation">
               <button
-                className={`inline-block px-4 py-2 border-b-4 ${activeTab === data.name
+                className={`inline-block px-4 py-2 border-b-4 ${activeTab.param === data.param
                   ? "  border-maindarkgreen text-maingreen"
                   : "border-transparent"
                   }`}
                 id={`${data.name}-tab`}
                 type="button"
                 role="tab"
-                aria-controls={data.name}
-                aria-selected={activeTab === data.name ? "true" : "false"}
-                onClick={() => handleTabClick(data.name, data.tab)}
+                aria-controls={data.param}
+                aria-selected={activeTab.param === data.param ? "true" : "false"}
+                onClick={() => handleTabClick(data.param, data.tab)}
               >
                 <span className="text-xl hidden lg:block w-40">{data.name}</span>
                 <span className="text-darkgreen lg:hidden">{data.icon}</span>
