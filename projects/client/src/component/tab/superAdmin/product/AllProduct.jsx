@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
-import { BiSolidEditAlt } from "react-icons/bi";
+import { LuEdit } from "react-icons/lu"
 
 import Modal from '../../../Modal';
 import ModalProduct from '../../../ModalProduct';
@@ -206,7 +206,7 @@ export default function AllProduct() {
                                         )}
                                     </td>
                                     <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{rupiah(item.basePrice)}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`product/${item.id}/modify`}>  <BiSolidEditAlt className="text-maingreen text-xl sm:text-2xl mx-auto" /> </Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allProduct.length === 0 && (

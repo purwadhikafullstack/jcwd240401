@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updateCart } from "../../store/reducer/cartSlice";
 
@@ -408,7 +408,7 @@ export default function SingleProductContent() {
                                 onClick={(e) => handleSubmit(branchProductData.id)}
                                 isDisabled={!isProductInCart && quantity === 0 ? true : false}
                             />
-                            {branchProductData.Discount?.isExpired == false &&
+                            {branchProductData.Discount?.isExpired === false &&
                                 branchProductData.Discount?.discount_type_id === 1 &&
                                 quantity >= 2 ? (
                                 <div className="text-sm text-reddanger">
