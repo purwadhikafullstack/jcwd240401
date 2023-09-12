@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updateCart } from "../../store/reducer/cartSlice";
 
@@ -19,6 +19,8 @@ export default function SingleProductContent() {
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
     const cartItems = useSelector((state) => state.cart.cart);
+    const profile = useSelector((state) => state.auth.profile)
+    const outOfReach = useSelector((state) => state.location.location)
     const navigate = useNavigate();
 
     const goBack = () => {
@@ -45,8 +47,6 @@ export default function SingleProductContent() {
         }
     };
 
-    console.log(branchProductData, "branch");
-
     useEffect(() => {
         getOneBranchProduct();
     }, [successMessage]);
@@ -66,8 +66,6 @@ export default function SingleProductContent() {
         (item) => item.branch_product_id === branchProductData.id
     );
 
-    console.log(cartItems, "ini cartitems");
-
     const handleImageError = (event) => {
         event.target.src =
             "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
@@ -84,7 +82,6 @@ export default function SingleProductContent() {
                 setQuantity(quantity - 2);
             }
         } else {
-            // For other types of discounts or no discount
             if (action === "add" && quantity < branchProductData.quantity) {
                 setQuantity(quantity + 1);
             } else if (action === "reduce" && quantity > 0) {
@@ -97,11 +94,26 @@ export default function SingleProductContent() {
         setShowAlert(false);
     };
 
+    const handleShowAlert = () => {
+        setShowAlert(true)
+        setTimeout(() => {
+            setShowAlert(false)
+        }, 4000)
+    }
+
     const handleSubmit = (id) => {
         if (!token) {
             navigate("/login");
-        }
-        if (quantity === 0 && isProductInCart) {
+        } else if (profile.status === false) {
+            setQuantity(0)
+            setErrorMessage("Account verification required to add cart")
+            handleShowAlert()
+
+        } else if (outOfReach === "true") {
+            setQuantity(0)
+            setErrorMessage("Your location is out of reach, cannot add to cart")
+            handleShowAlert()
+        } else if (quantity === 0 && isProductInCart) {
             axios
                 .delete(`http://localhost:8000/api/users/carts/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -114,7 +126,7 @@ export default function SingleProductContent() {
                         .then((response) => {
                             dispatch(updateCart(response.data.data));
                             setSuccessMessage("Successfully removed from cart");
-                            setShowAlert(true);
+                            handleShowAlert()
                         })
                         .catch((error) => {
                             console.error("Failed to fetch cart data", error.message);
@@ -171,14 +183,9 @@ export default function SingleProductContent() {
                             </div>
                         </div>
                     </div>
-                    <div className="flex self-center justify-center w-96">
+                    <div className="fixed top-0 md:top-11 z-50 flex self-center justify-center w-96 mx-2">
                         {showAlert ? (
-                            <AlertPopUp
-                                condition={errorMessage ? "fail" : "success"}
-                                content={errorMessage ? errorMessage : successMessage}
-                                setter={handleHideAlert}
-                            />
-                        ) : null}
+                            <AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : null}
                     </div>
                     <div className="sm:grid sm:grid-cols-2 sm:gap-4 sm:mt-9">
                         <div>
@@ -401,7 +408,7 @@ export default function SingleProductContent() {
                                 onClick={(e) => handleSubmit(branchProductData.id)}
                                 isDisabled={!isProductInCart && quantity === 0 ? true : false}
                             />
-                            {branchProductData.Discount?.isExpired == false &&
+                            {branchProductData.Discount?.isExpired === false &&
                                 branchProductData.Discount?.discount_type_id === 1 &&
                                 quantity >= 2 ? (
                                 <div className="text-sm text-reddanger">

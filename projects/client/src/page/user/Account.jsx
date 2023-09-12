@@ -1,10 +1,9 @@
 import React from 'react'
 import AccountContent from '../../component/user/AccountContent'
+import LayoutUser from '../../component/user/LayoutUser'
 
 export default function Account() {
     return (
-        <div>
-            <AccountContent />
-        </div>
+        <LayoutUser><AccountContent /></LayoutUser>
     )
 }
