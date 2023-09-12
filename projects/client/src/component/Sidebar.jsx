@@ -20,7 +20,6 @@ export default function Sidebar(props) {
 
     const handleLogout = () => {
         dispatch(remove())
-        dispatch(clearLocation())
         localStorage.removeItem("token")
         navigate("/login")
     }

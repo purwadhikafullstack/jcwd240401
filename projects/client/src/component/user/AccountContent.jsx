@@ -9,6 +9,7 @@ import background from '../../assets/BackgroundLeaves.jpg'
 import marketPic from '../../assets/marketPic.png'
 import Modal from '../Modal'
 import { remove } from '../../store/reducer/authSlice'
+import { clearLocation } from '../../store/reducer/locationSlice'
 
 export default function AccountContent() {
     const [profileData, setProfileData] = useState({})
@@ -25,6 +26,7 @@ export default function AccountContent() {
 
     const handleLogout = () => {
         dispatch(remove())
+        dispatch(clearLocation())
         localStorage.removeItem("token")
         navigate("/")
     }
