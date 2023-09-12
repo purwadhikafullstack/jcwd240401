@@ -1,4 +1,7 @@
 const db = require("../models");
+const {
+   setFromFileNameToDBValueRefund,
+  } = require("../helpers/fileConverter");
 
 module.exports = {
   // admin
@@ -243,6 +246,193 @@ module.exports = {
             message: "Server error",
             error: error.message
         })
+    }
+  },
+  async changeStatus(req,res){
+    const transaction = await db.sequelize.transaction();
+    const action = req.params.action
+    const orderId = Number(req.params.id)
+    try{
+        const orderData = await db.Order.findOne({
+            where: orderId
+        })
+
+        if(!orderData){
+            await transaction.rollback()
+            return res.status(400).send({
+                message: "Order not found"
+            })
+        }
+
+        switch(action) {
+            case "Waiting for payment":
+                try{
+                    if(orderData.orderStatus !== "Waiting for payment confirmation"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "Payment has already confirmed"
+                        })
+                    }
+
+                    orderData.orderStatus = "Waiting for payment"
+                    await orderData.save({transaction})
+                    await transaction.commit()
+                    return res.status(200).send({
+                        messagae: "Order status is changed to Waiting for payment"
+                    })
+                }catch(error){
+                    await transaction.rollback()
+                    return res.status(500).send({
+                        message: "Server error",
+                        error: error.message
+                    })
+                }
+            case "Processing":
+                try{
+                    if(orderData.orderStatus === "Waiting for payment"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't process this order, payment hasn't been made"
+                        })
+                    } else if (orderData.orderStatus === "Processing"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "Order is already processing"
+                        })
+                    } else if (orderData.orderStatus === "Delivering"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't process this order, you are currently delivering it"
+                        })
+                    } else if(orderData.orderStatus === "Canceled"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't process this order, it has been canceled"
+                        })
+                    }
+
+                    orderData.orderStatus = "Processing"
+                    await orderData.save({transaction})
+                    await transaction.commit()
+                    return res.status(200).send({
+                        message: "Order status is changed to Processing"
+                    })
+                }catch(error){
+                    await transaction.rollback()
+                    return res.status(500).send({
+                        message: "Server error",
+                        error: error.message
+                    })
+                }
+            case "Delivering":
+                try{
+                    if(orderData.orderStatus === "Waiting for payment"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't deliver this order, payment hasn't been made"
+                        })
+                    } else if (orderData.orderStatus === "Waiting for payment confirmation"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't deliver this order, confirm payment first"
+                        })
+                    } else if (orderData.orderStatus === "Delivering"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You are delivering this order"
+                        })
+                    } else if(orderData.orderStatus === "Canceled"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't deliver this order, it has been canceled"
+                        })
+                    }
+
+                    orderData.orderStatus = "Delivering"
+                    await orderData.save({transaction})
+                    await transaction.commit()
+                    return res.status(200).send({
+                        message: "Order status is changed to Delivering"
+                    })
+                }catch(error){
+                    await transaction.rollback()
+                    return res.status(500).send({
+                        message: "Server error",
+                        error: error.message
+                    })
+                }
+                default:
+                    await transaction.rollback();
+                    return res.status(400).send({
+                      message: "Invalid action",
+                    });
+        }
+
+    }catch(error){
+        await transaction.rollback()
+        console.log(error)
+        return res.status(500).send({
+            message: "Internal Server Error"
+        })
+    }
+  },
+  async cancelOrder(req,res){
+    const orderId = Number(req.params.id)
+    const { refundReason } = req.body;
+    const imgFileName = req.file ? req.file.filename : null;
+    const transaction = await db.sequelize.transaction();
+
+    try {
+        const orderData = await db.Order.findOne({
+            where: {
+                id: orderId
+            }
+        })
+
+        if(!orderData){
+            await transaction.rollback()
+            return res.status(400).send({
+                message: "Order not found"
+            })
+        }
+
+        if(orderData.orderStatus === "Delivering") {
+            await transaction.rollback()
+            return res.status(400).send({
+                message: "You cannot cancel this order, it has been delivered"
+            })
+        } else if(orderData.orderStatus === "Order completed") {
+            await transaction.rollback()
+            return res.status(400).send({
+                message: "You cannot cancel this order, it has been completed"
+            })
+        } else if(orderData.orderStatus === "Canceled") {
+            await transaction.rollback()
+            return res.status(400).send({
+                message: "You cannot cancel this order, it has been canceled by user"
+            })
+        }
+        if(!refundReason || !imgFileName){
+            await transaction.rollback()
+            return res.status(400).send({
+                message: "Please input refund reason and refund proof to cancel this order"
+            })
+        }
+
+        orderData.imgRefund = setFromFileNameToDBValueRefund(imgFileName)
+        orderData.refundReason = refundReason
+        orderData.orderStatus = "Canceled"
+        await orderData.save({transaction})
+        await transaction.commit()
+        return res.status(200).send({
+            message: "Order successfully canceled"
+        })
+    } catch (error) {
+      await transaction.rollback()
+      console.log(error)
+      return res.status(500).send({
+        message: "Internal Server Error"
+      })
     }
   },
 
