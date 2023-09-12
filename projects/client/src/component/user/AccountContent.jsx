@@ -56,7 +56,7 @@ export default function AccountContent() {
             'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
     };
     return (
-        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 justify-center font-inter'>
+        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
             {(token && profile.role === "3") ? (
                 <div className='grid gap-4'>
                     <div className='text-2xl sm:text-3xl font-bold text-maingreen px-6 text-center'> My Account </div>
@@ -76,16 +76,18 @@ export default function AccountContent() {
                     </div>
                 </div>
             ) : (
-                <><div className='mx-auto'>
-                    <img src={marketPic} alt="illustration" className='w-96 h-56 object-cover' />
-                </div>
-                    <div className='text-center font-bold w-5/6 mx-auto my-4 sm:w-96'>
+                <div className='mt-14 lg:mt-0'>
+                    <div className='mx-auto'>
+                        <img src={marketPic} alt="illustration" className='w-96 h-56 lg:w-[500px] lg:h-[300px] object-cover mx-auto' />
+                    </div>
+                    <div className='text-center font-bold w-5/6 mx-auto my-4 sm:w-96 lg:w-[500px] lg:text-2xl'>
                         Bringing Freshness to Your Doorstep: Your Trusted Online Grocery Store for the Finest Produce in Indonesia!
                     </div>
-                    <div className='grid grid-cols-2 gap-4'>
+                    <div className='grid grid-rows-2 lg:grid-cols-2 gap-4'>
                         <Link to={"/register"}><Button condition={"negative"} label={"Register"} /></Link>
                         <Link to={"/login"}><Button condition={"positive"} label={"Login"} /></Link>
-                    </div></>
+                    </div>
+                </div>
             )}
         </div >
     )

@@ -118,9 +118,9 @@ export default function UserProfileContent() {
     }
 
     return (
-        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 justify-center font-inter'>
+        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
             <div className='grid gap-4'>
-                <div className='flex'>
+                <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Profile</div>
                 </div>
@@ -139,7 +139,7 @@ export default function UserProfileContent() {
                                 <div className='font-bold'>{value}</div>
                             </div>
                         ))}
-                        <div className='flex gap-2 w-full justify-center mt-10 sm:mt-4'>
+                        <div className='flex flex-col 2xl:flex-row gap-2 w-full justify-center mt-10 sm:mt-4'>
                             {routes.map(({ name, to }, idx) => (
                                 <Link key={idx} to={to}>
                                     <Button condition={"positive"} label={name} />
