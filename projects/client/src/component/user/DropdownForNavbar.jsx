@@ -5,24 +5,31 @@ import { HiOutlineUser } from "react-icons/hi";
 import { remove } from "../../store/reducer/authSlice";
 import Modal from "../Modal";
 import { clearLocation } from "../../store/reducer/locationSlice";
+import {
+  clearCart,
+  clearSelectedCartItems,
+} from "../../store/reducer/cartSlice";
 
 export default function DropdownForNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const profile = useSelector((state) => state.auth.profile)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const profile = useSelector((state) => state.auth.profile);
 
   const toggleDropdown = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     setIsOpen(!isOpen);
   };
 
   const handleLogout = () => {
-    dispatch(remove())
-    dispatch(clearLocation())
-    localStorage.removeItem("token")
-    navigate("/")
-  }
+    dispatch(remove());
+    dispatch(clearLocation());
+    dispatch(clearCart());
+    dispatch(clearSelectedCartItems());
+    localStorage.removeItem("selectedCartItems");
+    localStorage.removeItem("token");
+    navigate("/");
+  };
 
   return (
     <div className="relative inline-block w-full">
@@ -33,7 +40,15 @@ export default function DropdownForNavbar() {
           className="h-10 w-10 rounded-full flex justify-center items-center bg-lightgrey"
           onClick={(event) => toggleDropdown(event)}
         >
-          {profile.imgProfile ? <img src={`${process.env.REACT_APP_BASE_URL}${profile.imgProfile}`} alt="Profile Picture" className="rounded-full h-full w-full object-cover" /> : <HiOutlineUser className="h-6 w-6 rounded-full text-darkgrey bg-lightgrey" />}
+          {profile.imgProfile ? (
+            <img
+              src={`${process.env.REACT_APP_BASE_URL}${profile.imgProfile}`}
+              alt="Profile Picture"
+              className="rounded-full h-full w-full object-cover"
+            />
+          ) : (
+            <HiOutlineUser className="h-6 w-6 rounded-full text-darkgrey bg-lightgrey" />
+          )}
         </button>
       </div>
       {isOpen && (
@@ -42,13 +57,21 @@ export default function DropdownForNavbar() {
             <Link to="/user/account">
               <li
                 className="p-2 font-inter hover:bg-maingreen hover:text-white cursor-pointer"
-              //   onClick={(event) => handleMyAccount( event)}
+                //   onClick={(event) => handleMyAccount( event)}
               >
                 My Account
               </li>
             </Link>
             <li>
-              <Modal onClickButton={handleLogout} modalTitle={"Log Out"} toggleName={"Log Out"} content={"Are you sure you want to log out?"} buttonCondition={"logout"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} />
+              <Modal
+                onClickButton={handleLogout}
+                modalTitle={"Log Out"}
+                toggleName={"Log Out"}
+                content={"Are you sure you want to log out?"}
+                buttonCondition={"logout"}
+                buttonLabelOne={"Cancel"}
+                buttonLabelTwo={"Yes"}
+              />
             </li>
           </ul>
         </div>
