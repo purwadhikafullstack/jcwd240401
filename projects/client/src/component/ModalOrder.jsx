@@ -110,7 +110,7 @@ export default function ModalOrder({orderId, onClose}) {
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Order Status
-                            <p className="text-black"><Label text={selectedOrder?.orderStatus} labelColor={labelColor(selectedOrder?.orderStatus)} /></p>
+                            <p className="text-black"><Label text={selectedOrder?.orderStatus} labelColor={labelColor(selectedOrder?.orderStatus)} /></p> 
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Buyer
@@ -152,20 +152,41 @@ export default function ModalOrder({orderId, onClose}) {
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Voucher
-                            <p className="text-black">{selectedOrder?.Voucher ? "": "-"}</p>
+                            <p className="text-black">{selectedOrder?.Voucher ? selectedOrder.Voucher?.voucher_type_id === 1 ? `${selectedOrder.Voucher?.Voucher_Type?.type}` : selectedOrder.Voucher?.voucher_type_id === 2 ? `${selectedOrder.Voucher?.amount}% Discount` : `${rupiah(selectedOrder.Voucher?.amount)} Discount` : "-" }</p>
                         </div>
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Total
                             <p className="text-black">{rupiah(selectedOrder?.totalPrice)}</p>
                         </div>
+                        {selectedOrder.orderStatus === "Waiting for payment" ? (
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Payment Proof
-                            <div className="h-52 w-40 bg-darkgrey"></div>
+                            <p>-</p>
                         </div>
+                        ) : (
+                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                            Payment Proof
+                            <div className='flex gap-4 items-end'>
+                                <div className="h-52 w-40">
+                                    <img src={`${process.env.REACT_APP_BASE_URL}${selectedOrder?.imgRefund}`} alt="Refund Image" className='object-cover w-full h-full' onError={handleImageError}/>
+                                </div>
+                            </div>
+                        </div>
+                        )}
+                        {selectedOrder.orderStatus === "Canceled" ? (
+                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                            Cancelation Reason
+                            <p className="text-black">{selectedOrder?.cancelReason}</p>
+                        </div>
+                        ) : null}
+                        {selectedOrder.imgRefund ? (
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Refund Image
-                            <div className="h-52 w-40 bg-darkgrey"></div>
+                            <div className="h-52 w-40">
+                                <img src={`${process.env.REACT_APP_BASE_URL}${selectedOrder?.imgRefund}`} alt="Refund Image" className='object-cover w-full h-full' onError={handleImageError}/>
+                            </div>
                         </div>
+                        ) : null}
                     </div>
                 </div>
             </div>

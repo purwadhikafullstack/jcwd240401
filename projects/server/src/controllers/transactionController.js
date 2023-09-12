@@ -378,7 +378,7 @@ module.exports = {
   },
   async cancelOrder(req,res){
     const orderId = Number(req.params.id)
-    const { refundReason } = req.body;
+    const { cancelReason } = req.body;
     const imgFileName = req.file ? req.file.filename : null;
     const transaction = await db.sequelize.transaction();
 
@@ -412,15 +412,15 @@ module.exports = {
                 message: "You cannot cancel this order, it has been canceled by user"
             })
         }
-        if(!refundReason || !imgFileName){
+        if(!cancelReason || !imgFileName){
             await transaction.rollback()
             return res.status(400).send({
-                message: "Please input refund reason and refund proof to cancel this order"
+                message: "Please input cancelation reason and refund proof to cancel this order"
             })
         }
 
         orderData.imgRefund = setFromFileNameToDBValueRefund(imgFileName)
-        orderData.refundReason = refundReason
+        orderData.cancelReason = cancelReason
         orderData.orderStatus = "Canceled"
         await orderData.save({transaction})
         await transaction.commit()

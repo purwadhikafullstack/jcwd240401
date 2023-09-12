@@ -37,7 +37,7 @@ export default function OrderList() {
             }
         }catch(error){
             if(error.response){
-                console.log(error.response.message)
+                console.log(error)
             }
         }
     }
@@ -64,6 +64,12 @@ export default function OrderList() {
     const onPageChange = (page) => {
         setOrderData([]);
         setCurrentPage(page);
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", page.toString());
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", page.toString());
+        navigate({ search: params.toString() });
     };
 
     const labelColor = (text) => {
@@ -181,7 +187,7 @@ export default function OrderList() {
                         <td className="py-2 px-4" style={{ width: '30%' }} onClick={() => setSelectedOrder(data.id)}>{data.invoiceCode}</td>
                         <td className="py-2 px-4 flex justify-center" onClick={() => setSelectedOrder(data.id)}><Label text={data.orderStatus} labelColor={labelColor(data.orderStatus)} /></td>
                         <td className="py-2 px-4" style={{ width: '30%' }} onClick={() => setSelectedOrder(data.id)}>{dayjs(data.orderDate).format("DD/MM/YYYY")}</td>
-                        <td className="py-2 px-4" style={{ width: '10%' }}><LuEdit className='text-maingreen w-6 h-6'/></td>
+                        <td className="py-2 px-4" style={{ width: '10%' }}>{data.orderStatus === "Waiting for payment confirmation" || data.orderStatus === "Processing" ? <Link to={`order/${data.id}/modify`}><LuEdit className='text-maingreen w-6 h-6'/></Link> : null}</td>
                     </tr>
                 )) : (
                 <tr>

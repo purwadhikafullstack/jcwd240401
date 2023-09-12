@@ -81,6 +81,12 @@ export default function OrderList() {
     const onPageChange = (page) => {
         setOrderData([]);
         setCurrentPage(page);
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", page.toString());
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", page.toString());
+        navigate({ search: params.toString() });
     };
 
     const labelColor = (text) => {
