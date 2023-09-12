@@ -41,6 +41,8 @@ import { updateCart } from "./store/reducer/cartSlice";
 import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyBranchProduct";
 import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
 import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
+import { keepLocation } from "./store/reducer/locationSlice";
+import BranchAdminModifyOrder from "./component/admin/BranchAdminModifyOrder";
 
 
 function App() {
@@ -89,9 +91,21 @@ function App() {
     }
   };
 
+  const userLocation = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        dispatch(keepLocation("false"));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   useEffect(() => {
     keepLogin();
-    userCart()
+    userCart();
+    userLocation();
   }, []);
 
   return (
@@ -157,7 +171,7 @@ function App() {
 
         <Route path="/user/cart" element={<Cart />} />
         <Route path="/user/checkout" element={<Checkout />} />
-        <Route path="/user/payment" element={<Payment />} />
+        <Route path="/user/payment/:id" element={<Payment />} />
         <Route path="/user/orders" element={<Orders />} />
         <Route path="/user/account" element={<Account />} />
         <Route path="/user/account/my-profile" element={<UserProfile />} />
@@ -179,6 +193,7 @@ function App() {
         <Route path="/admin/branch/manage-product/branch-product/:id/modify" element={<BranchAdminModifyBranchProduct />} />
         <Route path="/admin/manage-category/category/:id/modify" element={<SuperAdminModifyCategory />} />
         <Route path="/admin/manage-product/product/:id/modify" element={<SuperAdminModifyProduct />} />
+        <Route path="/admin/branch/manage-order/order/:id/modify" element={<BranchAdminModifyOrder />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

@@ -467,6 +467,9 @@ module.exports = {
             },
             include: { model: db.Category, where: { isRemoved: 0 } },
           },
+          {
+            model: db.Discount,
+          },
         ],
       });
 
@@ -721,6 +724,7 @@ module.exports = {
                 branch_id: user.Branch.id,
                 voucher_type_id,
                 isReferral,
+                isExpired: false,
               },
               { transaction }
             );
@@ -762,6 +766,7 @@ module.exports = {
                 minTransaction,
                 usedLimit,
                 expiredDate,
+                isExpired: false,
               },
               { transaction }
             );
@@ -799,6 +804,7 @@ module.exports = {
                 isReferral,
                 amount,
                 maxDiscount,
+                isExpired: false,
               },
               { transaction }
             );
@@ -850,6 +856,7 @@ module.exports = {
                 minTransaction,
                 usedLimit,
                 expiredDate,
+                isExpired: false,
               },
               { transaction }
             );
@@ -888,6 +895,7 @@ module.exports = {
                 isReferral,
                 amount,
                 maxDiscount,
+                isExpired: false,
               },
               { transaction }
             );
@@ -939,6 +947,7 @@ module.exports = {
                 minTransaction,
                 usedLimit,
                 expiredDate,
+                isExpired: false,
               },
               { transaction }
             );

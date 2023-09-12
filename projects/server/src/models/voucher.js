@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       minTransaction: DataTypes.INTEGER,
       maxDiscount: DataTypes.INTEGER,
       isReferral: DataTypes.BOOLEAN,
+      isExpired: DataTypes.BOOLEAN
     },
     {
       sequelize,

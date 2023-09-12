@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       postalCode: DataTypes.INTEGER,
       imgPayment: DataTypes.STRING,
       imgRefund: DataTypes.STRING,
-      refundReason: DataTypes.STRING,
+      cancelReason: DataTypes.STRING,
       shippingMethod: DataTypes.STRING,
       shippingDate: DataTypes.DATE,
       shippingCost: DataTypes.INTEGER,

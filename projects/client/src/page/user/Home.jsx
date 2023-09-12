@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { keepLocation } from '../../store/reducer/locationSlice'
 import { HiOutlineLocationMarker } from 'react-icons/hi'
 import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
 import SearchBar from '../../component/SearchBar'
-import ProductCard from '../../component/ProductCard'
+import ProductCard from '../../component/user/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CarouselContent from '../../component/user/CarouselContent'
 import { Link, useNavigate } from 'react-router-dom'
+import SearchInputBar from '../../component/SearchInputBar'
 import CustomDropdownURLSearch from '../../component/CustomDropdownURLSearch'
 
 export default function Home() {
@@ -32,6 +34,7 @@ export default function Home() {
     const [filter, setFilter] = useState(new URLSearchParams());
     const params = new URLSearchParams(window.location.search);
     const navigate = useNavigate();
+    const dispatch = useDispatch()
     const token = localStorage.getItem("token")
     const profile = useSelector((state) => state.auth.profile)
 
@@ -67,9 +70,6 @@ export default function Home() {
                 });
         }
     }, [latitude, longitude]);
-
-    console.log("latitude", latitude)
-    console.log("longitude", longitude)
 
     useEffect(() => {
         if (!token) {
@@ -158,6 +158,12 @@ export default function Home() {
             }
             if (response.data.outOfReach === true) {
                 setOutOfReach(true)
+                if (outOfReach === true) {
+                    dispatch(keepLocation("true"))
+                } else {
+                    dispatch(keepLocation("false"))
+                }
+                console.log("ini out of reach", outOfReach)
             }
         } catch (error) {
             if (error.response) {
@@ -248,19 +254,17 @@ export default function Home() {
         navigate({ search: params.toString() });
     };
 
-    const handleSearchValue = (e) => {
+    const handleSearchValue = (searchValue) => {
         const newFilter = new URLSearchParams(filter.toString());
-        const newSearchValue = e.target.value;
         newFilter.set("page", "1");
-        if (newSearchValue === "") {
+        if (searchValue === "") {
             newFilter.delete("search");
         } else {
-            newFilter.set("search", newSearchValue);
+            newFilter.set("search", searchValue);
         }
         setFilter(newFilter);
-
         const params = new URLSearchParams(window.location.search);
-        params.set("search", newSearchValue);
+        params.set("search", searchValue);
         params.set("page", "1");
         navigate({ search: params.toString() });
     };
@@ -281,7 +285,7 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="w-11/12 gap-2 lg:w-full mb-10 relative z-10">
-                        <SearchBar value={params.get("search") || ""} type="text" onChange={handleSearchValue} placeholder={"Search Product"} />
+                        <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchValue} placeholder="Enter here to search product by name..." />
                     </div>
                     <div className="w-full gap-2 lg:w-full h-80 lg:h-64 absolute top-0 lg:static">
                         <CarouselContent branchId={branchId} />
@@ -289,8 +293,8 @@ export default function Home() {
                 </div>
                 <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-fit flex overflow-x-auto lg:mb-10 mb-4">
                     {categories.map((category) => (
-                        <div key={category.value} className='relative inline-block rounded-md' style={{ backgroundImage: `${category.imgCategory}`, backgroundSize: 'cover' }}>
-                            <button id="category_id" onClick={() => handleCategoryChange(category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className="absolute inset-0 bg-black bg-opacity-40 w-full h-full rounded-md z-5"></div><span className='relative font-inter text-white z-90'>{category.label}</span></button>
+                        <div key={category.value} className='relative inline-block rounded-md bg-darkgrey' style={{ backgroundImage: `${category.imgCategory}`, backgroundSize: 'cover' }}>
+                            <button id="category_id" onClick={() => handleCategoryChange(category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className={`absolute inset-0 bg-black w-full h-full rounded-md z-5 ${params.get("category_id") == category.value ? `bg-maindarkgreen bg-opacity-70` : `bg-black bg-opacity-40`}`}></div><span className={`relative font-inter text-white z-90`}>{category.label}</span></button>
                         </div>
                     ))}
                 </div>
@@ -301,9 +305,9 @@ export default function Home() {
                 <div className='w-11/12 gap-2 sm:w-9/12 lg:w-6/12 grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
                     {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (
                         <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`}><div key={index} className='flex justify-center mb-2 sm:mb-0'>
-                            <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} latitude={latitude} outOfReach={outOfReach} />
+                            <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} />
                         </div> </Link>))
-                    ) : (<div className='font-inter col-span-2 text-center text-maingreen'>No Product Found</div>)}
+                    ) : (<div className='font-inter col-span-2  2xl:col-span-4 text-center text-maingreen'>No Product Found</div>)}
                 </div>
                 <div className='flex justify-center mb-20'>
                     <Pagination

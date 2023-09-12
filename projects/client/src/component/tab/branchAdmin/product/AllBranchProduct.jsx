@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
-import { BiSolidEditAlt } from "react-icons/bi";
+import { LuEdit } from "react-icons/lu"
 
 import Modal from '../../../Modal';
 import ModalBranchProduct from '../../../ModalBranchProduct';
@@ -10,6 +10,7 @@ import AlertPopUp from '../../../AlertPopUp';
 import rupiah from '../../../../helpers/rupiah';
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
+import Label from '../../../Label';
 
 export default function AllBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -146,6 +147,19 @@ export default function AllBranchProduct() {
         getBranchProduct()
     }, [filter, currentPage])
 
+    function getLabelColor(status) {
+        switch (status) {
+            case "empty":
+                return "red";
+            case "restock":
+                return "blue";
+            case "ready":
+                return "green";
+            default:
+                return "red";
+        }
+    }
+
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
@@ -163,7 +177,7 @@ export default function AllBranchProduct() {
                                 <th className="py-2 px-4" style={{ width: '45%' }}>Product</th>
                                 <th className="py-2 px-4 hidden xl:table-cell" style={{ width: '35%%' }}>Details</th>
                                 <th className="py-2 px-4" style={{ width: '7.5%' }}>Status</th>
-                                <th className="py-2 px-4" style={{ width: '7.5%' }}>Qty</th>
+                                <th className="py-2 px-4 hidden xl:table-cell" style={{ width: '7.5%' }}>Qty</th>
                                 <th className="py-2 px-4" style={{ width: '5%' }}></th>
                             </tr>
                         </thead>
@@ -180,7 +194,7 @@ export default function AllBranchProduct() {
                                                     alt="/"
                                                 />
                                             </div>
-                                            <div className='flex flex-col justify-center w-4/5 pl-2 gap-2'>
+                                            <div className='flex flex-col justify-center w-full sm:w-4/5 sm:pl-2 gap-2 text-xs sm:text-sm'>
                                                 <div className='text-maindarkgreen'>{item?.Product?.name}</div>
                                                 <div>{item?.Product?.Category.name}</div>
                                                 <div>{item?.Product?.weight}{item?.Product?.unitOfMeasurement} / pack</div>
@@ -194,9 +208,9 @@ export default function AllBranchProduct() {
                                             <span className="text-sm">...</span>
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.status} </td>
-                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.quantity} </td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid grid-rows-2 justify-center gap-2'><Link to={`branch-product/${item.id}/modify`}>  <BiSolidEditAlt className="text-maingreen text-xl sm:text-2xl mx-auto" /> </Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> <Label labelColor={getLabelColor(item?.status)} text={item?.status} /> </td>
+                                    <td className="py-2 px-4 hidden xl:table-cell text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.quantity} </td>
+                                    <td className="py-2 sm:px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid grid-rows-2 justify-center gap-2'><Link to={`branch-product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allBranchProduct.length === 0 && (
@@ -207,24 +221,10 @@ export default function AllBranchProduct() {
                         </tbody>
                     </table>
                 </div>
-                {selectedProduct && (
-                    <ModalBranchProduct
-                        branchProductId={selectedProduct}
-                        onClose={() => setSelectedProduct(null)}
-                    />
-                )}
+                {selectedProduct && (<ModalBranchProduct branchProductId={selectedProduct} onClose={() => setSelectedProduct(null)} />)}
             </div>
             <div className='flex justify-center'>
-                <Pagination
-                    currentPage={currentPage}
-                    onPageChange={onPageChange}
-                    showIcons
-                    layout="pagination"
-                    totalPages={totalPages}
-                    nextLabel="Next"
-                    previousLabel="Back"
-                    className="mx-auto"
-                />
+                <Pagination currentPage={currentPage} onPageChange={onPageChange} showIcons layout="pagination" totalPages={totalPages} nextLabel="Next" previousLabel="Back" className="mx-auto" />
             </div>
         </div>
     )

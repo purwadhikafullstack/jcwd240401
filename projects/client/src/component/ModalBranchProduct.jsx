@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Label from "./Label";
+import rupiah from "../helpers/rupiah";
 
 export default function ModalBranchProduct({ branchProductId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
@@ -20,13 +22,22 @@ export default function ModalBranchProduct({ branchProductId, onClose }) {
     useEffect(() => {
         getProductDetails()
     }, [])
+
+    function getLabelColor(status) {
+        switch (status) {
+            case "empty":
+                return "red";
+            case "restock":
+                return "blue";
+            case "ready":
+                return "green";
+            default:
+                return "red";
+        }
+    }
+
     return (
-        <div
-            id="staticModal"
-            tabIndex={-1}
-            aria-hidden="true"
-            className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900 z-50"
-        >
+        <div id="staticModal" tabIndex={-1} aria-hidden="true" className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900 z-50" >
             <div className="relative w-full max-w-2xl max-h-full mx-3">
                 {/* Modal content */}
                 <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
@@ -60,26 +71,39 @@ export default function ModalBranchProduct({ branchProductId, onClose }) {
                         </button>
                     </div>
                     {/* Modal body */}
-                    <div className="py-6 space-y-6 px-10">
-                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                    <div className="py-6 space-y-6 px-10 max-h-[500px] overflow-y-auto">
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
+                            Stock:
+                            <p className="text-black text-base">{selectedProduct?.quantity}</p>
+                        </div>
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
+                            Status:
+                            <p className="text-black w-fit text-base"> <Label labelColor={getLabelColor(selectedProduct?.status)} text={selectedProduct?.status} /></p>
+                        </div>
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
                             Origin:
-                            <p className="text-black">{selectedProduct?.origin}</p>
+                            <p className="text-black text-base">{selectedProduct?.origin}</p>
                         </div>
-                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
                             Description:
-                            <p className="text-black">{selectedProduct?.Product?.description}</p>
+                            <p className="text-black text-base">{selectedProduct?.Product?.description}</p>
                         </div>
-                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
                             Storage Instruction:
-                            <p className="text-black">{selectedProduct?.Product?.storageInstruction}</p>
+                            <p className="text-black text-base">{selectedProduct?.Product?.storageInstruction}</p>
                         </div>
-                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
                             Storage Period:
-                            <p className="text-black">{selectedProduct?.Product?.storagePeriod}</p>
+                            <p className="text-black text-base">{selectedProduct?.Product?.storagePeriod}</p>
                         </div>
-                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                        <div className="text-sm text-darkgrey border-b-2 pb-2">
                             Discount:
-                            <p className="text-black">{selectedProduct.discount_id ? selectedProduct.discount_id : "-"}</p>
+                            <p className="text-black text-base"> {selectedProduct.discount_id &&
+                                selectedProduct?.Discount?.isExpired === false ? (
+                                selectedProduct.Discount.discount_type_id === 2 ? (<>{selectedProduct.Discount.amount}% off </>) : selectedProduct.Discount.discount_type_id === 3 ? (<> {rupiah(selectedProduct.Discount.amount)} off  </>) : "Buy One Get One"
+                            ) : (
+                                "-"
+                            )}</p>
                         </div>
                     </div>
                 </div>

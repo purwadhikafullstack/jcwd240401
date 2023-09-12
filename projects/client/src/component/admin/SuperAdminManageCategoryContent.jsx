@@ -9,8 +9,8 @@ export default function SuperAdminManageCategoryContent() {
     const [content, setContent] = useState(<AllCategory />);
     const title = "Manage Category";
     const tabList = [
-        { name: "My Category", icon: <LuFolderOpen size={25} />, isActive: false, tab: <AllCategory /> },
-        { name: "Create Category", icon: <LuFolderPlus size={25} />, isActive: false, tab: <CreateCategory /> },
+        { name: "All Category", icon: <LuFolderOpen size={25} />, isActive: false, param: "all-category", tab: <AllCategory /> },
+        { name: "Create Category", icon: <LuFolderPlus size={25} />, isActive: false, param: "create-category", tab: <CreateCategory /> },
     ];
     return (
         <div className="flex flex-col w-9/12 py-4">
