@@ -98,7 +98,7 @@ export default function CreateBranchProduct() {
     }, [])
 
     return (
-        <div className='w-8/12 mx-auto flex flex-col justify-center font-inter'>
+        <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <Formik initialValues={{ product_id: "", origin: "", quantity: "" }} validationSchema={createBranchProductSchema} onSubmit={handleSubmit}>
                 {(props) => (

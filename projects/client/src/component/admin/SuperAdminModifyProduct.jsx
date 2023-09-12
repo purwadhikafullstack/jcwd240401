@@ -176,6 +176,7 @@ export default function SuperAdminModifyProduct() {
     };
 
     useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         getCategory()
         getOneProduct()
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -190,7 +191,7 @@ export default function SuperAdminModifyProduct() {
     }
     return (
         <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-full'>
-            <div className='flex lg:pt-10'>
+            <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Product</div>
             </div>

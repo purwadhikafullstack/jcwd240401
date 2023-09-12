@@ -467,6 +467,9 @@ module.exports = {
             },
             include: { model: db.Category, where: { isRemoved: 0 } },
           },
+          {
+            model: db.Discount,
+          },
         ],
       });
 

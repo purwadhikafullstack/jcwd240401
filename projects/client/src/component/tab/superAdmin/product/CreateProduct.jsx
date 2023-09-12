@@ -120,7 +120,7 @@ export default function CreateProduct() {
     }, [])
 
     return (
-        <div className='w-8/12 mx-auto flex flex-col justify-center font-inter'>
+        <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <Formik initialValues={{ name: "", description: "", category_id: "", weight: "", unitOfMeasurement: "", basePrice: "", storageInstruction: "", storagePeriod: "", file: null, }} validationSchema={createProductSchema} onSubmit={handleSubmit}>
                 {(props) => (
