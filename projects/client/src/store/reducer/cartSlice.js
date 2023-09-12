@@ -16,10 +16,17 @@ export const cartSlice = createSlice({
     setSelectedCartItems: (state, action) => {
       state.selectedCartItems = action.payload;
     },
+    clearSelectedCartItems: (state) => {
+      state.selectedCartItems = [];
+    },
   },
 });
 
-export const { updateCart, clearCart, setSelectedCartItems } =
-  cartSlice.actions;
+export const {
+  updateCart,
+  clearCart,
+  setSelectedCartItems,
+  clearSelectedCartItems,
+} = cartSlice.actions;
 
 export default cartSlice.reducer;
