@@ -10,7 +10,7 @@ export default function Payment() {
   const { id } = useParams();
   const token = localStorage.getItem("token");
   const [orderData, setOrderData] = useState(null);
-  const [countdown, setCountdown] = useState(1800);
+  const [timer, setTimer] = useState(null);
   const [subTotal, setSubTotal] = useState("");
   const [selectedVoucher, setSelectedVoucher] = useState("");
   const [deliveryFee, setDeliveryFee] = useState("");
@@ -84,7 +84,7 @@ export default function Payment() {
       console.log(error);
     }
   };
-  console.log(subTotal);
+
   useEffect(() => {
     if (id) {
       fetchOrder();
@@ -93,15 +93,34 @@ export default function Payment() {
 
   // Update the countdown timer every second
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (countdown > 0) {
-        setCountdown(countdown - 1);
-      } else {
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [countdown]);
+    if (orderData && orderData.data && orderData.data.orderDate) {
+      // Calculate the initial time remaining based on the createdAt timestamp
+      const createdAtTimestamp = Date.parse(new Date(orderData.data.orderDate));
+      const currentTime = Date.now();
+      const timeElapsed = Math.floor((currentTime - createdAtTimestamp) / 1000);
+      const initialTimeRemaining = Math.max(30 * 60 - timeElapsed, 0);
+
+      setTimer(initialTimeRemaining);
+
+      const countdown = () => {
+        if (timer > 0) {
+          setTimer(timer - 1);
+          setTimeout(countdown, 1000); // Schedule the next update
+        } else {
+          // Timer reached zero, trigger cancellation here
+          console.log("cancel order");
+          handleCancel({ cancelReason: "time has run out" }, id);
+        }
+      };
+
+      const countdownTimeout = setTimeout(countdown, 1000); // Start the countdown
+
+      // Cleanup the timeout when the component unmounts
+      return () => {
+        clearTimeout(countdownTimeout);
+      };
+    }
+  }, [timer, orderData]);
 
   return (
     <div>
@@ -116,7 +135,8 @@ export default function Payment() {
             </div>
             {orderStatus === "Waiting for payment" && (
               <div className="text-reddanger text-xl font-bold ">
-                Time remaining: {Math.floor(countdown / 60)}:{countdown % 60}
+                Time remaining: {Math.floor(timer / 60)}:
+                {(timer % 60).toString().padStart(2, "0")}
               </div>
             )}
             <div className="flex flex-row">
