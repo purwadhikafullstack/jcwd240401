@@ -68,12 +68,11 @@ export default function AccountContent() {
       "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
   };
   return (
-    <div className="py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter">
+    <div className="py-2 sm:py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter">
       {token && profile.role === "3" ? (
         <div className="grid gap-4">
           <div className="text-2xl sm:text-3xl font-bold text-maingreen px-6 text-center">
-            {" "}
-            My Account{" "}
+            My Account
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid justify-center">

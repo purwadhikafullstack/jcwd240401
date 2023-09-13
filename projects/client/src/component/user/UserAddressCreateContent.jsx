@@ -131,38 +131,38 @@ export default function UserAddressCreateContent() {
     }, [selectedProvince, successMessage])
 
     return (
-        <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl lg:justify-center mx-auto'>
-            <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+        <div className='sm:py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl lg:justify-center mx-auto'>
+            <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={goBack} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6'>Add New Address</div>
             </div>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <Formik initialValues={{ receiver: "", contact: "", streetName: "", province: "", city: "", addressLabel: "Home", isMain: false }} validationSchema={createAddressSchema} onSubmit={handleSubmit}>
                 {(props) => (
-                    <Form className='mx-4'>
+                    <Form className='mx-4 pb-6 sm:py-6'>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="receiver" className="">Receiver <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="receiver" className="font-bold">Receiver <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.receiver} id={"receiver"} type={"string"} name="receiver" onChange={props.handleChange} placeholder={profile.name} />
                                 {props.errors.receiver && props.touched.receiver && <div className="text-sm text-reddanger absolute top-12">{props.errors.receiver}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="contact" className="">Phone Number <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="contact" className="font-bold">Phone Number <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.contact} id={"contact"} type={"string"} name="contact" onChange={props.handleChange} placeholder={profile.phone} />
                                 {props.errors.contact && props.touched.contact && <div className="text-sm text-reddanger absolute top-12">{props.errors.contact}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="streetName" className="">Address Details <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="streetName" className="font-bold">Address Details <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.streetName} id={"streetName"} type={"string"} name="streetName" onChange={props.handleChange} />
                                 {props.errors.streetName && props.touched.streetName && <div className="text-sm text-reddanger absolute top-12">{props.errors.streetName}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="province" className="">Province <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="province" className="font-bold">Province <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='province' onChange={(e) => { setSelectedProvince(e.target.value); props.setFieldValue('province', e.target.value) }}>
                                     <option key="empty" value=''>--choose a province--</option>
@@ -176,7 +176,7 @@ export default function UserAddressCreateContent() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="city" className="">City <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="city" className="font-bold">City <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='city' onChange={(e) => { setSelectedCity(e.target.value); props.setFieldValue('city', e.target.value) }} >
                                     <option key="empty" value=''>--choose a city--</option>
@@ -190,7 +190,7 @@ export default function UserAddressCreateContent() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="addressLabel" className="">Label As: <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="addressLabel" className="font-bold">Label As: <span className="text-xs text-reddanger">* required</span></label>
                             <div className='relative'>
                                 <label>
                                     <Field type="radio" name="addressLabel" value={"Home"} checked={props.values.addressLabel === "Home"} onChange={() => props.setFieldValue("addressLabel", "Home")} className=" checked:bg-maingreen mx-2 focus:ring-0" id="Home" />
@@ -205,7 +205,7 @@ export default function UserAddressCreateContent() {
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                             <div className='flex items-center'>
-                                <label htmlFor="isMain" className="relative inline-flex items-center">
+                                <label htmlFor="isMain" className="relative inline-flex items-center font-bold">
                                     Set as Main Address
                                 </label>
                                 <div className={`mx-2 w-8 h-5 bg-gray-200 rounded-full relative transition-colors duration-300 ${props.values.isMain ? 'bg-maindarkgreen' : ''}`}

@@ -118,9 +118,9 @@ export default function UserProfileContent() {
     }
 
     return (
-        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
+        <div className='sm:py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
             <div className='grid gap-4'>
-                <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+                <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Profile</div>
                 </div>

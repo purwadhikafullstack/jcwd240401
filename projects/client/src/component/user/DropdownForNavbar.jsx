@@ -34,7 +34,7 @@ export default function DropdownForNavbar() {
 
   return (
     <div className="relative inline-block w-full">
-      <div>
+      <div className={`h-10 flex items-center ${location.pathname.includes("my-address") || location.pathname.includes("my-profile") ? `text-maingreen font-bold border-b-2 border-maingreen` : `text-darkgrey`}`}>
         <button
           id="dropdownDefaultButton"
           data-dropdown-toggle="dropdown"
@@ -58,7 +58,7 @@ export default function DropdownForNavbar() {
             <Link to="/user/account">
               <li
                 className="p-2 font-inter hover:bg-maingreen hover:text-white cursor-pointer"
-                //   onClick={(event) => handleMyAccount( event)}
+              //   onClick={(event) => handleMyAccount( event)}
               >
                 My Account
               </li>
