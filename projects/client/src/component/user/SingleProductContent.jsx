@@ -20,7 +20,7 @@ export default function SingleProductContent() {
     const token = localStorage.getItem("token");
     const cartItems = useSelector((state) => state.cart.cart);
     const profile = useSelector((state) => state.auth.profile)
-    const outOfReach = useSelector((state) => state.location.location)
+    const outOfReach = useSelector((state) => state.location.outOfReach)
     const navigate = useNavigate();
 
     const goBack = () => {
@@ -109,7 +109,7 @@ export default function SingleProductContent() {
             setErrorMessage("Account verification required to add cart")
             handleShowAlert()
 
-        } else if (outOfReach === "true") {
+        } else if (outOfReach === true) {
             setQuantity(0)
             setErrorMessage("Your location is out of reach, cannot add to cart")
             handleShowAlert()
@@ -183,7 +183,7 @@ export default function SingleProductContent() {
                             </div>
                         </div>
                     </div>
-                    <div className="fixed top-0 md:top-11 z-50 flex self-center justify-center w-96 mx-2">
+                    <div className="fixed top-5 sm:top-10 md:top-20 z-50 flex self-center justify-center w-96 mx-2">
                         {showAlert ? (
                             <AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : null}
                     </div>

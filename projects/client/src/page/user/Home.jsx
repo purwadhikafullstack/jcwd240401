@@ -6,7 +6,6 @@ import { HiOutlineLocationMarker } from 'react-icons/hi'
 import NavbarTop from '../../component/NavbarTop'
 import NavbarBottom from '../../component/NavbarBottom'
 import Footer from '../../component/Footer'
-import SearchBar from '../../component/SearchBar'
 import ProductCard from '../../component/user/ProductCard'
 import { Pagination } from 'flowbite-react'
 import CarouselContent from '../../component/user/CarouselContent'
@@ -158,12 +157,6 @@ export default function Home() {
             }
             if (response.data.outOfReach === true) {
                 setOutOfReach(true)
-                if (outOfReach === true) {
-                    dispatch(keepLocation("true"))
-                } else {
-                    dispatch(keepLocation("false"))
-                }
-                console.log("ini out of reach", outOfReach)
             }
         } catch (error) {
             if (error.response) {
@@ -204,6 +197,14 @@ export default function Home() {
         }
     }, [latitude, longitude, filter, currentPage, locationReady])
 
+    useEffect(() => {
+        if (outOfReach === true) {
+            dispatch(keepLocation(true))
+        } else {
+            dispatch(keepLocation(false))
+        }
+        console.log(outOfReach, "ini outOfReach")
+    }, [outOfReach])
     const city = (token && profile.role === "3") ? cityAddress : locationPermissionGranted ? cityCoordinaes : productData.branchData?.City?.city_name
     const province = (token && profile.role === "3") ? provinceAddress : locationPermissionGranted ? provinceCoordinates : productData.branchData?.City?.Province?.province_name
 
