@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { HiOutlineUser } from "react-icons/hi";
 import { remove } from "../../store/reducer/authSlice";
 import Modal from "../Modal";
@@ -14,6 +14,7 @@ export default function DropdownForNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation()
   const profile = useSelector((state) => state.auth.profile);
 
   const toggleDropdown = (event) => {
@@ -37,7 +38,7 @@ export default function DropdownForNavbar() {
         <button
           id="dropdownDefaultButton"
           data-dropdown-toggle="dropdown"
-          className="h-10 w-10 rounded-full flex justify-center items-center bg-lightgrey"
+          className="h-8 w-8 rounded-full flex justify-center items-center bg-lightgrey"
           onClick={(event) => toggleDropdown(event)}
         >
           {profile.imgProfile ? (

@@ -87,7 +87,7 @@ export default function Login() {
         <div className="absolute w-full min-h-screen bg-cover bg-center flex justify-center items-center" style={{backgroundImage: `url(${backgroundLogin})`, backgroundSize: 'cover'}}>
             <div className="sw-72 lg:w-2/3 lg:grid lg:grid-cols-2">
                 <div className="hidden lg:flex lg:flex-col lg:gap-2 lg:justify-start lg:items-start lg:w-full">
-                    <img src={groceereLogo} alt="logo" />
+                    <Link to="/"><img src={groceereLogo} alt="logo" /></Link>
                     <div className='font-inter font-bold'>Your go-to grocery shop</div>
                     <div className='text-3xl text-maingreen font-inter font-bold mt-10'>Log In</div>
                     <img src={loginPic} alt="log in illustration" className="w-80 h-80"/>
