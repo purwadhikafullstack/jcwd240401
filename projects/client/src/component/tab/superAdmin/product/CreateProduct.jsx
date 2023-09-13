@@ -125,22 +125,23 @@ export default function CreateProduct() {
             <Formik initialValues={{ name: "", description: "", category_id: "", weight: "", unitOfMeasurement: "", basePrice: "", storageInstruction: "", storagePeriod: "", file: null, }} validationSchema={createProductSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form>
+                        <div className="text-xs text-reddanger">* required</div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="name" className="">Product Name <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="name" className="">Product Name <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.name} id={"name"} type={"string"} name="name" onChange={props.handleChange} />
                                 {props.errors.name && props.touched.name && <div className="text-sm text-reddanger absolute top-12">{props.errors.name}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="description" className="">Description <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="description" className="">Description <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.description} id={"description"} type={"string"} name="description" onChange={props.handleChange} />
                                 {props.errors.description && props.touched.description && <div className="text-sm text-reddanger absolute top-12">{props.errors.description}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="category_id" className="">Select Category <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="category_id" className="">Select Category <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='category_id'>
                                     <option key="empty" value=''>--choose a category--</option>
@@ -154,14 +155,14 @@ export default function CreateProduct() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="weight" className="">Weight <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="weight" className="">Weight <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.weight} id={"weight"} type={"number"} name="weight" onChange={props.handleChange} />
                                 {props.errors.weight && props.touched.weight && <div className="text-sm text-reddanger absolute top-12">{props.errors.weight}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="unitOfMeasurement" className="">Unit Of Measurement <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="unitOfMeasurement" className="">Unit Of Measurement <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='unitOfMeasurement'>
                                     <option key="empty" value=''>--choose one below--</option>
@@ -175,30 +176,30 @@ export default function CreateProduct() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="basePrice" className="">Base Price <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="basePrice" className="">Base Price <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.basePrice} id={"basePrice"} type={"number"} name="basePrice" onChange={props.handleChange} />
                                 {props.errors.basePrice && props.touched.basePrice && <div className="text-sm text-reddanger absolute top-12">{props.errors.basePrice}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="storageInstruction" className="">Storage Instruction <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="storageInstruction" className="">Storage Instruction <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.storageInstruction} id={"storageInstruction"} type={"string"} name="storageInstruction" onChange={props.handleChange} />
                                 {props.errors.storageInstruction && props.touched.storageInstruction && <div className="text-sm text-reddanger absolute top-12">{props.errors.storageInstruction}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="storagePeriod" className="">Storage Period <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="storagePeriod" className="">Storage Period <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <InputField value={props.values.storagePeriod} id={"storagePeriod"} type={"string"} name="storagePeriod" onChange={props.handleChange} />
                                 {props.errors.storagePeriod && props.touched.storagePeriod && <div className="text-sm text-reddanger absolute top-12">{props.errors.storagePeriod}</div>}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 mb-24">
-                            <label htmlFor="file" className="">Product Image <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="file" className="">Product Image <span className="text-reddanger">*</span></label>
                             <div className='relative'>
-                                <input className='border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0' type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); }} required />
+                                <input className='border border-gray-300 text-sm w-full focus:border-darkgreen focus:ring-0' type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); }} required />
                                 {props.errors.file && props.touched.file && <div className="text-sm text-reddanger absolute top-12">{props.errors.file}</div>}
                             </div>
                         </div>

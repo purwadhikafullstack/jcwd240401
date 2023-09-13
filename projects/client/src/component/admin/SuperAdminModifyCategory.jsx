@@ -130,7 +130,7 @@ export default function SuperAdminModifyCategory() {
 
     return (
         <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-screen'>
-            <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+            <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Category</div>
             </div>
