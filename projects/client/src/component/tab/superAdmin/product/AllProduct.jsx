@@ -10,6 +10,7 @@ import AlertPopUp from '../../../AlertPopUp';
 import rupiah from '../../../../helpers/rupiah';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
+import handleImageError from '../../../../helpers/handleImageError'
 
 export default function AllProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -154,11 +155,6 @@ export default function AllProduct() {
         getProduct()
     }, [filter])
 
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
-
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
@@ -217,24 +213,10 @@ export default function AllProduct() {
                         </tbody>
                     </table>
                 </div>
-                {selectedProduct && (
-                    <ModalProduct
-                        productId={selectedProduct}
-                        onClose={() => setSelectedProduct(null)}
-                    />
-                )}
+                {selectedProduct && (<ModalProduct productId={selectedProduct} onClose={() => setSelectedProduct(null)} />)}
             </div>
             <div className='flex justify-center'>
-                <Pagination
-                    currentPage={currentPage}
-                    onPageChange={onPageChange}
-                    showIcons
-                    layout="pagination"
-                    totalPages={totalPages}
-                    nextLabel="Next"
-                    previousLabel="Back"
-                    className="mx-auto"
-                />
+                <Pagination currentPage={currentPage} onPageChange={onPageChange} showIcons layout="pagination" totalPages={totalPages} nextLabel="Next" previousLabel="Back" className="mx-auto" />
             </div>
         </div>
     )

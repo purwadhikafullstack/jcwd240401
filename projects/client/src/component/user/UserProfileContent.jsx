@@ -5,6 +5,7 @@ import axios from 'axios'
 import Button from "../Button"
 import ModalImageProfile from '../ModalImageProfile'
 import AlertPopUp from '../AlertPopUp'
+import handleImageError from '../../helpers/handleImageError'
 
 export default function UserProfileContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -95,11 +96,6 @@ export default function UserProfileContent() {
         { name: "Edit My Profile", to: `/user/account/my-profile/modify` },
         { name: "Change My Password", to: `/user/account/my-profile/change-password` },
     ]
-
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
 
     useEffect(() => {
         getProfile()
