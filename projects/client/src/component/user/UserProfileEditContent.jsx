@@ -124,14 +124,14 @@ export default function UserProfileEditContent() {
     }, [successMessage])
 
     return (
-        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 justify-center font-inter'>
+        <div className='sm:py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 justify-center font-inter'>
             <div>
-                <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+                <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Edit My Profile</div>
                 </div>
                 {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
-                <div className='flex flex-col gap-2 py-6 mx-2 sm:mx-0'>
+                <div className='flex flex-col gap-2 pb-6 sm:py-6 mx-2 sm:mx-0'>
                     <Formik enableReinitialize initialValues={{ name: profileDetails.name, email: profileDetails.email, phone: profileDetails.phone, birthdate: profileDetails.birthdate ?? "", gender: profileDetails.gender ?? "" }} validationSchema={modifyProfileSchema} onSubmit={handleSubmit}>
                         {(props) => (
                             <Form>
