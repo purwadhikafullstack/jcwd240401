@@ -11,6 +11,7 @@ import rupiah from '../../../../helpers/rupiah';
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import Label from '../../../Label';
+import handleImageError from '../../../../helpers/handleImageError'
 
 export default function AllBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -81,7 +82,13 @@ export default function AllBranchProduct() {
 
     const onPageChange = (page) => {
         setAllBranchProduct([]);
-        setCurrentPage(page)
+        setCurrentPage(page);
+        const newFilter = new URLSearchParams(filter.toString());
+        newFilter.set("page", page.toString());
+        setFilter(newFilter);
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", page.toString());
+        navigate({ search: params.toString() });
     }
 
     const handleSearchSubmit = (searchValue) => {
@@ -137,10 +144,6 @@ export default function AllBranchProduct() {
             getBranchProduct();
         }
     }
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
 
     useEffect(() => {
         getCategory()

@@ -9,6 +9,7 @@ import InputField from '../InputField';
 import AlertPopUp from '../AlertPopUp';
 import Button from '../Button';
 import FarmersMarket from '../../assets/FarmersMarket.png';
+import handleImageError from '../../helpers/handleImageError'
 
 export default function SuperAdminModifyCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -109,11 +110,6 @@ export default function SuperAdminModifyCategory() {
     const handleHideAlert = () => {
         setShowAlert(false)
     }
-
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });

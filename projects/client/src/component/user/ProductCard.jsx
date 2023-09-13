@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Button from '../Button'
 import { useSelector } from 'react-redux'
-import AlertPopUp from '../AlertPopUp'
 import Label from '../Label'
 import rupiah from '../../helpers/rupiah'
+import handleImageError from '../../helpers/handleImageError'
 
 export default function ProductCard({ product, productImg }) {
     const cartItems = useSelector((state) => state.cart.cart);
@@ -17,10 +17,6 @@ export default function ProductCard({ product, productImg }) {
         }
     };
 
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
     return (
         <>
             <div className="sm:w-[250px] h-[350px] m-2 rounded-lg shadow-lg font-inter">

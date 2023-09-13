@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import Button from '../Button';
 import ModifyBranchProduct from '../tab/branchAdmin/product/ModifyBranchProduct';
+import handleImageError from '../../helpers/handleImageError'
 
 export default function BranchAdminModifyBranchProduct() {
     const [branchProductDetails, setBranchProductDetails] = useState({})
@@ -34,11 +35,6 @@ export default function BranchAdminModifyBranchProduct() {
         getOneBranchProduct()
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [])
-
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
 
     return (
         <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-full'>
