@@ -686,5 +686,48 @@ module.exports = {
                 error: error.message
             })
         }
+    },
+    async changePassword(req,res){
+        const userId = req.user.id
+        const transaction = await db.sequelize.transaction()
+
+        const {password, confirmPassword } = req.body
+        try{
+            const userData = await db.User.findOne({
+                where: {
+                    id: userId
+                }
+            })
+            if(!userData) {
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "user not found"
+                })
+            }
+
+            if(confirmPassword !== password) {
+                await transaction.rollback()
+                return res.status(400).send({
+                    message: "Password doesn't match"
+                })
+            }
+
+            const salt = await bcrypt.genSalt(10)
+            const hashPassword = await bcrypt.hash(password, salt)
+
+            userData.password = hashPassword
+            await userData.save()
+
+            await transaction.commit()
+
+            return res.status(200).send({
+                message: "You have successfully changed your password"
+            })
+        }catch(error){
+            return res.status(500).send({
+                message: "Internal server error",
+                error: error.message
+            })
+        }
     }
 }
