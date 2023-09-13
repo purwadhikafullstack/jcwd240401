@@ -1,7 +1,20 @@
 const db = require("../models");
 const axios = require("axios");
 const refCode = require("referral-codes");
+const {
+  setFromFileNameToDBValueCategory,
+} = require("../helpers/fileConverter");
 const dayjs = require("dayjs");
+
+const handleCatchError = async (res, transaction, error) => {
+  if (transaction) {
+    await transaction.rollback();
+  }
+  console.log(error);
+  return res.status(500).send({
+    message: "Internal Server Error",
+  });
+};
 
 module.exports = {
   // admin
@@ -40,21 +53,6 @@ module.exports = {
       }
 
       await user.addBranch_Product(product, { through: { quantity } });
-
-      // Add the product to the user's cart
-      //   const isExistCart = await db.Cart.findOne({
-      //     where: { branch_product_id: req.params.id, user_id: req.user.id },
-      //   });
-      //   if (isExistCart) {
-      //     isExistCart.quantity = isExistCart.quantity + quantity;
-      //     await isExistCart.save();
-      //   } else {
-      //     await db.Cart.create({
-      //       user_id: req.user.id,
-      //       branch_product_id: req.params.id,
-      //       quantity: quantity,
-      //     });
-      //   }
 
       res.send({ message: "Product added to cart successfully" });
     } catch (error) {
@@ -189,25 +187,6 @@ module.exports = {
           },
         ],
       });
-
-      //   const cartDetails = cart.map((cartItem) => ({
-      //     product: {
-      //       id: cartItem.Product.id,
-      //       name: cartItem.Product.name,
-      //       price: cartItem.Product.price,
-      //       description: cartItem.Product.description,
-      //       imgProduct: cartItem.Product.imgProduct,
-      //       stock: cartItem.Product.stock,
-      //       isActive: cartItem.Product.isActive,
-      //       createdAt: cartItem.Product.createdAt,
-      //       updatedAt: cartItem.Product.updatedAt,
-      //       category: {
-      //         id: cartItem.Product.Category.id,
-      //         name: cartItem.Product.Category.name,
-      //       },
-      //     },
-      //     quantity: cartItem.quantity,
-      //   }));
 
       res.status(201).send({
         message: "Cart retrieved successfully",
@@ -486,6 +465,44 @@ module.exports = {
   },
 
   // user payment
+  async updatePayment(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const imgFileName = req.file ? req.file.filename : null;
+    const transaction = await db.sequelize.transaction();
+    if (!imgFileName) {
+      return res.status(400).send({
+        message: "payment proof image file are required",
+      });
+    }
+    try {
+      const orderData = await db.Order.findOne({
+        where: {
+          id: orderId,
+          user_id: userId,
+        },
+      });
+      if (orderData.orderStatus !== "Waiting for payment") {
+        return res.status(400).send({
+          message: `you are not allowed to update your payment because the order status is ${orderData.orderStatus}`,
+          orderStatus: orderData.orderStatus,
+        });
+      }
+      await orderData.update(
+        {
+          imgPayment: setFromFileNameToDBValueCategory(imgFileName),
+          orderStatus: "Waiting for payment confirmation",
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res
+        .status(201)
+        .send({ message: "Successfully upload payment proof" });
+    } catch (error) {
+      handleCatchError(res, transaction, error);
+    }
+  },
   // user cancel order
   async cancelOrder(req, res) {
     const userId = req.user.id;
