@@ -120,15 +120,16 @@ export default function CreateBranchProduct() {
                         <hr className='mb-4' />
                         {!(allUnaddedProduct.length === 0) && isProductSelected && (
                             <>
+                                <div className="text-xs text-reddanger">* required</div>
                                 <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                                    <label htmlFor="origin" className="">Origin <span className="text-xs text-reddanger">* required</span></label>
+                                    <label htmlFor="origin" className="">Origin <span className="text-reddanger">*</span></label>
                                     <div className='relative'>
                                         <InputField value={props.values.origin} id={"origin"} type={"string"} name="origin" onChange={props.handleChange} />
                                         {props.errors.origin && props.touched.origin && <div className="text-sm text-reddanger absolute top-12">{props.errors.origin}</div>}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                                    <label htmlFor="quantity" className="">Quantity <span className="text-xs text-maingreen">(insert a number, min 1)</span> <span className="text-xs text-reddanger">* required</span></label>
+                                    <label htmlFor="quantity" className="">Quantity <span className="text-maingreen">(insert a number, min 1)</span> <span className="text-xs text-reddanger">*</span></label>
                                     <div className='relative'>
                                         <InputField value={props.values.quantity} id={"quantity"} type={"number"} name="quantity" onChange={props.handleChange} />
                                         {props.errors.quantity && props.touched.quantity && <div className="text-sm text-reddanger absolute top-12">{props.errors.quantity}</div>}
