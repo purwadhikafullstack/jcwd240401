@@ -166,12 +166,9 @@ const labelColor = (text) => {
             Order Date
             <p className="text-black">{dayjs(orderData?.orderDate).format("DD/MM/YYYY")}</p>
           </div>
-          <div className="text-base text-darkgrey border-b-2 pb-2">
+          <div className="text-base flex flex-col justify-start items-start text-darkgrey border-b-2 pb-2">
             Order Status
-            <div className='flex gap-2 items-center'>
             <p className="text-black"><Label text={orderData?.orderStatus} labelColor={labelColor(orderData?.orderStatus)} /></p>
-            {orderData.orderStatus === "Processing" ? (<div className='w-auto'><Modal modalTitle={"Deliver Order"} toggleName={"Deliver Order"} content={"Are you sure you want to deliver this order?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={()=>{handleChangeStatus("Delivering")}}/></div> ) : null}
-            </div>
           </div>
           <div className="text-base text-darkgrey border-b-2 pb-2">
             Buyer
@@ -251,7 +248,12 @@ const labelColor = (text) => {
             <p className="text-black">{orderData?.cancelReason}</p>
           </div>
           ) : null}
-          {orderData.orderStatus === "Processing" ? !cancel ? (<button className='bg-reddanger px-4 mr-2 h-10 rounded-lg text-white text-base w-40' onClick={()=> {setCancel(true)}}>Cancel Order</button>) : null : null}
+          {orderData.orderStatus === "Processing" ? !cancel ? (
+          <div className='flex gap-2'>
+            <button className='bg-reddanger px-4 mr-2 h-10 rounded-lg text-white text-base w-40' onClick={()=> {setCancel(true)}}>Cancel Order</button>
+            <div className='w-40'><Modal modalTitle={"Deliver Order"} toggleName={"Deliver Order"} content={"Are you sure you want to deliver this order?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={()=>{handleChangeStatus("Delivering")}}/></div>
+          </div>
+          ) : null : null}
           {cancel ? (
           <Formik initialValues={{ cancelReason: "", file: null, }} validationSchema={cancelationSchema} onSubmit={handleSubmit}>
             {(props) => (

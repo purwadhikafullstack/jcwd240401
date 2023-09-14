@@ -281,7 +281,7 @@ module.exports = {
                     await orderData.save({transaction})
                     await transaction.commit()
                     return res.status(200).send({
-                        messagae: "Order status is changed to Waiting for payment"
+                        message: "Order status is changed to Waiting for payment"
                     })
                 }catch(error){
                     await transaction.rollback()
