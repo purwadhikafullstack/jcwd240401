@@ -212,7 +212,9 @@ export default function Payment() {
         } else {
           // Timer reached zero, trigger cancellation here
           console.log("cancel order");
-          handleCancel({ cancelReason: "time has run out" }, id);
+          if (orderStatus === "Waiting for payment") {
+            handleCancel({ cancelReason: "time has run out" }, id);
+          }
         }
       };
 
