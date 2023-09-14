@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { LuFolderOpen, LuFolderPlus } from "react-icons/lu";
 
 import CustomHeader from "../CustomHeader";
@@ -7,7 +8,17 @@ import CreateProduct from "../tab/superAdmin/product/CreateProduct";
 
 
 export default function SuperAdminManageProductContent() {
-    const [content, setContent] = useState(<AllProduct />);
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const activeTabParam = queryParams.get("tab");
+
+    const [content, setContent] = useState(() => {
+        if (activeTabParam === "create-product") {
+            return <CreateProduct />;
+        } else {
+            return <AllProduct />;
+        }
+    });
     const title = "Manage Product";
     const tabList = [
         { name: "All Product", icon: <LuFolderOpen size={25} />, isActive: false, param: "all-product", tab: <AllProduct /> },

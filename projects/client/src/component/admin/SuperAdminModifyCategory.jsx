@@ -118,7 +118,9 @@ export default function SuperAdminModifyCategory() {
 
     function preview(event) {
         const file = event.target.files[0];
-        if (file) {
+        if (file === undefined) {
+            setImagePreview(null)
+        } else {
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
         }
