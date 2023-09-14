@@ -26,6 +26,12 @@ const forgotPasswordSchema = yup.object().shape({
     email: yup.string().email("Incorrent email format").required("Email is required")
 })
 
+const changePasswordSchema = yup.object().shape({
+    currentPassword: yup.string().required("Current password is required"),
+    password: yup.string().min(8).matches(passwordRules, {message: "Password must be at least 8 characterts with 1 lowercase, 1 uppercase, and 1 number"}).required("Password is required"),
+    confirmPassword: yup.string().oneOf([yup.ref("password"), null], "Password must match").required("You must confirm your password")
+})
+
 const registerUserSchema = yup.object().shape({
     name: yup.string().required("Name is required"),
     email: yup.string().email("Incorrect email format").required("Email is required"),
@@ -37,4 +43,4 @@ const registerUserSchema = yup.object().shape({
     streetName: yup.string().required("Street address is required")
 })
 
-export {loginSchema, registerAdminSchema, setPasswordSchema, forgotPasswordSchema, registerUserSchema}
+export {loginSchema, registerAdminSchema, setPasswordSchema, forgotPasswordSchema, registerUserSchema, changePasswordSchema}

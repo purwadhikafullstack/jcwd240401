@@ -3,11 +3,10 @@ import { useFormik } from 'formik'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { HiEye } from 'react-icons/hi'
-import setPasswordPic from '../../assets/SetPasswordPic.png'
 import AlertPopUp from '../AlertPopUp'
 import InputField from '../InputField'
 import Button from '../Button'
-import { setPasswordSchema } from '../../helpers/validationSchema'
+import { changePasswordSchema } from '../../helpers/validationSchema'
 import Modal from '../Modal'
 
 export default function UserProfileChangePasswordContent() {
@@ -47,10 +46,11 @@ export default function UserProfileChangePasswordContent() {
     }
     const {values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting} = useFormik({
         initialValues: {
+            currentPassword: "",
             password: "",
             confirmPassword: "",
         },
-        validationSchema: setPasswordSchema,
+        validationSchema: changePasswordSchema,
         onSubmit
     })
 
@@ -78,6 +78,14 @@ export default function UserProfileChangePasswordContent() {
                 {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
                 <div className='flex flex-col gap-2 py-6 mx-2 sm:mx-0'>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-full flex flex-col gap-2">
+                    <div className="w-full">
+                        <div className="relative">
+                            <label htmlFor="currentPassword" className="font-inter relative">Current Password</label>
+                            <InputField value={values.currentPassword} id={"currentPassword"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
+                            <div className='absolute bottom-2 right-2'><HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} /></div>
+                        </div>
+                        {errors.currentPassword && touched.currentPassword && <p className="text-reddanger text-sm font-inter">{errors.currentPassword}</p>}
+                    </div>
                     <div className="w-full">
                         <div className="relative">
                             <label htmlFor="password" className="font-inter relative">New Password</label>
