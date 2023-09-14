@@ -375,10 +375,11 @@ module.exports = {
     const userId = req.user.id;
     try {
       const userVoucher = await db.User_Voucher.findAll({
-        where: { user_id: userId },
+        where: { user_id: userId, isUsed: false },
         include: [
           {
             model: db.Voucher,
+            where: { isExpired: false, usedLimit: { [db.Sequelize.Op.gt]: 0 } },
             include: [
               {
                 model: db.Voucher_Type,
@@ -550,4 +551,123 @@ module.exports = {
     }
   },
   // user confirm order
+  async confirmOrder(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const transaction = await db.sequelize.transaction();
+
+    try {
+      const orderData = await db.Order.findOne({
+        where: { id: orderId, user_id: userId },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+              {
+                model: db.Discount,
+                include: [
+                  {
+                    model: db.Discount_Type,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+      if (!orderData) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "No order data found",
+        });
+      }
+
+      if (orderData.orderStatus === "Delivering") {
+        // Complete order
+        await orderData.update(
+          {
+            orderStatus: "Order completed",
+          },
+          { transaction }
+        );
+
+        // Update stock
+        const branchId = orderData.Branch_Products[0].branch_id;
+        for (const item of orderData.Branch_Products) {
+          await db.Branch_Product.update(
+            { quantity: item.quantity - item.Order_Item.quantity },
+            {
+              where: {
+                branch_id: branchId,
+                id: item.id,
+              },
+            },
+            { transaction }
+          );
+        }
+
+        // Check vouchers available
+        if (orderData.totalPrice >= 200000) {
+          const vouchers = await db.Voucher.findAll({
+            where: {
+              branch_id: branchId,
+              isReferral: false,
+              isExpired: false,
+            },
+          });
+
+          if (vouchers.length > 0) {
+            const randomIndex = Math.floor(Math.random() * vouchers.length);
+            const randomVoucher = vouchers[randomIndex];
+
+            await db.User_Voucher.create({
+              user_id: userId,
+              voucher_id: randomVoucher.id,
+              isUsed: false,
+            });
+          }
+        }
+        // update used voucher
+        if (orderData.voucher_id) {
+          await db.User_Voucher.update(
+            { isUsed: true },
+            {
+              where: {
+                voucher_id: orderData.voucher_id,
+                user_id: userId,
+              },
+            },
+            { transaction }
+          );
+
+          //update available vouchers on branch
+          await db.Voucher.update(
+            { usedLimit: db.Voucher.usedLimit - 1 },
+            { where: { id: orderData.voucher_id } },
+            { transaction }
+          );
+        }
+      } else {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "This order has not been delivered yet",
+          orderStatus: orderData.orderStatus,
+          tesorder: orderData,
+        });
+      }
+      await transaction.commit();
+      return res.status(200).send({
+        message: "You successfully completed your order",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.error(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
 };

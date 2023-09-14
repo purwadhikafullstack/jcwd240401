@@ -128,4 +128,11 @@ router.patch(
   transactionController.updatePayment
 );
 
+router.patch(
+  "/confirm-order/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.confirmOrder
+);
+
 module.exports = router;
