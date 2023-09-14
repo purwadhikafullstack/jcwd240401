@@ -146,7 +146,7 @@ export default function SingleProductContent() {
                         .then((response) => {
                             dispatch(updateCart(response.data.data));
                             setSuccessMessage("Successfully add to cart");
-                            setShowAlert(true);
+                            handleShowAlert();
                         })
                         .catch((error) => {
                             console.error("Failed to fetch cart data", error.message);
@@ -188,7 +188,7 @@ export default function SingleProductContent() {
                             <div className="grid h-full content-center">
                                 <div className="relative h-fit">
                                     <div className="absolute top-3 left-1 grid justify-center content-center sm:hidden">
-                                        <Button condition={"back"} onClick={goBack} />
+                                        <Button condition={"back"} onClick={goBack} backColor={"text-greensuccess"} />
                                     </div>
                                     {branchProductData.discount_id &&
                                         branchProductData.Discount?.isExpired === false ? (

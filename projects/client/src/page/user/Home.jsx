@@ -295,7 +295,7 @@ export default function Home() {
                 <div className="w-11/12 gap-2 sm:w-9/12 lg:w-6/12 h-fit flex overflow-x-auto lg:mb-10 mb-4">
                     {categories.map((category) => (
                         <div key={category.value} className='relative inline-block rounded-md bg-darkgrey' style={{ backgroundImage: `${category.imgCategory}`, backgroundSize: 'cover' }}>
-                            <button id="category_id" onClick={() => handleCategoryChange(category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className={`absolute inset-0 bg-black w-full h-full rounded-md z-5 ${params.get("category_id") == category.value ? `bg-maindarkgreen bg-opacity-70` : `bg-black bg-opacity-40`}`}></div><span className={`relative font-inter text-white z-90`}>{category.label}</span></button>
+                            <button id="category_id" onClick={() => handleCategoryChange(category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className={`absolute inset-0 bg-black w-full h-full rounded-md z-5 ${params.get("category_id") == category.value ? `bg-opacity-70 border-maingreen border-4` : `bg-black bg-opacity-40`}`}></div><span className={`relative font-inter text-white z-90`}>{category.label}</span></button>
                         </div>
                     ))}
                 </div>

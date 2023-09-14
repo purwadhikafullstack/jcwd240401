@@ -16,6 +16,7 @@ export default function Button({
   condition,
   buttonType,
   size,
+  backColor
 }) {
   let mainButtonClass, hoverClass, icon, iconClass, disabledStyle;
 
@@ -59,13 +60,13 @@ export default function Button({
     case "added":
       mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
       hoverClass = !isDisabled && "hover:bg-slate-100";
-      icon = <HiOutlineCheckCircle className="text-[#2E6930]" />;
+      icon = <HiOutlineCheckCircle className="text-[#2E6930] bg-white rounded-full" />;
       iconClass = "grid justify-center";
       break;
     case "toAdd":
       mainButtonClass = "grid text-2xl w-[24px] h-[24px]";
       hoverClass = !isDisabled && "hover:bg-slate-100";
-      icon = <HiPlusCircle className="text-[#2E6930]" />;
+      icon = <HiPlusCircle className="text-[#2E6930] bg-white rounded-full" />;
       iconClass = "grid justify-center";
       break;
     case "trash":
@@ -86,9 +87,9 @@ export default function Button({
         "px-2 w-fit border border-maingreen text-maingreen text-sm mt-2 mb-1";
       break;
     case "back":
-      mainButtonClass = "grid text-xl sm:text-2xl w-fit h-[24px] px-2";
+      mainButtonClass = `grid text-xl sm:text-2xl w-fit h-[24px] px-2 ${backColor}`;
       hoverClass = !isDisabled && "hover:bg-slate-100";
-      icon = <HiOutlineChevronLeft size={22} className="" />;
+      icon = <HiOutlineChevronLeft size={22} className="fixed" />;
       iconClass = "grid justify-center";
       break;
     case "editImgProfile":
