@@ -6,11 +6,13 @@ import { Formik, Form } from "formik";
 import Modal from "../../../Modal";
 import InputField from "../../../InputField";
 import AlertPopUp from "../../../AlertPopUp";
+import handleImageError from "../../../../helpers/handleImageError";
 
 export default function CreateCategory() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const token = localStorage.getItem("token")
   const createCategorySchema = yup.object().shape({
@@ -85,6 +87,16 @@ export default function CreateCategory() {
     setShowAlert(false);
   };
 
+  function preview(event) {
+    const file = event.target.files[0];
+    if (file === undefined) {
+      setImagePreview(null)
+    } else {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  }
+
   return (
     <div className="w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter">
       {showAlert ? (
@@ -119,8 +131,26 @@ export default function CreateCategory() {
                 <span className="text-sm font-normal">(.jpg, .jpeg, .png)</span>
                 <span className="text-reddanger font-normal">*</span>
               </label>
+              <div>
+                {(imagePreview) ? (
+                  <img
+                    id="frame"
+                    className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
+                    src={imagePreview}
+                    onError={handleImageError}
+                    alt="/"
+                  />
+                ) : (
+                  <img
+                    className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
+                    src={""}
+                    onError={handleImageError}
+                    alt="/"
+                  />
+                )}
+              </div>
               <div className="relative">
-                <input className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0" type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); }} required
+                <input className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0" type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); preview(e) }} required
                 />
                 {props.errors.file && props.touched.file && (<div className="text-sm text-reddanger absolute top-12"> {props.errors.file} </div>)}
               </div>

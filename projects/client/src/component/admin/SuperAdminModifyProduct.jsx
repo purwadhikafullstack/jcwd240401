@@ -180,11 +180,14 @@ export default function SuperAdminModifyProduct() {
 
     function preview(event) {
         const file = event.target.files[0];
-        if (file) {
+        if (file === undefined) {
+            setImagePreview(null)
+        } else {
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
         }
     }
+
     return (
         <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-full'>
             <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
