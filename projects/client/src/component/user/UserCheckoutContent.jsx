@@ -334,9 +334,14 @@ export default function UserCheckoutContent() {
           </label>
           <div className="relative">
             <CustomDropdown
+              disabled={vouchersList.length === 0}
               options={vouchersList}
               onChange={(e) => handleChangeDropdown(e, "vouchers")}
-              placeholder={"--select vouchers--"}
+              placeholder={
+                vouchersList.length === 0
+                  ? "no vouchers available"
+                  : "--select vouchers--"
+              }
             />
           </div>
         </div>

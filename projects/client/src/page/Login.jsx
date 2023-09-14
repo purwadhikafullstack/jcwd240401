@@ -13,6 +13,7 @@ import loginPic from '../assets/LoginPic.png'
 import { loginSchema } from '../helpers/validationSchema'
 import AlertPopUp from '../component/AlertPopUp'
 import { keep } from '../store/reducer/authSlice'
+import { updateCart } from '../store/reducer/cartSlice'
 
 export default function Login() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -39,6 +40,17 @@ export default function Login() {
                 handleShowAlert()
                 const decoded = jwtDecode(token)
                 dispatch(keep(decoded))
+                if (token) {
+                    const responseCart = await axios.get(
+                      `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
+                      {
+                        headers: { Authorization: `Bearer ${token}` },
+                      }
+                    );
+                    if (responseCart) {
+                      dispatch(updateCart(responseCart.data.data));
+                    }
+                  }
                 if(Number(decoded.role) === 1 || Number(decoded.role) === 2 ){
                     setTimeout(() => {
                         navigate("/admin")

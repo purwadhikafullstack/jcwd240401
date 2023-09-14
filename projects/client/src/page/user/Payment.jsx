@@ -158,6 +158,21 @@ export default function Payment() {
     }
   };
 
+  const handleConfirm = async () => {
+    try {
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/users/confirm-order/${id}`,
+        null,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.status === 200) {
+        navigate("/user/orders");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const labelColor = (text) => {
     switch (text) {
       case "Waiting for payment":
@@ -399,6 +414,21 @@ export default function Payment() {
                     </Form>
                   )}
                 </Formik>
+              </div>
+            )}
+            {orderStatus === "Delivering" && (
+              <div className="m-2 ">
+                <Modal
+                  modalTitle={"Confirm order"}
+                  toggleName={"Confirm order"}
+                  content={"are you sure you want to complete this order?"}
+                  buttonCondition={"positive"}
+                  buttonLabelOne={"Cancel"}
+                  buttonLabelTwo={"Yes"}
+                  buttonTypeOne={"button"}
+                  buttonTypeTwo={"submit"}
+                  onClickButton={handleConfirm}
+                />
               </div>
             )}
           </div>
