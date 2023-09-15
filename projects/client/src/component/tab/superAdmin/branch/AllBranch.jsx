@@ -17,7 +17,7 @@ export default function AllBranch() {
 
     useEffect(() => {
         try{
-            axios.get(`http://localhost:8000/api/admins/branch?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`, {
+            axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch?page=${currentPage}&search=${filter.search}&sortOrder=${filter.sort}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }

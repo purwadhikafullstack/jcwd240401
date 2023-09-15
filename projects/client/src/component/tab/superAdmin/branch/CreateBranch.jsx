@@ -34,7 +34,7 @@ export default function CreateBranch() {
     }, [selectedProvince])
 
     const provinceOptions = provinceData.map((province) => province.province_name)
-    const cityOptions = selectedProvince ? cityData.map((city) => city.city_name) : []
+    const cityOptions = selectedProvince ? cityData.map((city) => `${city.city_name} (${city.postal_code})`) : []
 
     const onSubmit = async(values, actions) => {
         try{

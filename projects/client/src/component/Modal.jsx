@@ -28,7 +28,7 @@ export default function Modal({ isDisabled, modalTitle, toggleName, content, but
                     id="staticModal"
                     tabIndex={-1}
                     aria-hidden="true"
-                    className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900 z-50"
+                    className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900 z-50 w-screen"
                 >
                     <div className="relative w-full max-w-2xl max-h-full mx-3">
                         {/* Modal content */}
