@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import * as yup from "yup";
 import { Formik, Form } from "formik";
@@ -13,7 +13,7 @@ export default function CreateCategory() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const fileInputRef = useRef(null);
   const token = localStorage.getItem("token")
   const createCategorySchema = yup.object().shape({
     name: yup
@@ -24,6 +24,12 @@ export default function CreateCategory() {
     file: yup.mixed().required("Category image is required"),
   });
 
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (
     values,
     { setSubmitting, resetForm, setStatus }
@@ -32,7 +38,6 @@ export default function CreateCategory() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("file", file);
-    console.log("test")
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/admins/category`,
@@ -45,6 +50,7 @@ export default function CreateCategory() {
       );
       if (response.status === 201) {
         resetForm();
+        resetFileInput();
         setErrorMessage("");
         setSuccessMessage(response.data?.message);
         handleShowAlert();
@@ -71,6 +77,8 @@ export default function CreateCategory() {
       handleShowAlert();
       resetForm();
     } finally {
+      resetFileInput();
+      setImagePreview(null)
       window.scrollTo({ top: 0, behavior: "smooth" });
       setSubmitting(false);
     }
@@ -115,9 +123,9 @@ export default function CreateCategory() {
           <Form>
             <div className="text-xs text-reddanger">* required</div>
             <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-              <label htmlFor="name" className="">
-                Category Name{" "}
-                <span className="text-sm font-normal">(max. 50 characters)</span>
+              <label htmlFor="name" className="font-medium">
+                Name{" "}
+                <span className="text-sm font-normal">(max. 50 characters) </span>
                 <span className="text-reddanger font-normal">*</span>
               </label>
               <div className="relative">
@@ -126,9 +134,9 @@ export default function CreateCategory() {
               </div>
             </div>
             <div className="flex flex-col gap-2 py-4 mb-4">
-              <label htmlFor="file" className="">
-                Category Image{" "}
-                <span className="text-sm font-normal">(.jpg, .jpeg, .png)</span>
+              <label htmlFor="file" className="font-medium">
+                Image{" "}
+                <span className="text-sm font-normal">(.jpg, .jpeg, .png) max. 1MB </span>
                 <span className="text-reddanger font-normal">*</span>
               </label>
               <div>
@@ -150,7 +158,7 @@ export default function CreateCategory() {
                 )}
               </div>
               <div className="relative">
-                <input className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0" type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); preview(e) }} required
+                <input className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0" type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); preview(e) }} required ref={fileInputRef}
                 />
                 {props.errors.file && props.touched.file && (<div className="text-sm text-reddanger absolute top-12"> {props.errors.file} </div>)}
               </div>

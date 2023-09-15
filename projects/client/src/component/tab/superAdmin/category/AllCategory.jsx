@@ -43,6 +43,7 @@ export default function AllCategory() {
             }
             handleShowAlert()
         } finally {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             getCategory();
         }
     }
@@ -132,7 +133,7 @@ export default function AllCategory() {
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search category by name..." />
                 <CustomDropdownURLSearch id="sortName" options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />
             </div>
-            <div className='w-full'>
+            <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
                         <thead className="border-b-2 border-maingreen text-maingreen uppercase">

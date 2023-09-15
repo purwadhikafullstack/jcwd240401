@@ -186,6 +186,31 @@ module.exports = {
           }
         case "remove":
           try {
+            const isUsed = await db.Order.findOne({
+              where: {
+                orderStatus: {
+                  [db.Sequelize.Op.in]: [
+                    "Waiting for payment",
+                    "Waiting for payment confirmation",
+                    "Processing",
+                  ],
+                },
+              },
+              include: {
+                model: db.Branch_Product,
+                where: {
+                  id: parseInt(req.params.id),
+                },
+              },
+            });
+
+            if (isUsed) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "Unable to delete. Branch product is in transaction/s",
+              });
+            }
+
             getBranchProduct.isRemoved = true;
             await getBranchProduct.save({ transaction });
             await transaction.commit();

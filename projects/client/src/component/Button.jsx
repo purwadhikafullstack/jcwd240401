@@ -89,7 +89,7 @@ export default function Button({
     case "back":
       mainButtonClass = `grid text-xl sm:text-2xl w-fit h-[24px] px-2 ${backColor}`;
       hoverClass = !isDisabled && "hover:bg-slate-100";
-      icon = <HiOutlineChevronLeft size={22} className="fixed" />;
+      icon = <HiOutlineChevronLeft size={22} className="" />;
       iconClass = "grid justify-center";
       break;
     case "editImgProfile":

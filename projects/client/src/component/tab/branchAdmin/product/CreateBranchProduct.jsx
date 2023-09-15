@@ -104,7 +104,7 @@ export default function CreateBranchProduct() {
                 {(props) => (
                     <Form>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="product_id" className="">Select a Product: <span className="text-xs text-reddanger">* required</span></label>
+                            <label htmlFor="product_id" className="font-semibold text-maindarkgreen">Select a Product: <span className="text-reddanger font-normal">* required</span></label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='product_id' onChange={(e) => { props.handleChange(e); setIsProductSelected(!!e.target.value); }} disabled={allUnaddedProduct.length === 0}>
                                     <option key="empty" value=''>--choose a product--</option>
@@ -122,14 +122,14 @@ export default function CreateBranchProduct() {
                             <>
                                 <div className="text-xs text-reddanger">* required</div>
                                 <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                                    <label htmlFor="origin" className="">Origin <span className="text-reddanger">*</span></label>
+                                    <label htmlFor="origin" className="font-medium">Origin <span className="text-sm font-normal">(max. 50 characters) </span><span className="text-reddanger">*</span></label>
                                     <div className='relative'>
                                         <InputField value={props.values.origin} id={"origin"} type={"string"} name="origin" onChange={props.handleChange} />
                                         {props.errors.origin && props.touched.origin && <div className="text-sm text-reddanger absolute top-12">{props.errors.origin}</div>}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                                    <label htmlFor="quantity" className="">Quantity <span className="text-maingreen">(insert a number, min 1)</span> <span className="text-xs text-reddanger">*</span></label>
+                                    <label htmlFor="quantity" className="font-medium">Quantity <span className="text-sm font-normal">(min. 1) </span><span className="text-reddanger">*</span></label>
                                     <div className='relative'>
                                         <InputField value={props.values.quantity} id={"quantity"} type={"number"} name="quantity" onChange={props.handleChange} />
                                         {props.errors.quantity && props.touched.quantity && <div className="text-sm text-reddanger absolute top-12">{props.errors.quantity}</div>}
@@ -141,9 +141,9 @@ export default function CreateBranchProduct() {
                             </>
                         )}
                         {!(allUnaddedProduct.length === 0) && !isProductSelected && (
-                            <div className='font-inter text-center text-maingreen'>Please select a product to create a branch product</div>
+                            <div className='font-inter text-center text-maingreen w-11/12 mx-auto'>Please select a product to create a branch product</div>
                         )}
-                        {allUnaddedProduct.length === 0 && <div className='font-inter text-center text-maingreen'>All products already exist in your branch.</div>}
+                        {allUnaddedProduct.length === 0 && <div className='font-inter text-center text-maingreen w-11/12 mx-auto'>All products already exist in your branch.</div>}
                     </Form>
                 )}
             </Formik>
