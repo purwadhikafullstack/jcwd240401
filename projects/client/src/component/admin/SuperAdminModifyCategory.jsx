@@ -9,6 +9,7 @@ import InputField from '../InputField';
 import AlertPopUp from '../AlertPopUp';
 import Button from '../Button';
 import FarmersMarket from '../../assets/FarmersMarket.png';
+import handleImageError from '../../helpers/handleImageError'
 
 export default function SuperAdminModifyCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -110,11 +111,6 @@ export default function SuperAdminModifyCategory() {
         setShowAlert(false)
     }
 
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
-
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         getOneCategory()
@@ -122,7 +118,9 @@ export default function SuperAdminModifyCategory() {
 
     function preview(event) {
         const file = event.target.files[0];
-        if (file) {
+        if (file === undefined) {
+            setImagePreview(null)
+        } else {
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
         }
@@ -130,7 +128,7 @@ export default function SuperAdminModifyCategory() {
 
     return (
         <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto h-screen'>
-            <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+            <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Category</div>
             </div>
@@ -156,14 +154,14 @@ export default function SuperAdminModifyCategory() {
                                         {(imagePreview) ? (
                                             <img
                                                 id="frame"
-                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                 src={imagePreview}
                                                 onError={handleImageError}
                                                 alt="/"
                                             />
                                         ) : (
                                             <img
-                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                 src={categoryDetails?.file}
                                                 onError={handleImageError}
                                                 alt="/"

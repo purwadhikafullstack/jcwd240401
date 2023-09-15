@@ -180,15 +180,15 @@ export default function UserAddressModifyContent() {
         return <div className='grid justify-center text-maindarkgreen font-bold px-2'>Loading...</div>;
     }
     return (
-        <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl lg:justify-center mx-auto'>
-            <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+        <div className='sm:py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl lg:justify-center mx-auto'>
+            <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={goBack} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6'>Modify My Address</div>
             </div>
             {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
             <Formik enableReinitialize initialValues={{ receiver: addressDetails.receiver, contact: addressDetails.contact, streetName: addressDetails.streetName, province: addressDetails.province, city: addressDetails.city, addressLabel: addressDetails.addressLabel }} validationSchema={modifyAddressSchema} onSubmit={handleSubmit}>
                 {(props) => (
-                    <Form className='mx-4'>
+                    <Form className='mx-4 pb-6 sm:py-6'>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                             <label htmlFor="receiver" className="font-bold">Receiver</label>
                             <div className='relative'>

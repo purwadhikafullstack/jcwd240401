@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { HiOutlineUser } from "react-icons/hi";
 import { remove } from "../../store/reducer/authSlice";
 import Modal from "../Modal";
@@ -14,6 +14,7 @@ export default function DropdownForNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation()
   const profile = useSelector((state) => state.auth.profile);
 
   const toggleDropdown = (event) => {
@@ -33,11 +34,11 @@ export default function DropdownForNavbar() {
 
   return (
     <div className="relative inline-block w-full">
-      <div>
+      <div className={`h-10 flex items-center ${location.pathname.includes("my-address") || location.pathname.includes("my-profile") ? `text-maingreen font-bold border-b-2 border-maingreen` : `text-darkgrey`}`}>
         <button
           id="dropdownDefaultButton"
           data-dropdown-toggle="dropdown"
-          className="h-10 w-10 rounded-full flex justify-center items-center bg-lightgrey"
+          className="h-8 w-8 rounded-full flex justify-center items-center bg-lightgrey"
           onClick={(event) => toggleDropdown(event)}
         >
           {profile.imgProfile ? (
@@ -57,7 +58,7 @@ export default function DropdownForNavbar() {
             <Link to="/user/account">
               <li
                 className="p-2 font-inter hover:bg-maingreen hover:text-white cursor-pointer"
-                //   onClick={(event) => handleMyAccount( event)}
+              //   onClick={(event) => handleMyAccount( event)}
               >
                 My Account
               </li>

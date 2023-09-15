@@ -8,6 +8,7 @@ import Modal from '../../../Modal';
 import AlertPopUp from '../../../AlertPopUp';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
+import handleImageError from '../../../../helpers/handleImageError'
 
 export default function AllCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -42,6 +43,7 @@ export default function AllCategory() {
             }
             handleShowAlert()
         } finally {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             getCategory();
         }
     }
@@ -92,11 +94,6 @@ export default function AllCategory() {
         navigate({ search: params.toString() });
     }
 
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
-
     useEffect(() => {
         getCategory()
     }, [filter, currentPage])
@@ -136,7 +133,7 @@ export default function AllCategory() {
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search category by name..." />
                 <CustomDropdownURLSearch id="sortName" options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />
             </div>
-            <div className='w-full'>
+            <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
                         <thead className="border-b-2 border-maingreen text-maingreen uppercase">

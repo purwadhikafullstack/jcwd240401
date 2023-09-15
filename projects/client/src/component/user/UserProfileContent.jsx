@@ -5,6 +5,7 @@ import axios from 'axios'
 import Button from "../Button"
 import ModalImageProfile from '../ModalImageProfile'
 import AlertPopUp from '../AlertPopUp'
+import handleImageError from '../../helpers/handleImageError'
 
 export default function UserProfileContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -96,11 +97,6 @@ export default function UserProfileContent() {
         { name: "Change My Password", to: `/user/account/my-profile/change-password` },
     ]
 
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
-
     useEffect(() => {
         getProfile()
     }, [token])
@@ -118,9 +114,9 @@ export default function UserProfileContent() {
     }
 
     return (
-        <div className='py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
+        <div className='sm:py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
             <div className='grid gap-4'>
-                <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+                <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Profile</div>
                 </div>

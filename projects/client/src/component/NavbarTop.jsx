@@ -17,7 +17,7 @@ export default function NavbarTop({city, province}) {
         {name: "Home", to: "/"},
         {name: "Orders", to: "/user/orders"},
         {name: "Cart", icon: <HiOutlineShoppingCart size={25}/>, to: "/user/cart"},
-        {name: "Account", icon: <DropdownForNavbar />}
+        {name: "Account", icon: <DropdownForNavbar/>, to: "/user/account"}
     ]
 
     const onClickLogIn = () => {
@@ -36,9 +36,9 @@ export default function NavbarTop({city, province}) {
         <div className="w-full h-full col-span-1 flex justify-end gap-20 items-center font-inter">
             <div className="flex items-center justify-between gap-10">
                 {routes.map(({ name, icon, to }, idx) => (
-                    <Link to={to}>
+                    <Link to={to} className={`h-10 flex items-center justify-center ${location.pathname === to ? `text-maingreen font-bold border-b-2 border-maingreen` : `text-darkgrey`}`}>
                     {token && profile.role === "3" ? 
-                    <div key={idx}>{icon ? icon : name}</div> : <div key={idx} className={`h-10 flex items-center justify-center ${location.pathname === to ? `text-maingreen font-bold border-b-2 border-maingreen` : `text-darkgrey`}`}>{name === "Account" ? <Link to="/user/account">{name}</Link> : name}</div>}
+                    <div key={idx}>{icon ? icon : name}</div> : <div key={idx}>{name}</div>}
                     </Link>
                 ))}
             </div>

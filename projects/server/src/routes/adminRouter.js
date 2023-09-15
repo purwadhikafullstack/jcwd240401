@@ -1,8 +1,10 @@
 const router = require("express").Router();
 const { product: productController } = require("../controllers");
 const { admin: adminController } = require("../controllers");
-const categorymulterMiddleware = require("../middleware/multerMiddleware/category");
-const productmulterMiddleware = require("../middleware/multerMiddleware/product");
+const { transaction: transactionController } = require("../controllers")
+const categoryMulterMiddleware = require("../middleware/multerMiddleware/category");
+const productMulterMiddleware = require("../middleware/multerMiddleware/product");
+const refundMulterMiddleware = require("../middleware/multerMiddleware/refund")
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
 const promoValidator = require("../middleware/validatorMiddleware");
@@ -11,7 +13,7 @@ router.post(
   "/category",
   authMiddleware.verifyToken,
   authMiddleware.verifySuperAdmin,
-  categorymulterMiddleware,
+  categoryMulterMiddleware,
   validatorMiddleware.createCategory,
   productController.createCategory
 );
@@ -37,7 +39,7 @@ router.patch(
   "/categories/:id/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifySuperAdmin,
-  categorymulterMiddleware,
+  categoryMulterMiddleware,
   validatorMiddleware.updateCategory,
   productController.modifyOrRemoveCategory
 );
@@ -46,7 +48,7 @@ router.post(
   "/product",
   authMiddleware.verifyToken,
   authMiddleware.verifySuperAdmin,
-  productmulterMiddleware,
+  productMulterMiddleware,
   validatorMiddleware.createProduct,
   productController.createProduct
 );
@@ -55,7 +57,7 @@ router.patch(
   "/products/:id/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifySuperAdmin,
-  productmulterMiddleware,
+  productMulterMiddleware,
   validatorMiddleware.updateProduct,
   productController.modifyOrRemoveProduct
 );
@@ -213,4 +215,40 @@ router.get(
   adminController.allBranchProductNoPaginationSuperAdmin
 );
 
+//get transactions for branch Admin
+router.get(
+  "/branch-orders",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  transactionController.allOrdersByBranch
+)
+
+router.get(
+  "/orders",
+  authMiddleware.verifyToken,
+  authMiddleware.verifySuperAdmin,
+  transactionController.allOrders
+)
+
+router.get(
+  "/order",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyIsAdmin,
+  transactionController.orderById
+)
+
+router.patch(
+  "/orders/:id/:action",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  transactionController.changeStatus
+)
+
+router.patch(
+  "/orders/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  refundMulterMiddleware,
+  transactionController.cancelOrderByAdmin
+)
 module.exports = router;

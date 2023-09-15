@@ -18,6 +18,7 @@ import Login from "./page/Login";
 import UserRegister from "./page/user/UserRegister";
 import BranchAdminSetAccount from "./page/admin/BranchAdminSetAccount";
 import PrivateAdminWrapper from "./wrapper/PrivateAdminWrapper";
+import PrivateUserWrapper from "./wrapper/PrivateUserWrapper";
 import PublicWrapper from "./wrapper/PublicWrapper";
 import Unauthorized from "./page/Unauthorized";
 import { keep } from "./store/reducer/authSlice";
@@ -41,7 +42,7 @@ import { updateCart } from "./store/reducer/cartSlice";
 import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyBranchProduct";
 import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
 import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
-import { keepLocation } from "./store/reducer/locationSlice";
+import BranchAdminModifyOrder from "./component/admin/BranchAdminModifyOrder";
 
 
 function App() {
@@ -60,13 +61,15 @@ function App() {
           }
         );
 
-        if (response.data.userId) {
-          localStorage.setItem("token", response.data.refreshToken);
-          const decoded = jwtDecode(token);
-          dispatch(keep(decoded));
+        if (response.status === 200) {
+          if (response.data.userId) {
+            localStorage.setItem("token", response.data.refreshToken);
+            const decoded = jwtDecode(token);
+            dispatch(keep(decoded));
+          }
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
   };
@@ -88,21 +91,9 @@ function App() {
     }
   };
 
-  const userLocation = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        dispatch(keepLocation("false"));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   useEffect(() => {
     keepLogin();
     userCart();
-    userLocation();
   }, []);
 
   return (
@@ -164,32 +155,36 @@ function App() {
             element={<BranchAdminManageOrder />}
           />
           <Route path="/admin/branch/report" element={<BranchAdminReport />} />
+          <Route path="/admin/branch/manage-product/branch-product/:id/modify" element={<BranchAdminModifyBranchProduct />} />
         </Route>
 
-        <Route path="/user/cart" element={<Cart />} />
-        <Route path="/user/checkout" element={<Checkout />} />
-        <Route path="/user/payment/:id" element={<Payment />} />
-        <Route path="/user/orders" element={<Orders />} />
-        <Route path="/user/account" element={<Account />} />
-        <Route path="/user/account/my-profile" element={<UserProfile />} />
-        <Route
-          path="/user/account/my-profile/modify"
-          element={<UserProfileEdit />}
-        />
-        <Route
-          path="/user/account/my-profile/change-password"
-          element={<UserProfileChangePassword />}
-        />
-        <Route path="/user/account/my-address" element={<UserAddress />} />
-        <Route
-          path="/user/account/my-address/create"
-          element={<UserAddressCreate />}
-        />
-        <Route path="/user/account/my-address/modify/:name" element={<UserAddressModify />} />
+        <Route element={<PrivateUserWrapper allowedRoles={[3]} />}>
+          <Route path="/user/cart" element={<Cart />} />
+          <Route path="/user/checkout" element={<Checkout />} />
+          <Route path="/user/payment/:id" element={<Payment />} />
+          <Route path="/user/orders" element={<Orders />} />
+          <Route path="/user/account" element={<Account />} />
+          <Route path="/user/account/my-profile" element={<UserProfile />} />
+          <Route
+            path="/user/account/my-profile/modify"
+            element={<UserProfileEdit />}
+          />
+          <Route
+            path="/user/account/my-profile/change-password"
+            element={<UserProfileChangePassword />}
+          />
+          <Route path="/user/account/my-address" element={<UserAddress />} />
+          <Route
+            path="/user/account/my-address/create"
+            element={<UserAddressCreate />}
+          />
+          <Route path="/user/account/my-address/modify/:name" element={<UserAddressModify />} />
+        </Route>
+
         <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
-        <Route path="/admin/branch/manage-product/branch-product/:id/modify" element={<BranchAdminModifyBranchProduct />} />
         <Route path="/admin/manage-category/category/:id/modify" element={<SuperAdminModifyCategory />} />
         <Route path="/admin/manage-product/product/:id/modify" element={<SuperAdminModifyProduct />} />
+        <Route path="/admin/branch/manage-order/order/:id/modify" element={<BranchAdminModifyOrder />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

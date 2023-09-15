@@ -8,6 +8,7 @@ import AlertPopUp from "../AlertPopUp";
 import Button from "../Button";
 import Label from "../Label";
 import rupiah from "../../helpers/rupiah";
+import handleImageError from "../../helpers/handleImageError";
 
 export default function SingleProductContent() {
     const [errorMessage, setErrorMessage] = useState("");
@@ -20,7 +21,7 @@ export default function SingleProductContent() {
     const token = localStorage.getItem("token");
     const cartItems = useSelector((state) => state.cart.cart);
     const profile = useSelector((state) => state.auth.profile)
-    const outOfReach = useSelector((state) => state.location.location)
+    const outOfReach = useSelector((state) => state.location.outOfReach)
     const navigate = useNavigate();
 
     const goBack = () => {
@@ -66,11 +67,6 @@ export default function SingleProductContent() {
         (item) => item.branch_product_id === branchProductData.id
     );
 
-    const handleImageError = (event) => {
-        event.target.src =
-            "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
-    };
-
     const updateQuantity = (action) => {
         if (
             branchProductData.Discount?.isExpired === false &&
@@ -109,7 +105,7 @@ export default function SingleProductContent() {
             setErrorMessage("Account verification required to add cart")
             handleShowAlert()
 
-        } else if (outOfReach === "true") {
+        } else if (outOfReach === true) {
             setQuantity(0)
             setErrorMessage("Your location is out of reach, cannot add to cart")
             handleShowAlert()
@@ -150,7 +146,7 @@ export default function SingleProductContent() {
                         .then((response) => {
                             dispatch(updateCart(response.data.data));
                             setSuccessMessage("Successfully add to cart");
-                            setShowAlert(true);
+                            handleShowAlert();
                         })
                         .catch((error) => {
                             console.error("Failed to fetch cart data", error.message);
@@ -183,7 +179,7 @@ export default function SingleProductContent() {
                             </div>
                         </div>
                     </div>
-                    <div className="fixed top-0 md:top-11 z-50 flex self-center justify-center w-96 mx-2">
+                    <div className="fixed top-5 sm:top-10 md:top-20 z-50 flex self-center justify-center w-96 mx-2">
                         {showAlert ? (
                             <AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : null}
                     </div>
@@ -192,7 +188,7 @@ export default function SingleProductContent() {
                             <div className="grid h-full content-center">
                                 <div className="relative h-fit">
                                     <div className="absolute top-3 left-1 grid justify-center content-center sm:hidden">
-                                        <Button condition={"back"} onClick={goBack} />
+                                        <Button condition={"back"} onClick={goBack} backColor={"text-greensuccess"} />
                                     </div>
                                     {branchProductData.discount_id &&
                                         branchProductData.Discount?.isExpired === false ? (

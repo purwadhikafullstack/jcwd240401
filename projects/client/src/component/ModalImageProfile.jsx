@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Button from './Button';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
+import handleImageError from '../helpers/handleImageError';
 
 export default function ModalImageProfile({ onSubmit }) {
     const [openModal, setOpenModal] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
 
     const handleOpenModal = (e) => {
         e.preventDefault();
@@ -36,6 +38,16 @@ export default function ModalImageProfile({ onSubmit }) {
                 value && value.size <= MAX_FILE_SIZE
             ),
     });
+
+    function preview(event) {
+        const file = event.target.files[0];
+        if (file === undefined) {
+            setImagePreview(null)
+        } else {
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
+        }
+    }
 
     return (
         <>
@@ -89,16 +101,26 @@ export default function ModalImageProfile({ onSubmit }) {
                                         <Form>
                                             <div className="text-base leading-relaxed text-gray-500 dark:text-gray-400 text-center mx-auto px-4">
                                                 <div> By clicking 'Save', your current profile picture will be permanently replaced. Are you sure? </div>
+                                                <div>
+                                                    {(imagePreview) ? (
+                                                        <img
+                                                            id="frame"
+                                                            className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
+                                                            src={imagePreview}
+                                                            onError={handleImageError}
+                                                            alt="/"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
+                                                            src={""}
+                                                            onError={handleImageError}
+                                                            alt="/"
+                                                        />
+                                                    )}
+                                                </div>
                                                 <div className='mb-2 relative'>
-                                                    <input
-                                                        type="file"
-                                                        id="file"
-                                                        name="file"
-                                                        onChange={(e) => {
-                                                            props.setFieldValue('file', e.currentTarget.files[0]);
-                                                        }}
-                                                        className='py-2'
-                                                        required />
+                                                    <input type="file" id="file" name="file" onChange={(e) => { props.setFieldValue('file', e.currentTarget.files[0]); preview(e) }} className='py-1 w-full' required />
                                                     {props.errors.file && props.touched.file && <div className="text-sm text-reddanger absolute top-12">{props.errors.file}</div>}
                                                 </div>
                                             </div>
