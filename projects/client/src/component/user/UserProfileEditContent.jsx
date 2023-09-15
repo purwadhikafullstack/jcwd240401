@@ -178,7 +178,7 @@ export default function UserProfileEditContent() {
                                     </div>
                                 </div>
                                 <div className="mt-8">
-                                    <Modal isDisabled={!props.dirty && props.isValid} buttonTypeToggle={"button"} modalTitle={"Modify Product"} toggleName={"Modify"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                                    <Modal isDisabled={!props.dirty && props.isValid} buttonTypeToggle={"button"} modalTitle={"Modify Profile"} toggleName={"Modify Profile"} content={"Are you sure you want to update your profile details?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Save"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                                 </div>
                             </Form>
                         )}
