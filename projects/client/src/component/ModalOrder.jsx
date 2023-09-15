@@ -99,7 +99,7 @@ export default function ModalOrder({orderId, onClose}) {
                         </button>
                     </div>
                     {/* Modal body */}
-                    <div className="py-6 space-y-6 px-10 font-inter">
+                    <div className="py-6 space-y-6 px-10 font-inter max-h-[500px] overflow-y-auto">
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Invoice Code
                             <p className="text-black">{selectedOrder?.invoiceCode}</p>
@@ -108,7 +108,7 @@ export default function ModalOrder({orderId, onClose}) {
                             Order Date
                             <p className="text-black">{dayjs(selectedOrder?.orderDate).format("DD/MM/YYYY")}</p>
                         </div>
-                        <div className="text-base text-darkgrey border-b-2 pb-2">
+                        <div className="text-base text-darkgrey border-b-2 pb-2 flex flex-col justify-start items-start">
                             Order Status
                             <p className="text-black"><Label text={selectedOrder?.orderStatus} labelColor={labelColor(selectedOrder?.orderStatus)} /></p> 
                         </div>
@@ -158,7 +158,7 @@ export default function ModalOrder({orderId, onClose}) {
                             Total
                             <p className="text-black">{rupiah(selectedOrder?.totalPrice)}</p>
                         </div>
-                        {selectedOrder.orderStatus === "Waiting for payment" ? (
+                        {selectedOrder.orderStatus === "Waiting for payment" || !selectedOrder.imgPayment ? (
                         <div className="text-base text-darkgrey border-b-2 pb-2">
                             Payment Proof
                             <p>-</p>

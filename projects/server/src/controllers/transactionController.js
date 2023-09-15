@@ -292,21 +292,21 @@ module.exports = {
         });
       }
 
-      switch (action) {
-        case "Waiting for payment":
-          try {
-            if (orderData.orderStatus !== "Waiting for payment confirmation") {
-              await transaction.rollback();
-              return res.status(400).send({
-                message: "Payment has already confirmed",
-              });
-            }
+        switch(action) {
+            case "Waiting for payment":
+                try{
+                    if(orderData.orderStatus !== "Waiting for payment confirmation"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "Payment has already confirmed"
+                        })
+                    }
 
             orderData.orderStatus = "Waiting for payment";
             await orderData.save({ transaction });
             await transaction.commit();
             return res.status(200).send({
-              messagae: "Order status is changed to Waiting for payment",
+              message: "Order status is changed to Waiting for payment",
             });
           } catch (error) {
             await transaction.rollback();
@@ -341,45 +341,42 @@ module.exports = {
               });
             }
 
-            orderData.orderStatus = "Processing";
-            await orderData.save({ transaction });
-            await transaction.commit();
-            return res.status(200).send({
-              message: "Order status is changed to Processing",
-            });
-          } catch (error) {
-            await transaction.rollback();
-            return res.status(500).send({
-              message: "Server error",
-              error: error.message,
-            });
-          }
-        case "Delivering":
-          try {
-            if (orderData.orderStatus === "Waiting for payment") {
-              await transaction.rollback();
-              return res.status(400).send({
-                message:
-                  "You can't deliver this order, payment hasn't been made",
-              });
-            } else if (
-              orderData.orderStatus === "Waiting for payment confirmation"
-            ) {
-              await transaction.rollback();
-              return res.status(400).send({
-                message: "You can't deliver this order, confirm payment first",
-              });
-            } else if (orderData.orderStatus === "Delivering") {
-              await transaction.rollback();
-              return res.status(400).send({
-                message: "You are delivering this order",
-              });
-            } else if (orderData.orderStatus === "Canceled") {
-              await transaction.rollback();
-              return res.status(400).send({
-                message: "You can't deliver this order, it has been canceled",
-              });
-            }
+                    orderData.orderStatus = "Processing"
+                    await orderData.save({transaction})
+                    await transaction.commit()
+                    return res.status(200).send({
+                        message: "Order status is changed to Processing"
+                    })
+                }catch(error){
+                    await transaction.rollback()
+                    return res.status(500).send({
+                        message: "Server error",
+                        error: error.message
+                    })
+                }
+            case "Delivering":
+                try{
+                    if(orderData.orderStatus === "Waiting for payment"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't deliver this order, payment hasn't been made"
+                        })
+                    } else if (orderData.orderStatus === "Waiting for payment confirmation"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't deliver this order, confirm payment first"
+                        })
+                    } else if (orderData.orderStatus === "Delivering"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You are delivering this order"
+                        })
+                    } else if(orderData.orderStatus === "Canceled"){
+                        await transaction.rollback()
+                        return res.status(400).send({
+                            message: "You can't deliver this order, it has been canceled"
+                        })
+                    }
 
             orderData.orderStatus = "Delivering";
             await orderData.save({ transaction });
