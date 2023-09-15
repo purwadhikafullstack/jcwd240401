@@ -118,7 +118,9 @@ export default function SuperAdminModifyCategory() {
 
     function preview(event) {
         const file = event.target.files[0];
-        if (file) {
+        if (file === undefined) {
+            setImagePreview(null)
+        } else {
             const previewUrl = URL.createObjectURL(file);
             setImagePreview(previewUrl);
         }
@@ -152,14 +154,14 @@ export default function SuperAdminModifyCategory() {
                                         {(imagePreview) ? (
                                             <img
                                                 id="frame"
-                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                 src={imagePreview}
                                                 onError={handleImageError}
                                                 alt="/"
                                             />
                                         ) : (
                                             <img
-                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                 src={categoryDetails?.file}
                                                 onError={handleImageError}
                                                 alt="/"

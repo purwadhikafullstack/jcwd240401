@@ -1,10 +1,21 @@
 const db = require("../models");
 const axios = require("axios");
 const refCode = require("referral-codes");
-const dayjs = require("dayjs");
 const {
-    setFromFileNameToDBValueRefund,
-   } = require("../helpers/fileConverter");
+  setFromFileNameToDBValueCategory,
+} = require("../helpers/fileConverter");
+const dayjs = require("dayjs");
+const { setFromFileNameToDBValueRefund } = require("../helpers/fileConverter");
+
+const handleCatchError = async (res, transaction, error) => {
+  if (transaction) {
+    await transaction.rollback();
+  }
+  console.log(error);
+  return res.status(500).send({
+    message: "Internal Server Error",
+  });
+};
 
 module.exports = {
   // admin
@@ -12,260 +23,274 @@ module.exports = {
   // admin get all order
   // admin change order status
   // admin cancel order
-  async allOrdersByBranch(req,res) {
+  async allOrdersByBranch(req, res) {
     const pagination = {
-        page: Number(req.query.page) || 1,
-        perPage: 12,
-        search: req.query.search || "",
-        status: req.query.filterStatus || "",
-        date: req.query.sortDate || "DESC",
-        startDate: req.query.startDate || "",
-        endDate: req.query.endDate || "",
-    }
-    try{
-        let where = {}
-        const order = [];
-        if (pagination.startDate && pagination.endDate) {
-            const startDateUTC = new Date(pagination.startDate);
-            startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      search: req.query.search || "",
+      status: req.query.filterStatus || "",
+      date: req.query.sortDate || "DESC",
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
+    };
+    try {
+      let where = {};
+      const order = [];
+      if (pagination.startDate && pagination.endDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
 
-            const endDateUTC = new Date(pagination.endDate);
-            endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
 
-            where["orderDate"] = {
-                [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
-            };
-        } else if (pagination.startDate) {
-            const startDateUTC = new Date(pagination.startDate);
-            startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        where["orderDate"] = {
+          [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
+        };
+      } else if (pagination.startDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
 
-            where["orderDate"] = {
-                [db.Sequelize.Op.gte]: startDateUTC,
-            };
-        } else if (pagination.endDate) {
-            const endDateUTC = new Date(pagination.endDate);
-            endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-            endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+        where["orderDate"] = {
+          [db.Sequelize.Op.gte]: startDateUTC,
+        };
+      } else if (pagination.endDate) {
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
 
-            where["orderDate"] = {
-                [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
-            };
+        where["orderDate"] = {
+          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+        };
+      }
+      if (pagination.search) {
+        where["invoiceCode"] = {
+          [db.Sequelize.Op.like]: `%${pagination.search}%`,
+        };
+      }
+      if (pagination.status) {
+        where["orderStatus"] = pagination.status;
+      }
+      if (pagination.date) {
+        if (pagination.date.toUpperCase() === "DESC") {
+          order.push(["orderDate", "DESC"]);
+        } else {
+          order.push(["orderDate", "ASC"]);
         }
-        if (pagination.search) {
-            where["invoiceCode"] = {
-              [db.Sequelize.Op.like]: `%${pagination.search}%`,
-            };
-        }
-        if (pagination.status) {
-            where["orderStatus"] = pagination.status;
-        }
-        if (pagination.date) {
-            if (pagination.date.toUpperCase() === "DESC") {
-              order.push(["orderDate", "DESC"]);
-            } else {
-              order.push(["orderDate", "ASC"]);
-            }
-        }
+      }
 
-        const userId = req.user.id
-        const branchData = await db.Branch.findOne({
+      const userId = req.user.id;
+      const branchData = await db.Branch.findOne({
+        where: {
+          user_id: userId,
+        },
+      });
+
+      if (!branchData) {
+        return res.status(400).send({
+          message: "Branch not found",
+        });
+      }
+
+      const orders = await db.Order.findAndCountAll({
+        include: [
+          {
+            model: db.Branch_Product,
             where: {
-                user_id: userId
-            }
-        })
-
-        if(!branchData){
-            return res.status(400).send({
-                message: "Branch not found"
-            })
-        }
-
-        const orders = await db.Order.findAndCountAll({
-            include: [{ 
-                model: db.Branch_Product,
-                where: {
-                    branch_id: branchData.id
-                },
-            }],
-            where,
-            order,
-            distinct: true,
-            limit: pagination.perPage,
-            offset: (pagination.page - 1) * pagination.perPage,
-        })
-
-        if(!orders){
-            return res.status(200).send({
-                message: "No transaction found"
-            })
-        }
-        const totalCount = orders.count;
-        pagination.totalData = totalCount;
-
-        return res.status(200).send({
-            message: "Success get all transactions",
-            pagination,
-            data: orders
-        })
-    }catch(error){
-        return res.status(500).send({
-            message: "Server error",
-            error: error.message
-        })
-    }
-},
-  async allOrders(req,res) {
-    const pagination = {
-        page: Number(req.query.page) || 1,
-        perPage: 12,
-        branchId: req.query.branchId ? req.query.branchId : "",
-        search: req.query.search || "",
-        status: req.query.filterStatus || "",
-        date: req.query.sortDate || "DESC",
-        startDate: req.query.startDate || "",
-        endDate: req.query.endDate || "",
-    }
-    try{
-        let where = {}
-        let whereBranchId = {}
-        const order = [];
-        if (pagination.startDate && pagination.endDate) {
-            const startDateUTC = new Date(pagination.startDate);
-            startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-
-            const endDateUTC = new Date(pagination.endDate);
-            endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
-
-            where["orderDate"] = {
-                [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
-            };
-        } else if (pagination.startDate) {
-            const startDateUTC = new Date(pagination.startDate);
-            startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-
-            where["orderDate"] = {
-                [db.Sequelize.Op.gte]: startDateUTC,
-            };
-        } else if (pagination.endDate) {
-            const endDateUTC = new Date(pagination.endDate);
-            endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-            endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
-
-            where["orderDate"] = {
-                [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
-            };
-        }
-        if (pagination.search) {
-            where["invoiceCode"] = {
-              [db.Sequelize.Op.like]: `%${pagination.search}%`,
-            };
-        }
-        if (pagination.status) {
-            where["orderStatus"] = pagination.status;
-        }
-        if (pagination.date) {
-            if (pagination.date.toUpperCase() === "DESC") {
-              order.push(["orderDate", "DESC"]);
-            } else {
-              order.push(["orderDate", "ASC"]);
-            }
-        }
-
-        if(pagination.branchId){
-            whereBranchId["branch_id"] = pagination.branchId
-        }
-
-        const orders = await db.Order.findAndCountAll({
-            include: [{ 
-                model: db.Branch_Product,
-                where: whereBranchId,
-            }],
-            where,
-            order,
-            distinct: true,
-            limit: pagination.perPage,
-            offset: (pagination.page - 1) * pagination.perPage,
-        })
-
-        if(!orders){
-            return res.status(200).send({
-                message: "No transaction found"
-            })
-        }
-        const totalCount = orders.count;
-        pagination.totalData = totalCount;
-
-        return res.status(200).send({
-            message: "Success get all transactions",
-            pagination,
-            data: orders
-        })
-    }catch(error){
-        return res.status(500).send({
-            message: "Server error",
-            error: error.message
-        })
-    }
-},
-  async orderById(req,res) {
-    const orderId = req.query.orderId
-    try{
-        const order = await db.Order.findOne({
-            where: {
-                id: orderId
+              branch_id: branchData.id,
             },
-            include: [{
-                model: db.Branch_Product,
-                include: [{
-                    model: db.Product
-                }, {
-                    model: db.Discount,
-                    include: [{
-                        model: db.Discount_Type
-                    }]
-                }]
-            }, {
-                model: db.User
-            }, {
-                model: db.Voucher,
-                include: [{
-                    model: db.Voucher_Type
-                }]
-            }]
-        })
-        if(!order){
-            return res.status(400).send({
-                message: "Order not found"
-            })
-        }
+          },
+        ],
+        where,
+        order,
+        distinct: true,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
 
+      if (!orders) {
         return res.status(200).send({
-            message: "Order found",
-            data: order
-        })
+          message: "No transaction found",
+        });
+      }
+      const totalCount = orders.count;
+      pagination.totalData = totalCount;
 
-    }catch(error){
-        return res.status(500).send({
-            message: "Server error",
-            error: error.message
-        })
+      return res.status(200).send({
+        message: "Success get all transactions",
+        pagination,
+        data: orders,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message,
+      });
     }
   },
-  async changeStatus(req,res){
-    const transaction = await db.sequelize.transaction();
-    const action = req.params.action
-    const orderId = Number(req.params.id)
-    try{
-        const orderData = await db.Order.findOne({
-            where: orderId
-        })
+  async allOrders(req, res) {
+    const pagination = {
+      page: Number(req.query.page) || 1,
+      perPage: 12,
+      branchId: req.query.branchId ? req.query.branchId : "",
+      search: req.query.search || "",
+      status: req.query.filterStatus || "",
+      date: req.query.sortDate || "DESC",
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
+    };
+    try {
+      let where = {};
+      let whereBranchId = {};
+      const order = [];
+      if (pagination.startDate && pagination.endDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
 
-        if(!orderData){
-            await transaction.rollback()
-            return res.status(400).send({
-                message: "Order not found"
-            })
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+
+        where["orderDate"] = {
+          [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
+        };
+      } else if (pagination.startDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        where["orderDate"] = {
+          [db.Sequelize.Op.gte]: startDateUTC,
+        };
+      } else if (pagination.endDate) {
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+
+        where["orderDate"] = {
+          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+        };
+      }
+      if (pagination.search) {
+        where["invoiceCode"] = {
+          [db.Sequelize.Op.like]: `%${pagination.search}%`,
+        };
+      }
+      if (pagination.status) {
+        where["orderStatus"] = pagination.status;
+      }
+      if (pagination.date) {
+        if (pagination.date.toUpperCase() === "DESC") {
+          order.push(["orderDate", "DESC"]);
+        } else {
+          order.push(["orderDate", "ASC"]);
         }
+      }
+
+      if (pagination.branchId) {
+        whereBranchId["branch_id"] = pagination.branchId;
+      }
+
+      const orders = await db.Order.findAndCountAll({
+        include: [
+          {
+            model: db.Branch_Product,
+            where: whereBranchId,
+          },
+        ],
+        where,
+        order,
+        distinct: true,
+        limit: pagination.perPage,
+        offset: (pagination.page - 1) * pagination.perPage,
+      });
+
+      if (!orders) {
+        return res.status(200).send({
+          message: "No transaction found",
+        });
+      }
+      const totalCount = orders.count;
+      pagination.totalData = totalCount;
+
+      return res.status(200).send({
+        message: "Success get all transactions",
+        pagination,
+        data: orders,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  },
+  async orderById(req, res) {
+    const orderId = req.query.orderId;
+    try {
+      const order = await db.Order.findOne({
+        where: {
+          id: orderId,
+        },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+              {
+                model: db.Discount,
+                include: [
+                  {
+                    model: db.Discount_Type,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: db.User,
+          },
+          {
+            model: db.Voucher,
+            include: [
+              {
+                model: db.Voucher_Type,
+              },
+            ],
+          },
+        ],
+      });
+      if (!order) {
+        return res.status(400).send({
+          message: "Order not found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Order found",
+        data: order,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  },
+  async changeStatus(req, res) {
+    const transaction = await db.sequelize.transaction();
+    const action = req.params.action;
+    const orderId = Number(req.params.id);
+    try {
+      const orderData = await db.Order.findOne({
+        where: orderId,
+      });
+
+      if (!orderData) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "Order not found",
+        });
+      }
 
         switch(action) {
             case "Waiting for payment":
@@ -277,42 +302,44 @@ module.exports = {
                         })
                     }
 
-                    orderData.orderStatus = "Waiting for payment"
-                    await orderData.save({transaction})
-                    await transaction.commit()
-                    return res.status(200).send({
-                        message: "Order status is changed to Waiting for payment"
-                    })
-                }catch(error){
-                    await transaction.rollback()
-                    return res.status(500).send({
-                        message: "Server error",
-                        error: error.message
-                    })
-                }
-            case "Processing":
-                try{
-                    if(orderData.orderStatus === "Waiting for payment"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You can't process this order, payment hasn't been made"
-                        })
-                    } else if (orderData.orderStatus === "Processing"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "Order is already processing"
-                        })
-                    } else if (orderData.orderStatus === "Delivering"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You can't process this order, you are currently delivering it"
-                        })
-                    } else if(orderData.orderStatus === "Canceled"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You can't process this order, it has been canceled"
-                        })
-                    }
+            orderData.orderStatus = "Waiting for payment";
+            await orderData.save({ transaction });
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Order status is changed to Waiting for payment",
+            });
+          } catch (error) {
+            await transaction.rollback();
+            return res.status(500).send({
+              message: "Server error",
+              error: error.message,
+            });
+          }
+        case "Processing":
+          try {
+            if (orderData.orderStatus === "Waiting for payment") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message:
+                  "You can't process this order, payment hasn't been made",
+              });
+            } else if (orderData.orderStatus === "Processing") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "Order is already processing",
+              });
+            } else if (orderData.orderStatus === "Delivering") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message:
+                  "You can't process this order, you are currently delivering it",
+              });
+            } else if (orderData.orderStatus === "Canceled") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "You can't process this order, it has been canceled",
+              });
+            }
 
                     orderData.orderStatus = "Processing"
                     await orderData.save({transaction})
@@ -351,91 +378,91 @@ module.exports = {
                         })
                     }
 
-                    orderData.orderStatus = "Delivering"
-                    await orderData.save({transaction})
-                    await transaction.commit()
-                    return res.status(200).send({
-                        message: "Order status is changed to Delivering"
-                    })
-                }catch(error){
-                    await transaction.rollback()
-                    return res.status(500).send({
-                        message: "Server error",
-                        error: error.message
-                    })
-                }
-                default:
-                    await transaction.rollback();
-                    return res.status(400).send({
-                      message: "Invalid action",
-                    });
-        }
-
-    }catch(error){
-        await transaction.rollback()
-        console.log(error)
-        return res.status(500).send({
-            message: "Internal Server Error"
-        })
+            orderData.orderStatus = "Delivering";
+            await orderData.save({ transaction });
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Order status is changed to Delivering",
+            });
+          } catch (error) {
+            await transaction.rollback();
+            return res.status(500).send({
+              message: "Server error",
+              error: error.message,
+            });
+          }
+        default:
+          await transaction.rollback();
+          return res.status(400).send({
+            message: "Invalid action",
+          });
+      }
+    } catch (error) {
+      await transaction.rollback();
+      console.log(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
     }
   },
-  async cancelOrderByAdmin(req,res){
-    const orderId = Number(req.params.id)
+  async cancelOrderByAdmin(req, res) {
+    const orderId = Number(req.params.id);
     const { cancelReason } = req.body;
     const imgFileName = req.file ? req.file.filename : null;
     const transaction = await db.sequelize.transaction();
 
     try {
-        const orderData = await db.Order.findOne({
-            where: {
-                id: orderId
-            }
-        })
+      const orderData = await db.Order.findOne({
+        where: {
+          id: orderId,
+        },
+      });
 
-        if(!orderData){
-            await transaction.rollback()
-            return res.status(400).send({
-                message: "Order not found"
-            })
-        }
+      if (!orderData) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "Order not found",
+        });
+      }
 
-        if(orderData.orderStatus === "Delivering") {
-            await transaction.rollback()
-            return res.status(400).send({
-                message: "You cannot cancel this order, it has been delivered"
-            })
-        } else if(orderData.orderStatus === "Order completed") {
-            await transaction.rollback()
-            return res.status(400).send({
-                message: "You cannot cancel this order, it has been completed"
-            })
-        } else if(orderData.orderStatus === "Canceled") {
-            await transaction.rollback()
-            return res.status(400).send({
-                message: "You cannot cancel this order, it has been canceled by user"
-            })
-        }
-        if(!cancelReason || !imgFileName){
-            await transaction.rollback()
-            return res.status(400).send({
-                message: "Please input cancelation reason and refund proof to cancel this order"
-            })
-        }
+      if (orderData.orderStatus === "Delivering") {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "You cannot cancel this order, it has been delivered",
+        });
+      } else if (orderData.orderStatus === "Order completed") {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "You cannot cancel this order, it has been completed",
+        });
+      } else if (orderData.orderStatus === "Canceled") {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "You cannot cancel this order, it has been canceled by user",
+        });
+      }
+      if (!cancelReason || !imgFileName) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message:
+            "Please input cancelation reason and refund proof to cancel this order",
+        });
+      }
 
-        orderData.imgRefund = setFromFileNameToDBValueRefund(imgFileName)
-        orderData.cancelReason = cancelReason
-        orderData.orderStatus = "Canceled"
-        await orderData.save({transaction})
-        await transaction.commit()
-        return res.status(200).send({
-            message: "Order successfully canceled"
-        })
+      orderData.imgRefund = setFromFileNameToDBValueRefund(imgFileName);
+      orderData.cancelReason = cancelReason;
+      orderData.orderStatus = "Canceled";
+      await orderData.save({ transaction });
+      await transaction.commit();
+      return res.status(200).send({
+        message: "Order successfully canceled",
+      });
     } catch (error) {
-      await transaction.rollback()
-      console.log(error)
+      await transaction.rollback();
+      console.log(error);
       return res.status(500).send({
-        message: "Internal Server Error"
-      })
+        message: "Internal Server Error",
+      });
     }
   },
 
@@ -469,21 +496,6 @@ module.exports = {
       }
 
       await user.addBranch_Product(product, { through: { quantity } });
-
-      // Add the product to the user's cart
-      //   const isExistCart = await db.Cart.findOne({
-      //     where: { branch_product_id: req.params.id, user_id: req.user.id },
-      //   });
-      //   if (isExistCart) {
-      //     isExistCart.quantity = isExistCart.quantity + quantity;
-      //     await isExistCart.save();
-      //   } else {
-      //     await db.Cart.create({
-      //       user_id: req.user.id,
-      //       branch_product_id: req.params.id,
-      //       quantity: quantity,
-      //     });
-      //   }
 
       res.send({ message: "Product added to cart successfully" });
     } catch (error) {
@@ -619,25 +631,6 @@ module.exports = {
         ],
       });
 
-      //   const cartDetails = cart.map((cartItem) => ({
-      //     product: {
-      //       id: cartItem.Product.id,
-      //       name: cartItem.Product.name,
-      //       price: cartItem.Product.price,
-      //       description: cartItem.Product.description,
-      //       imgProduct: cartItem.Product.imgProduct,
-      //       stock: cartItem.Product.stock,
-      //       isActive: cartItem.Product.isActive,
-      //       createdAt: cartItem.Product.createdAt,
-      //       updatedAt: cartItem.Product.updatedAt,
-      //       category: {
-      //         id: cartItem.Product.Category.id,
-      //         name: cartItem.Product.Category.name,
-      //       },
-      //     },
-      //     quantity: cartItem.quantity,
-      //   }));
-
       res.status(201).send({
         message: "Cart retrieved successfully",
         data: cart,
@@ -743,6 +736,7 @@ module.exports = {
               {
                 model: db.Product,
               },
+              { model: db.Discount },
             ],
           },
         ],
@@ -791,17 +785,59 @@ module.exports = {
       );
 
       // Create order items
+      // Create order items
       for (const item of selectedItem) {
-        const orderList = await db.Order_Item.create(
-          {
-            order_id: checkoutData.id,
-            branch_product_id: item.branch_product_id,
-            discount_id: item.Branch_Product.discount_id,
-            quantity: item.quantity,
-            price: item.Branch_Product.Product.basePrice * item.quantity,
-          },
-          { transaction: transaction }
-        );
+        let price;
+
+        // Check if the discount is not expired
+        if (!item.Branch_Product?.Discount?.isExpired) {
+          // Check the discount type
+          if (item.Branch_Product?.Discount?.discount_type_id === 1) {
+            // Discount type 1: No discount, price is equal to basePrice * quantity
+            price = item.Branch_Product?.Product?.basePrice ;
+          } else if (item.Branch_Product?.Discount?.discount_type_id === 2) {
+            // Discount type 2: Percentage discount
+            const percentageAmount = item.Branch_Product.Discount.amount;
+            price =
+              ((item.Branch_Product.Product.basePrice *
+                (100 - percentageAmount)) /
+                100) *
+              item.quantity;
+          } else if (item.Branch_Product?.Discount?.discount_type_id === 3) {
+            // Discount type 3: Nominal discount
+            const nominalAmount = item.Branch_Product.Discount.amount;
+            price =
+              (item.Branch_Product.Product.basePrice - nominalAmount) *
+              item.quantity;
+          } else {
+            // Handle other discount types if needed
+            price = item.Branch_Product.Product.basePrice * item.quantity; // Default to basePrice * quantity
+          }
+
+          const orderList = await db.Order_Item.create(
+            {
+              order_id: checkoutData?.id,
+              branch_product_id: item.branch_product_id,
+              discount_id: item.Branch_Product?.Discount?.id,
+              quantity: item.quantity,
+              price: price,
+            },
+            { transaction: transaction }
+          );
+        } else {
+          // If the discount is expired, create the order item without a discount
+          const orderList = await db.Order_Item.create(
+            {
+              order_id: checkoutData?.id,
+              branch_product_id: item.branch_product_id,
+              discount_id: null, // No discount
+              quantity: item.quantity,
+              price: item.Branch_Product.Product.basePrice * item.quantity, // Default to basePrice * quantity
+            },
+            { transaction: transaction }
+          );
+        }
+
         await item.destroy({ transaction: transaction });
       }
 
@@ -825,10 +861,11 @@ module.exports = {
     const userId = req.user.id;
     try {
       const userVoucher = await db.User_Voucher.findAll({
-        where: { user_id: userId },
+        where: { user_id: userId, isUsed: false },
         include: [
           {
             model: db.Voucher,
+            where: { isExpired: false, usedLimit: { [db.Sequelize.Op.gt]: 0 } },
             include: [
               {
                 model: db.Voucher_Type,
@@ -915,6 +952,44 @@ module.exports = {
   },
 
   // user payment
+  async updatePayment(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const imgFileName = req.file ? req.file.filename : null;
+    const transaction = await db.sequelize.transaction();
+    if (!imgFileName) {
+      return res.status(400).send({
+        message: "payment proof image file are required",
+      });
+    }
+    try {
+      const orderData = await db.Order.findOne({
+        where: {
+          id: orderId,
+          user_id: userId,
+        },
+      });
+      if (orderData.orderStatus !== "Waiting for payment") {
+        return res.status(400).send({
+          message: `you are not allowed to update your payment because the order status is ${orderData.orderStatus}`,
+          orderStatus: orderData.orderStatus,
+        });
+      }
+      await orderData.update(
+        {
+          imgPayment: setFromFileNameToDBValueCategory(imgFileName),
+          orderStatus: "Waiting for payment confirmation",
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res
+        .status(201)
+        .send({ message: "Successfully upload payment proof" });
+    } catch (error) {
+      handleCatchError(res, transaction, error);
+    }
+  },
   // user cancel order
   async cancelOrder(req, res) {
     const userId = req.user.id;
@@ -962,4 +1037,123 @@ module.exports = {
     }
   },
   // user confirm order
+  async confirmOrder(req, res) {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const transaction = await db.sequelize.transaction();
+
+    try {
+      const orderData = await db.Order.findOne({
+        where: { id: orderId, user_id: userId },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+              {
+                model: db.Discount,
+                include: [
+                  {
+                    model: db.Discount_Type,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+      if (!orderData) {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "No order data found",
+        });
+      }
+
+      if (orderData.orderStatus === "Delivering") {
+        // Complete order
+        await orderData.update(
+          {
+            orderStatus: "Order completed",
+          },
+          { transaction }
+        );
+
+        // Update stock
+        const branchId = orderData.Branch_Products[0].branch_id;
+        for (const item of orderData.Branch_Products) {
+          await db.Branch_Product.update(
+            { quantity: item.quantity - item.Order_Item.quantity },
+            {
+              where: {
+                branch_id: branchId,
+                id: item.id,
+              },
+            },
+            { transaction }
+          );
+        }
+
+        // Check vouchers available
+        if (orderData.totalPrice >= 200000) {
+          const vouchers = await db.Voucher.findAll({
+            where: {
+              branch_id: branchId,
+              isReferral: false,
+              isExpired: false,
+            },
+          });
+
+          if (vouchers.length > 0) {
+            const randomIndex = Math.floor(Math.random() * vouchers.length);
+            const randomVoucher = vouchers[randomIndex];
+
+            await db.User_Voucher.create({
+              user_id: userId,
+              voucher_id: randomVoucher.id,
+              isUsed: false,
+            });
+          }
+        }
+        // update used voucher
+        if (orderData.voucher_id) {
+          await db.User_Voucher.update(
+            { isUsed: true },
+            {
+              where: {
+                voucher_id: orderData.voucher_id,
+                user_id: userId,
+              },
+            },
+            { transaction }
+          );
+
+          //update available vouchers on branch
+          await db.Voucher.update(
+            { usedLimit: db.Voucher.usedLimit - 1 },
+            { where: { id: orderData.voucher_id } },
+            { transaction }
+          );
+        }
+      } else {
+        await transaction.rollback();
+        return res.status(400).send({
+          message: "This order has not been delivered yet",
+          orderStatus: orderData.orderStatus,
+          tesorder: orderData,
+        });
+      }
+      await transaction.commit();
+      return res.status(200).send({
+        message: "You successfully completed your order",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      console.error(error);
+      return res.status(500).send({
+        message: "Internal Server Error",
+      });
+    }
+  },
 };

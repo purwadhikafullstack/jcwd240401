@@ -146,6 +146,7 @@ export default function AllProduct() {
             }
             handleShowAlert()
         } finally {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             getProduct();
         }
     }
@@ -164,7 +165,7 @@ export default function AllProduct() {
                 <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleDropdownChange} placeholder={"Sort by Name"} />
                 <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={handleDropdownChange} placeholder={"Sort by Price"} />
             </div>
-            <div className=''>
+            <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
                         <thead className="border-b-2 border-maingreen text-maingreen uppercase">
@@ -188,8 +189,8 @@ export default function AllProduct() {
                                                     alt="/"
                                                 />
                                             </div>
-                                            <div className='flex flex-col justify-center w-4/5 gap-2'>
-                                                <div className='text-maindarkgreen'>{item.name}</div>
+                                            <div className='flex flex-col justify-center w-4/5 gap-2 font-medium'>
+                                                <div className='text-maingreen font-semibold'>{item.name}</div>
                                                 <div>{item.Category.name}</div>
                                                 <div>{item.weight} {item.unitOfMeasurement} / pack</div>
                                             </div>
@@ -201,7 +202,7 @@ export default function AllProduct() {
                                             <span className="text-sm">...</span>
                                         )}
                                     </td>
-                                    <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{rupiah(item.basePrice)}</td>
+                                    <td className="py-2 px-4 text-center cursor-pointer text-sm md:text-base" style={{ width: '15%' }} onClick={() => setSelectedProduct(item.id)}>{rupiah(item.basePrice)}</td>
                                     <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
