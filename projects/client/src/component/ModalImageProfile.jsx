@@ -105,14 +105,14 @@ export default function ModalImageProfile({ onSubmit }) {
                                                     {(imagePreview) ? (
                                                         <img
                                                             id="frame"
-                                                            className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                            className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                             src={imagePreview}
                                                             onError={handleImageError}
                                                             alt="/"
                                                         />
                                                     ) : (
                                                         <img
-                                                            className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                            className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                             src={""}
                                                             onError={handleImageError}
                                                             alt="/"
