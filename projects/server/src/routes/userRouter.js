@@ -9,6 +9,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const openCageMiddleware = require("../middleware/openCageMiddleware");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 const profileMulterMiddleware = require("../middleware/multerMiddleware/profile");
+const paymentMulterMiddleware = require("../middleware/multerMiddleware/payment");
 
 router.get("/branch-products", productController.productsFromNearestBranch);
 router.get("/promoted-products", productController.promotedProducts);
@@ -117,6 +118,21 @@ router.get(
   authMiddleware.verifyToken,
   authMiddleware.verifyUser,
   userController.getOrderList
+);
+
+router.patch(
+  "/payment/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  paymentMulterMiddleware,
+  transactionController.updatePayment
+);
+
+router.patch(
+  "/confirm-order/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.confirmOrder
 );
 
 module.exports = router;

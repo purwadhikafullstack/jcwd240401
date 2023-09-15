@@ -80,8 +80,8 @@ export default function UserAddressContent() {
         getAddress()
     }, [token])
     return (
-        <div className='py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl mx-auto'>
-            <div className='flex sticky top-0 z-50 sm:static bg-white py-3 lg:pt-10'>
+        <div className='sm:py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl mx-auto'>
+            <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={goBack} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Address</div>
             </div>

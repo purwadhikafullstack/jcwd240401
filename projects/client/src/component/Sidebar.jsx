@@ -70,7 +70,7 @@ export default function Sidebar(props) {
                 <ul className={`${isMobileMenuOpen ? "pt-4 w-full flex flex-col items-center" : "hidden"}`}>
                     {routes.map(({ to, tab, name }, idx) => (
                         <Link key={idx} to={`${to}${tab ? `?tab=${tab[0]}` : ''}`} className="h-auto w-52">
-                            <li className={`p-2 border-b border-lightgrey ${location.pathname === to && (tab ? location.search.includes(`tab=${tab[0]}`) : true) ? 'text-maingreen font-bold' : 'text-darkgrey'}`}>{name}</li>
+                            <li className={`p-2 border-b border-lightgrey ${location.pathname === to && (tab ? location.search.includes(`tab=${tab[0]}`) || location.search.includes(`tab=${tab[1]}`) : true) ? 'text-maingreen font-bold' : 'text-darkgrey'}`}>{name}</li>
                         </Link>
                     ))}
                     <Modal onClickButton={handleLogout} modalTitle={"Log Out"} toggleName={"Log Out"} content={"Are you sure you want to log out?"} buttonLabelOne={"Cancel"} buttonCondition={"logout"} buttonLabelTwo={"Yes"} />

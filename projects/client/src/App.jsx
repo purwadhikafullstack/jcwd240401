@@ -42,7 +42,6 @@ import { updateCart } from "./store/reducer/cartSlice";
 import BranchAdminModifyBranchProduct from "./component/admin/BranchAdminModifyBranchProduct";
 import SuperAdminModifyCategory from "./component/admin/SuperAdminModifyCategory";
 import SuperAdminModifyProduct from "./component/admin/SuperAdminModifyProduct";
-import { keepLocation } from "./store/reducer/locationSlice";
 import BranchAdminModifyOrder from "./component/admin/BranchAdminModifyOrder";
 
 
@@ -63,13 +62,13 @@ function App() {
           }
         );
 
-        if(response.status === 200){
+        if (response.status === 200) {
           if (response.data.userId) {
-          localStorage.setItem("token", response.data.refreshToken);
-          const decoded = jwtDecode(token);
-          dispatch(keep(decoded));
+            localStorage.setItem("token", response.data.refreshToken);
+            const decoded = jwtDecode(token);
+            dispatch(keep(decoded));
+          }
         }
-      }
       } catch (error) {
         console.log(error)
       }
@@ -93,20 +92,8 @@ function App() {
     }
   };
 
-  const userLocation = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        dispatch(keepLocation("false"));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
   useEffect(() => {
     userCart();
-    userLocation();
   }, []);
 
   useEffect(() => {

@@ -1,11 +1,24 @@
 import React, { useState } from 'react'
-import CustomHeader from "../CustomHeader"
+import { useLocation } from 'react-router-dom';
 import { LuFolderOpen, LuFolderPlus } from "react-icons/lu"
+
+import CustomHeader from "../CustomHeader"
 import AllBranchProduct from '../tab/branchAdmin/product/AllBranchProduct';
 import CreateBranchProduct from '../tab/branchAdmin/product/CreateBranchProduct';
 
 export default function BranchAdminManageProductContent() {
-    const [content, setContent] = useState(<AllBranchProduct />);
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const activeTabParam = queryParams.get("tab");
+
+    const [content, setContent] = useState(() => {
+        if (activeTabParam === "create-branch-product") {
+            return <CreateBranchProduct />;
+        } else {
+            return <AllBranchProduct />;
+        }
+    });
+
     const title = "Manage Branch Product";
     const tabList = [
         { name: "My Branch Product", icon: <LuFolderOpen size={25} />, isActive: false, param: "my-branch-product", tab: <AllBranchProduct /> },
