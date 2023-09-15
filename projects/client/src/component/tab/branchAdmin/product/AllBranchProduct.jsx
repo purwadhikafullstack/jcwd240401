@@ -141,6 +141,7 @@ export default function AllBranchProduct() {
             }
             handleShowAlert()
         } finally {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             getBranchProduct();
         }
     }
@@ -172,7 +173,7 @@ export default function AllBranchProduct() {
                 <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={handleDropdownChange} placeholder={"Filter by Category"} />
                 <CustomDropdownURLSearch id="filterStatus" options={statusOptions} onChange={handleDropdownChange} placeholder={"Filter by Status"} />
             </div>
-            <div className='w-full'>
+            <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">
                     <table className="border-collapse w-full text-xs sm:text-base">
                         <thead className="border-b-2 border-maingreen text-maingreen uppercase">
@@ -197,15 +198,15 @@ export default function AllBranchProduct() {
                                                     alt="/"
                                                 />
                                             </div>
-                                            <div className='flex flex-col justify-center w-full sm:w-4/5 sm:pl-2 gap-2 text-xs sm:text-sm'>
-                                                <div className='text-maindarkgreen'>{item?.Product?.name}</div>
+                                            <div className='flex flex-col justify-center w-full sm:pl-2 gap-2 text-xs sm:text-sm font-medium'>
+                                                <div className='text-maingreen font-semibold'>{item?.Product?.name}</div>
                                                 <div>{item?.Product?.Category.name}</div>
                                                 <div>{item?.Product?.weight}{item?.Product?.unitOfMeasurement} / pack</div>
                                                 <div>{rupiah(item?.Product?.basePrice)}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="py-2 px-4 hidden xl:table-cell cursor-pointer" style={{ width: '35%' }} onClick={() => setSelectedProduct(item.id)}>
+                                    <td className="py-2 px-4 hidden xl:table-cell cursor-pointer text-sm" style={{ width: '35%' }} onClick={() => setSelectedProduct(item.id)}>
                                         {item?.Product?.description.slice(0, 100)}
                                         {item?.Product?.description.length > 100 && (
                                             <span className="text-sm">...</span>

@@ -175,7 +175,6 @@ export default function SuperAdminModifyProduct() {
         window.scrollTo({ top: 0, behavior: 'smooth' })
         getCategory()
         getOneProduct()
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [successMessage])
 
     function preview(event) {
@@ -279,14 +278,14 @@ export default function SuperAdminModifyProduct() {
                                             {(imagePreview) ? (
                                                 <img
                                                     id="frame"
-                                                    className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                    className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                     src={imagePreview}
                                                     onError={handleImageError}
                                                     alt="/"
                                                 />
                                             ) : (
                                                 <img
-                                                    className="w-36 h-36 justify-center mx-auto m-2 object-cover"
+                                                    className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                                                     src={productDetails.file}
                                                     onError={handleImageError}
                                                     alt="/"
