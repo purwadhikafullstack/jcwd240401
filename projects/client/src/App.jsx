@@ -48,13 +48,14 @@ import BranchAdminModifyOrder from "./component/admin/BranchAdminModifyOrder";
 
 function App() {
   const dispatch = useDispatch();
+  let token = localStorage.getItem("token");
 
   const keepLogin = async () => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
         const response = await axios.get(
-          "http://localhost:8000/api/auth/keep-login",
+          `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -104,10 +105,13 @@ function App() {
   };
 
   useEffect(() => {
-    keepLogin();
     userCart();
     userLocation();
   }, []);
+
+  useEffect(() => {
+    keepLogin()
+  }, [token])
 
   return (
     <Router>
