@@ -299,7 +299,7 @@ export default function SuperAdminModifyProduct() {
                                     </div>
                                 </div>
                                 <div className="my-8 lg:col-span-2 lg:px-20">
-                                    <Modal isDisabled={!props.dirty} modalTitle={"Modify Product"} toggleName={"Modify"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                                    <Modal isDisabled={!props.dirty} modalTitle={"Modify Product"} toggleName={"Modify Product"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                                 </div>
                             </Form>
                         )}

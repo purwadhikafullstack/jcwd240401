@@ -174,7 +174,7 @@ export default function SuperAdminModifyCategory() {
                                     </div>
                                 </div>
                                 <div className="mt-8">
-                                    <Modal isDisabled={!props.dirty} modalTitle={"Modify Category"} toggleName={"Modify Category"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                                    <Modal isDisabled={!props.dirty} modalTitle={"Modify Category"} toggleName={"Modify Category"} content={"Editing this category will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                                 </div>
                             </Form>
                         )}
