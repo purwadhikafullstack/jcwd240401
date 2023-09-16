@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const { product: productController } = require("../controllers");
 const { admin: adminController } = require("../controllers");
-const { transaction: transactionController } = require("../controllers")
+const { transaction: transactionController } = require("../controllers");
 const categoryMulterMiddleware = require("../middleware/multerMiddleware/category");
 const productMulterMiddleware = require("../middleware/multerMiddleware/product");
-const refundMulterMiddleware = require("../middleware/multerMiddleware/refund")
+const refundMulterMiddleware = require("../middleware/multerMiddleware/refund");
 const validatorMiddleware = require("../middleware/validatorMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
 const promoValidator = require("../middleware/validatorMiddleware");
@@ -221,28 +221,28 @@ router.get(
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   transactionController.allOrdersByBranch
-)
+);
 
 router.get(
   "/orders",
   authMiddleware.verifyToken,
   authMiddleware.verifySuperAdmin,
   transactionController.allOrders
-)
+);
 
 router.get(
   "/order",
   authMiddleware.verifyToken,
   authMiddleware.verifyIsAdmin,
   transactionController.orderById
-)
+);
 
 router.patch(
   "/orders/:id/:action",
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   transactionController.changeStatus
-)
+);
 
 router.patch(
   "/orders/:id",
@@ -250,5 +250,12 @@ router.patch(
   authMiddleware.verifyAdmin,
   refundMulterMiddleware,
   transactionController.cancelOrderByAdmin
-)
+);
+
+router.get(
+  "/sales-report",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getBranchAdminSalesReport
+);
 module.exports = router;

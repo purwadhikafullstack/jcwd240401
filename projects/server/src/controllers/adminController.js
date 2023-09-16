@@ -1396,6 +1396,147 @@ module.exports = {
       });
     }
   },
+  //sales report (A)
+  async getBranchAdminSalesReport(req, res) {
+    try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+
+      const orderData = await db.Order.findAndCountAll({
+        include: [
+          { model: db.Branch_Product, where: { branch_id: user.Branch.id } },
+          { model: db.User, distinct: true }, // Include User model with distinct set to true
+        ],
+        order: [["createdAt", "DESC"]], // Order the results by createdAt in descending order
+      });
+
+      // Calculate total prices per day for "Order completed" orders only
+      const totalPriceByDay = {};
+      let totalAllTransactions = 0; // Initialize the total price for all transactions
+      const uniqueUsers = new Set(); // Initialize a Set to store unique user IDs
+      let totalCompletedOrders = 0; // Initialize the total number of completed orders
+      let totalCancelledOrders = 0; // Initialize the total number of cancelled orders
+
+      const lastFiveTransactions = []; // Initialize an array to store the last 5 transactions
+
+      const productSales = {}; // Initialize an object to track product sales
+
+      const courierUsage = {}; // Initialize an object to track courier usage
+
+      orderData.rows.forEach((order) => {
+        if (order.orderStatus === "Order completed") {
+          const orderDate = new Date(order.orderDate).toLocaleDateString();
+
+          if (!totalPriceByDay[orderDate]) {
+            totalPriceByDay[orderDate] = 0;
+          }
+
+          totalPriceByDay[orderDate] += order.totalPrice;
+
+          // Add the order's total price to the total for all transactions
+          totalAllTransactions += order.totalPrice;
+
+          // Add the user's ID to the Set to count unique users
+          uniqueUsers.add(order.User.id);
+
+          totalCompletedOrders += 1; // Increment totalCompletedOrders for each completed order
+
+          // Add order details to the lastFiveTransactions array
+          if (lastFiveTransactions.length < 5) {
+            lastFiveTransactions.push({
+              id: order.id,
+              invoiceCode: order.invoiceCode,
+              orderStatus: order.orderStatus,
+              orderDate: order.orderDate,
+              totalPrice: order.totalPrice,
+            });
+          }
+
+          // Update product sales
+          order.Branch_Products.forEach((branchProduct) => {
+            const productId = branchProduct.product_id;
+
+            if (!productSales[productId]) {
+              productSales[productId] = 0;
+            }
+
+            productSales[productId] += branchProduct.quantity;
+          });
+
+          // Update courier usage
+          const courier = order.shippingMethod; // Assuming courier information is in the shippingMethod column
+
+          if (!courierUsage[courier]) {
+            courierUsage[courier] = 0;
+          }
+
+          courierUsage[courier] += 1;
+        } else if (order.orderStatus === "Canceled") {
+          totalCancelledOrders += 1; // Increment totalCancelledOrders for each cancelled order
+        }
+      });
+
+      // Sort products by sales in descending order and get the top 5
+      const top5Products = await Promise.all(
+        Object.keys(productSales).map(async (productId) => {
+          const product = await db.Product.findOne({
+            where: {
+              id: productId,
+            },
+          });
+
+          return {
+            productId,
+            productImg: product.imgProduct,
+            productName: product.name, // Include product name
+            totalStock: product.stock, // Include total stock
+            sales: productSales[productId],
+          };
+        })
+      );
+
+      top5Products.sort((a, b) => b.sales - a.sales).slice(0, 5);
+
+      // Calculate courier usage in percentage
+      const courierUsagePercentage = {};
+      const totalCompletedOrdersCount = totalCompletedOrders;
+
+      for (const courier in courierUsage) {
+        courierUsagePercentage[courier] =
+          (courierUsage[courier] / totalCompletedOrdersCount) * 100;
+      }
+
+      res.status(200).send({
+        message: "sales report data retreived",
+        data: {
+          count: orderData.count,
+          // rows: orderData.rows,
+          areaChart: totalPriceByDay,
+          pieChart: courierUsagePercentage, // Include courier usage in percentage
+          totalTransaction: totalAllTransactions, // Include the total price for "Order completed" transactions
+          totalUsers: uniqueUsers.size, // Include the total number of unique users
+          totalCompletedOrders, // Include the total number of completed orders
+          totalCancelledOrders, // Include the total number of cancelled orders
+          lastTransactions: lastFiveTransactions, // Include the last 5 transactions
+          topProducts: top5Products, // Include the top 5 products based on sales
+        },
+      });
+    } catch (error) {
+      res.status(500).send({
+        error: error.message,
+      });
+    }
+  },
 };
 
 // sales report (SA & A)
