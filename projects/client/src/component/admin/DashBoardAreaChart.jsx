@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import ApexCharts from "apexcharts";
 
-const DashBoardAreaChart = () => {
+const DashBoardAreaChart = ({areaChartData}) => {
   const options = {
     chart: {
       height: "100%",
@@ -27,16 +27,11 @@ const DashBoardAreaChart = () => {
 
   const series = [
     {
-      name: "New users",
-      data: [
-        [new Date("2023-09-01"), 6500],
-        [new Date("2023-09-02"), 6418],
-        [new Date("2023-09-03"), 6456],
-        [new Date("2023-09-04"), 6526],
-        [new Date("2023-09-05"), 6356],
-        [new Date("2023-09-06"), 6456],
-        [new Date("2023-09-07"), 6547],
-      ],
+      name: "Total Sales",
+      data: areaChartData?.map((dataPoint) => [
+        new Date(dataPoint.date).getTime(),
+        dataPoint.totalPrice,
+      ]),
       color: "#1A56DB",
     },
   ];
@@ -59,7 +54,7 @@ const DashBoardAreaChart = () => {
       className=" w-full bg-white rounded-lg shadow dark:bg-gray-800 mt-2 p-4 md:p-6"
       style={{ height: "400px" }}
     >
-      <span>Judul</span>
+      <span>Transaction</span>
       <div id="area-chart">
         <ReactApexChart
           options={options}

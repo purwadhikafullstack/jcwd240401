@@ -1,65 +1,52 @@
 import React from "react";
 
-export default function DashBoardTable() {
-  return (
-    <div className="bg-white px-4 pt-3 pb-4 rounded-md border border-gray-200 w-full">
-      <span>Recent transaction</span>
+export default function DashBoardTable({ tableData }) {
+  if (tableData) {
+    return (
+      <div className="bg-white px-4 pt-3 pb-4 rounded-md border border-gray-200 w-full">
+        <span>Recent transactions</span>
 
-      <div class="relative overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" class="px-6 py-3">
-                Product name
-              </th>
-              <th scope="col" class="px-6 py-3">
-                Color
-              </th>
-              <th scope="col" class="px-6 py-3">
-                Category
-              </th>
-              <th scope="col" class="px-6 py-3">
-                Price
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th
-                scope="row"
-                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-              >
-                Apple MacBook Pro 17"
-              </th>
-              <td class="px-6 py-4">Silver</td>
-              <td class="px-6 py-4">Laptop</td>
-              <td class="px-6 py-4">$2999</td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th
-                scope="row"
-                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-              >
-                Microsoft Surface Pro
-              </th>
-              <td class="px-6 py-4">White</td>
-              <td class="px-6 py-4">Laptop PC</td>
-              <td class="px-6 py-4">$1999</td>
-            </tr>
-            <tr class="bg-white dark:bg-gray-800">
-              <th
-                scope="row"
-                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-              >
-                Magic Mouse 2
-              </th>
-              <td class="px-6 py-4">Black</td>
-              <td class="px-6 py-4">Accessories</td>
-              <td class="px-6 py-4">$99</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>    
-    </div>
-  );
+        <div className="relative overflow-x-auto">
+          <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" className="px-6 py-3">
+                  Invoice Code
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Order Status
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Total Price
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Order Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((transaction) => (
+                <tr
+                  key={transaction.id}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                >
+                  <th
+                    scope="row"
+                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {transaction.invoiceCode}
+                  </th>
+                  <td className="px-6 py-4">{transaction.orderStatus}</td>
+                  <td className="px-6 py-4">${transaction.totalPrice}</td>
+                  <td className="px-6 py-4">
+                    {new Date(transaction.orderDate).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
 }

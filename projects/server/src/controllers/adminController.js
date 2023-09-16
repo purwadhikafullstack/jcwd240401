@@ -1411,40 +1411,44 @@ module.exports = {
           model: db.Branch,
         },
       });
-
+  
       if (!user) {
         return res.status(401).send({ message: "User not found" });
       }
-
+  
       const whereOrderData = {};
-
+  
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
         startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-
+        
         const endDateUTC = new Date(pagination.endDate);
         endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
-
+        
         whereOrderData.orderDate = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
         startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-
+        
+        const nextDayUTC = new Date(startDateUTC);
+        nextDayUTC.setUTCDate(nextDayUTC.getUTCDate() + 1); // Set to start of the next day
+        
         whereOrderData.orderDate = {
-          [db.Sequelize.Op.gte]: startDateUTC,
+          [db.Sequelize.Op.gte]: nextDayUTC, // Use greater than operator to filter orders after the start of the day
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to start of the day in UTC
         endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
-
+        
         whereOrderData.orderDate = {
           [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
         };
       }
-
+      
+  
       const orderData = await db.Order.findAndCountAll({
         where: whereOrderData,
         include: [
@@ -1453,38 +1457,40 @@ module.exports = {
         ],
         order: [["createdAt", "DESC"]], // Order the results by createdAt in descending order
       });
-
+  
       // Calculate total prices per day for "Order completed" orders only
-      const totalPriceByDay = {};
+      const totalPriceByDay = [];
       let totalAllTransactions = 0; // Initialize the total price for all transactions
       const uniqueUsers = new Set(); // Initialize a Set to store unique user IDs
       let totalCompletedOrders = 0; // Initialize the total number of completed orders
       let totalCancelledOrders = 0; // Initialize the total number of cancelled orders
-
+  
       const lastFiveTransactions = []; // Initialize an array to store the last 5 transactions
-
+  
       const productSales = {}; // Initialize an object to track product sales
-
+  
       const courierUsage = {}; // Initialize an object to track courier usage
-
+  
       orderData.rows.forEach((order) => {
         if (order.orderStatus === "Order completed") {
           const orderDate = new Date(order.orderDate).toLocaleDateString();
-
-          if (!totalPriceByDay[orderDate]) {
-            totalPriceByDay[orderDate] = 0;
+  
+          const dayTotalPrice = totalPriceByDay.find((item) => item.date === orderDate);
+  
+          if (dayTotalPrice) {
+            dayTotalPrice.totalPrice += order.totalPrice;
+          } else {
+            totalPriceByDay.push({ date: orderDate, totalPrice: order.totalPrice });
           }
-
-          totalPriceByDay[orderDate] += order.totalPrice;
-
+  
           // Add the order's total price to the total for all transactions
           totalAllTransactions += order.totalPrice;
-
+  
           // Add the user's ID to the Set to count unique users
           uniqueUsers.add(order.User.id);
-
+  
           totalCompletedOrders += 1; // Increment totalCompletedOrders for each completed order
-
+  
           // Add order details to the lastFiveTransactions array
           if (lastFiveTransactions.length < 5) {
             lastFiveTransactions.push({
@@ -1495,31 +1501,31 @@ module.exports = {
               totalPrice: order.totalPrice,
             });
           }
-
+  
           // Update product sales
           order.Branch_Products.forEach((branchProduct) => {
             const productId = branchProduct.product_id;
-
+  
             if (!productSales[productId]) {
               productSales[productId] = 0;
             }
-
+  
             productSales[productId] += branchProduct.quantity;
           });
-
+  
           // Update courier usage
           const courier = order.shippingMethod; // Assuming courier information is in the shippingMethod column
-
+  
           if (!courierUsage[courier]) {
             courierUsage[courier] = 0;
           }
-
+  
           courierUsage[courier] += 1;
         } else if (order.orderStatus === "Canceled") {
           totalCancelledOrders += 1; // Increment totalCancelledOrders for each cancelled order
         }
       });
-
+  
       // Sort products by sales in descending order and get the top 5
       const top5Products = await Promise.all(
         Object.keys(productSales).map(async (productId) => {
@@ -1528,7 +1534,7 @@ module.exports = {
               id: productId,
             },
           });
-
+  
           return {
             productId,
             productImg: product.imgProduct,
@@ -1538,18 +1544,20 @@ module.exports = {
           };
         })
       );
-
+  
       top5Products.sort((a, b) => b.sales - a.sales).slice(0, 5);
-
+  
       // Calculate courier usage in percentage
-      const courierUsagePercentage = {};
+      const courierUsagePercentage = [];
       const totalCompletedOrdersCount = totalCompletedOrders;
-
+  
       for (const courier in courierUsage) {
-        courierUsagePercentage[courier] =
-          (courierUsage[courier] / totalCompletedOrdersCount) * 100;
+        courierUsagePercentage.push({
+          courier,
+          percentage: (courierUsage[courier] / totalCompletedOrdersCount) * 100,
+        });
       }
-
+  
       res.status(200).send({
         message: "sales report data retreived",
         data: {
@@ -1571,6 +1579,7 @@ module.exports = {
       });
     }
   },
+  
 };
 
 // sales report (SA & A)

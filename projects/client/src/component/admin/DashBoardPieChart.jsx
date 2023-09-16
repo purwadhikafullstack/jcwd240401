@@ -1,78 +1,55 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const DashBoardPieChart = () => {
-  // Define your series data
-  const seriesData = [52.8, 26.8, 20.4];
+const DashBoardPieChart = ({ pieChartData }) => {
+  if (pieChartData) {
+    // Extract courier names and percentages from pieChartData
+    const courierData = pieChartData.map((data) => ({
+      name: data.courier,
+      percentage: data.percentage,
+    }));
 
-  // Define the chart options outside the useEffect
-  const getChartOptions = () => {
-    return {
-      series: seriesData,
-      colors: ["#1C64F2", "#16BDCA", "#9061F9"],
+    // Extract labels and values for the chart
+    const labels = courierData.map((data) => data.name);
+    const values = courierData.map((data) => data.percentage);
+
+    // Define the chart options outside the component
+    const chartOptions = {
+      colors: ["#1C64F2", "#16BDCA", "#9061F9"], // Customize colors as needed
       chart: {
-        height: 300, // Adjust the height to make the chart smaller
+        height: 300,
         type: "pie",
       },
       legend: {
-        position: "bottom", // Move legend to the bottom
+        position: "bottom",
         fontFamily: "Inter, sans-serif",
       },
-      plotOptions: {
-        pie: {
-          labels: {
-            show: true,
-            position: "bottom", // Position the labels at the bottom
-          },
-          size: "80%", // Adjust the size of the pie chart
-          dataLabels: {
-            offset: -25,
-          },
-        },
-      },
-      labels: ["Direct", "Organic search", "Referrals"],
+      labels,
       dataLabels: {
         enabled: true,
         style: {
           fontFamily: "Inter, sans-serif",
         },
       },
-      yaxis: {
-        labels: {
-          formatter: function (value) {
-            return value + "%";
-          },
-        },
-      },
-      xaxis: {
-        labels: {
-          formatter: function (value) {
-            return value + "%";
-          },
-        },
-        axisTicks: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
-        },
-      },
     };
-  };
 
-  return (
-    <div className="w-full bg-white rounded-lg shadow dark-bg-gray-800 mt-2 p-2 md:p-4" style={{ height: "400px" }}>
-        <span>Judul</span>
-      <div id="pie-chart">
-        <ReactApexChart
-          options={getChartOptions()}
-          series={seriesData}
-          type="pie"
-          height={300} // Match the chart height
-        />
+    return (
+      <div
+        className="w-full bg-white rounded-lg shadow dark-bg-gray-800 mt-2 p-2 md:p-4"
+        style={{ height: "400px" }}
+      >
+        <span>Courier Distribution</span>
+        <div id="pie-chart">
+          <ReactApexChart
+            options={chartOptions}
+            series={values}
+            type="pie"
+            height={300}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default DashBoardPieChart;
