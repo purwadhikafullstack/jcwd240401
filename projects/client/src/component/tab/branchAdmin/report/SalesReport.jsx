@@ -12,10 +12,14 @@ import DashBoardList from "../../../admin/DashBoardList";
 export default function SalesReport() {
   const token = localStorage.getItem("token");
   const [salesReportData, setSalesReportData] = useState({});
+  const [filter, setFilter] = useState({
+    startDate: "",
+    endDate: "",
+  });
   const fetchSalesData = async () => {
     try {
       const salesData = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/sales-report`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/sales-report?startDate=${filter.startDate}&endDate=${filter.endDate}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (salesData.status === 200) {
@@ -26,11 +30,44 @@ export default function SalesReport() {
     }
   };
 
+  const handleFilterChange = (e) => {
+    setFilter({
+      ...filter,
+      [e.target.id]: e.target.value,
+    });
+  };
+
   useEffect(() => {
     fetchSalesData();
-  }, []);
+  }, [filter]);
   return (
     <div>
+      <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Start Date
+          </label>
+          <input
+            id="startDate"
+            type="date"
+            className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0 "
+            value={filter.startDate}
+            onChange={handleFilterChange}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            End Date
+          </label>
+          <input
+            id="endDate"
+            type="date"
+            className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
+            value={filter.endDate}
+            onChange={handleFilterChange}
+          />
+        </div>
+      </div>
       <div className="flex gap-4 w-full">
         <DashBoardGrid
           data={salesReportData.totalTransaction}
@@ -63,10 +100,10 @@ export default function SalesReport() {
       </div>
       <div className="flex gap-2 mt-2">
         <div className="w-full">
-          <DashBoardTable tableData={salesReportData.lastTransactions}/>
+          <DashBoardTable tableData={salesReportData.lastTransactions} />
         </div>
         <div className="w-5/12">
-          <DashBoardList listData={salesReportData.topProducts}/>
+          <DashBoardList listData={salesReportData.topProducts} />
         </div>
       </div>
     </div>
