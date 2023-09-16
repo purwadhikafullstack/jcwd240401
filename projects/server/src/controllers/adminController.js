@@ -1398,6 +1398,10 @@ module.exports = {
   },
   //sales report (A)
   async getBranchAdminSalesReport(req, res) {
+    const pagination = {
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
+    };
     try {
       const user = await db.User.findOne({
         where: {
@@ -1412,7 +1416,37 @@ module.exports = {
         return res.status(401).send({ message: "User not found" });
       }
 
+      const whereOrderData = {};
+
+      if (pagination.startDate && pagination.endDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+
+        whereOrderData.orderDate = {
+          [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
+        };
+      } else if (pagination.startDate) {
+        const startDateUTC = new Date(pagination.startDate);
+        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+
+        whereOrderData.orderDate = {
+          [db.Sequelize.Op.gte]: startDateUTC,
+        };
+      } else if (pagination.endDate) {
+        const endDateUTC = new Date(pagination.endDate);
+        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+
+        whereOrderData.orderDate = {
+          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+        };
+      }
+
       const orderData = await db.Order.findAndCountAll({
+        where: whereOrderData,
         include: [
           { model: db.Branch_Product, where: { branch_id: user.Branch.id } },
           { model: db.User, distinct: true }, // Include User model with distinct set to true
