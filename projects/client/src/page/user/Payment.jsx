@@ -155,14 +155,14 @@ export default function Payment() {
                 weight={product.Product.weight}
                 UOM={product.Product.unitOfMeasurement}
                 productImg={product.Product.imgProduct}
-                discountId={product.Discount.id}
-                discountType={product.Discount.discount_type_id}
-                isExpired={product.Discount.isExpired}
-                basePrice={product.Product.basePrice}
-                discountAmount={product.Discount.amount}
+                discountId={product.Discount?.id}
+                discountType={product.Discount?.discount_type_id}
+                isExpired={product.Discount?.isExpired}
+                basePrice={product.Product?.basePrice}
+                discountAmount={product.Discount?.amount}
                 productStock={product.quantity}
-                cartId={product.id}
-                productId={product.id}
+                cartId={product?.id}
+                productId={product?.id}
               />
             ))}
 
