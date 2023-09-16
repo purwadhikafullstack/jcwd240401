@@ -691,7 +691,7 @@ module.exports = {
         const userId = req.user.id
         const transaction = await db.sequelize.transaction()
 
-        const {password, confirmPassword } = req.body
+        const {currentPassword, password, confirmPassword } = req.body
         try{
             const userData = await db.User.findOne({
                 where: {
@@ -702,6 +702,13 @@ module.exports = {
                 await transaction.rollback()
                 return res.status(400).send({
                     message: "user not found"
+                })
+            }
+
+            const isValid = await bcrypt.compare(currentPassword, userData.password)
+            if(!isValid) {
+                return res.status(400).send({
+                    message: "Incorrect current password"
                 })
             }
 

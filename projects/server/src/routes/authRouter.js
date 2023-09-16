@@ -19,6 +19,6 @@ router.patch("/users/verify", authController.verifyAccount)
 router.get("/users/profile", userController.getProfileWithVerificationToken);
 router.post("/forgot-password", authValidator.validateForgotPassword, authController.forgotPassword)
 router.post("/users/reset-password", authValidator.validateSetPassword, authController.resetPassword)
-router.post("/users/change-password", authMiddleware.verifyToken,authMiddleware.verifyUser, authValidator.validateSetPassword,authController.changePassword)
+router.post("/users/change-password", authMiddleware.verifyToken,authMiddleware.verifyUser, authValidator.validateChangePassword,authController.changePassword)
 
 module.exports = router;

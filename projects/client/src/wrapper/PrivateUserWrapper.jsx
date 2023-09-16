@@ -15,7 +15,7 @@ const PrivateUserWrapper = ({allowedRoles}) => {
     if (token) {
       try {
         const response = await axios.get(
-          "http://localhost:8000/api/auth/keep-login",
+          `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

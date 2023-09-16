@@ -471,4 +471,28 @@ module.exports = {
         return true;
       }),
   ]),
+  validateChangePassword: validate([
+    body("currentPassword")
+      .notEmpty()
+      .withMessage("Current password is required"),
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("minimum password length is 8 characters")
+      .isStrongPassword({
+        minSymbols: 0,
+      })
+      .withMessage(
+        "password must contain 1 uppercase, 1 lowercase and 1 number"
+      ),
+    body("confirmPassword")
+      .notEmpty()
+      .withMessage("confirm password is required")
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          return false;
+        }
+        return true;
+      })
+      .withMessage("password does not match"),
+  ]),
 };

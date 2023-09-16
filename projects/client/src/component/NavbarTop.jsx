@@ -13,12 +13,20 @@ export default function NavbarTop({city, province}) {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const routes = [
-        {name: "Home", to: "/"},
-        {name: "Orders", to: "/user/orders"},
-        {name: "Cart", icon: <HiOutlineShoppingCart size={25}/>, to: "/user/cart"},
-        {name: "Account", icon: <DropdownForNavbar/>, to: "/user/account"}
+    const defaultRoutes = [
+        {menu: "Home", to: "/"},
+        {menu: "Orders", to: "/user/orders"},
+        {menu: "Cart", to: "/user/cart"},
+        {menu: "Account", to: "/user/account"}
     ]
+    const loggedInRoutes = [
+        {menu: "Home", to: "/"},
+        {menu: "Orders", to: "/user/orders"},
+        {menu: <HiOutlineShoppingCart size={25}/>, to: "/user/cart"},
+        {menu: <DropdownForNavbar/>}
+    ]
+
+    const routes = token ? loggedInRoutes : defaultRoutes
 
     const onClickLogIn = () => {
         navigate("/login")
@@ -27,7 +35,7 @@ export default function NavbarTop({city, province}) {
     <>
     <div className='hidden lg:w-full lg:h-24 lg:shadow-md lg:bg-cover lg:bg-center lg:grid lg:grid-cols-2 lg:px-10' style={{backgroundImage: `url(${background})`, backgroundSize: 'cover'}}>
         <div className="w-full h-full col-span-1 grid grid-cols-2 items-center">
-            <div><img src={logo} alt="logo" /></div>
+            <div><Link to="/"><img src={logo} alt="logo" /></Link></div>
             <div className='flex gap-4 items-center'>
                 <HiOutlineLocationMarker className="w-6 h-6" />
                 <div>{ city && province ? `${city}, ${province}` : ""}</div> 
@@ -35,10 +43,9 @@ export default function NavbarTop({city, province}) {
         </div>
         <div className="w-full h-full col-span-1 flex justify-end gap-20 items-center font-inter">
             <div className="flex items-center justify-between gap-10">
-                {routes.map(({ name, icon, to }, idx) => (
+                {routes.map(({ menu, to }, idx) => (
                     <Link to={to} className={`h-10 flex items-center justify-center ${location.pathname === to ? `text-maingreen font-bold border-b-2 border-maingreen` : `text-darkgrey`}`}>
-                    {token && profile.role === "3" ? 
-                    <div key={idx}>{icon ? icon : name}</div> : <div key={idx}>{name}</div>}
+                    <div key={idx}>{menu}</div>
                     </Link>
                 ))}
             </div>

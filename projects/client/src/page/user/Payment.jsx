@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { Formik, Form } from "formik";
+import * as yup from "yup";
 import rupiah from "../../helpers/rupiah";
 import Modal from "../../component/Modal";
 import CheckoutItem from "../../component/user/CheckoutItem";
 import ModalCancelOrder from "../../component/ModalCancelOrder";
+import AlertPopUp from "../../component/AlertPopUp";
+import Label from "../../component/Label";
 
 export default function Payment() {
   const { id } = useParams();
@@ -16,6 +20,9 @@ export default function Payment() {
   const [deliveryFee, setDeliveryFee] = useState("");
   const [grandTotal, setGrandTotal] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate();
 
   const fetchOrder = async () => {
@@ -24,7 +31,9 @@ export default function Payment() {
         `${process.env.REACT_APP_API_BASE_URL}/users/order/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setSelectedVoucher(response.data.data.Voucher.maxDiscount);
+      if (response.data?.data?.Voucher?.maxDiscount !== undefined) {
+        setSelectedVoucher(response.data?.data?.Voucher?.maxDiscount);
+      }
       setDeliveryFee(response.data.data.shippingCost);
       setOrderStatus(response.data.data.orderStatus);
       setOrderData(response.data);
@@ -33,6 +42,7 @@ export default function Payment() {
         response.data?.data?.Branch_Products
       );
       setSubTotal(calculatedSubTotal);
+      console.log(response?.data?.data?.Voucher?.maxDiscount);
     } catch (error) {
       console.log(error.message);
     }
@@ -85,11 +95,119 @@ export default function Payment() {
     }
   };
 
+  const handleShowAlert = () => {
+    setShowAlert(true);
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 4000);
+  };
+
+  const handleHideAlert = () => {
+    setShowAlert(false);
+  };
+
+  const handleSubmit = async (
+    values,
+    { setSubmitting, resetForm, setStatus }
+  ) => {
+    const { file } = values;
+    const formData = new FormData();
+    formData.append("file", file);
+    console.log("test");
+    try {
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/users/payment/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 201) {
+        resetForm();
+        setErrorMessage("");
+        setSuccessMessage(response.data?.message);
+        handleShowAlert();
+        setOrderStatus("Waiting for payment confirmation");
+      }
+    } catch (error) {
+      console.log(error);
+      const response = error.response;
+      if (response.data.message === "An error occurs") {
+        const { msg } = response.data?.errors[0];
+        if (msg) {
+          setStatus({ success: false, msg });
+          setErrorMessage(`${msg}`);
+        }
+      }
+      if (response?.data.error) {
+        const errMsg = response?.data.error;
+        console.log(errMsg);
+        setStatus({ success: false, errors: errMsg });
+        setErrorMessage(`${errMsg}`);
+      }
+      if (response.status === 500) {
+        setErrorMessage("payment failed: Server error");
+      }
+      handleShowAlert();
+      resetForm();
+    } finally {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setSubmitting(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    try {
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/users/confirm-order/${id}`,
+        null,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.status === 200) {
+        navigate("/user/orders");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const labelColor = (text) => {
+    switch (text) {
+      case "Waiting for payment":
+        return "gray";
+        break;
+      case "Waiting for payment confirmation":
+        return "purple";
+        break;
+      case "Processing":
+        return "yellow";
+        break;
+      case "Delivering":
+        return "blue";
+        break;
+      case "Order completed":
+        return "green";
+        break;
+      case "Canceled":
+        return "red";
+        break;
+      default:
+        return "";
+        break;
+    }
+  };
+
+  const paymentSchema = yup.object().shape({
+    file: yup.mixed().required("Category image is required"),
+  });
+
   useEffect(() => {
     if (id) {
       fetchOrder();
     }
-  }, []);
+  }, [orderStatus]);
 
   // Update the countdown timer every second
   useEffect(() => {
@@ -109,7 +227,9 @@ export default function Payment() {
         } else {
           // Timer reached zero, trigger cancellation here
           console.log("cancel order");
-          handleCancel({ cancelReason: "time has run out" }, id);
+          if (orderStatus === "Waiting for payment") {
+            handleCancel({ cancelReason: "time has run out" }, id);
+          }
         }
       };
 
@@ -126,6 +246,13 @@ export default function Payment() {
     <div>
       {orderData ? (
         <div className="flex flex-col justify-center items-center">
+          {showAlert ? (
+            <AlertPopUp
+              condition={errorMessage ? "fail" : "success"}
+              content={errorMessage ? errorMessage : successMessage}
+              setter={handleHideAlert}
+            />
+          ) : null}
           <div className="w-full lg:w-4/6">
             <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
               Invoice
@@ -140,16 +267,21 @@ export default function Payment() {
               </div>
             )}
             <div className="flex flex-row">
-              <span className="text-maingreen font-semibold">
+              <span className="text-maingreen font-semibold pt-1">
                 Order Status:
               </span>
-              <span className="mx-2">{orderStatus}</span>
+              <span className="mx-2">
+                <Label
+                  text={orderStatus}
+                  labelColor={labelColor(orderStatus)}
+                />
+              </span>
             </div>
 
             <div className="text-maingreen font-semibold">My Order Summary</div>
             {orderData.data.Branch_Products.map((product) => (
               <CheckoutItem
-                key={product.id}
+                key={product?.id}
                 quantity={product.Order_Item?.quantity}
                 name={product.Product.name}
                 weight={product.Product.weight}
@@ -218,15 +350,84 @@ export default function Payment() {
               </span>
             </div>
             {orderStatus === "Waiting for payment" && (
-              <div className="flex flex-row">
-                <ModalCancelOrder onSubmit={(e) => handleCancel(e, id)} />
+              <div>
+                <div className="border-t-2 border-x-lightgrey mt-6">
+                  please update your payment below to proceed your order
+                </div>
+                <Formik
+                  enableReinitialize
+                  initialValues={{ file: null }}
+                  validationSchema={paymentSchema}
+                  onSubmit={handleSubmit}
+                >
+                  {(props) => (
+                    <Form>
+                      <div className="flex flex-col gap-2 py-4 mb-4">
+                        <label htmlFor="file" className="">
+                          payment proof Image
+                          <span className="text-sm font-normal">
+                            (.jpg, .jpeg, .png)
+                          </span>
+                          <span className="text-reddanger font-normal">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0"
+                            type="file"
+                            id="file"
+                            name="file"
+                            onChange={(e) => {
+                              props.setFieldValue(
+                                "file",
+                                e.currentTarget.files[0]
+                              );
+                            }}
+                            required
+                          />
+                          {props.errors.file && props.touched.file && (
+                            <div className="text-sm text-reddanger absolute top-12">
+                              {" "}
+                              {props.errors.file}{" "}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-row">
+                        <ModalCancelOrder
+                          onSubmit={(e) => handleCancel(e, id)}
+                        />
+                        <Modal
+                          isDisabled={!props.dirty || !props.values.file}
+                          modalTitle={"Update payment"}
+                          toggleName={"Update payment"}
+                          content={
+                            "By uploading this image, you're lanjuut. Are you sure?"
+                          }
+                          buttonCondition={"positive"}
+                          buttonLabelOne={"Cancel"}
+                          buttonLabelTwo={"Yes"}
+                          buttonTypeOne={"button"}
+                          buttonTypeTwo={"submit"}
+                          onClickButton={props.handleSubmit}
+                        />
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
+              </div>
+            )}
+            {orderStatus === "Delivering" && (
+              <div className="m-2 ">
                 <Modal
-                  modalTitle={"Checkout"}
-                  toggleName={"Checkout"}
-                  content={"Are you sure you want to checkout?"}
-                  buttonLabelOne={"Cancel"}
+                  modalTitle={"Confirm order"}
+                  toggleName={"Confirm order"}
+                  content={"are you sure you want to complete this order?"}
                   buttonCondition={"positive"}
+                  buttonLabelOne={"Cancel"}
                   buttonLabelTwo={"Yes"}
+                  buttonTypeOne={"button"}
+                  buttonTypeTwo={"submit"}
+                  onClickButton={handleConfirm}
                 />
               </div>
             )}
