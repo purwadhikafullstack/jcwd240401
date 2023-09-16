@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { product: productController } = require("../controllers");
+const { product: productController, auth } = require("../controllers");
 const { admin: adminController } = require("../controllers");
 const { transaction: transactionController } = require("../controllers");
 const categoryMulterMiddleware = require("../middleware/multerMiddleware/category");
@@ -257,5 +257,12 @@ router.get(
   authMiddleware.verifyToken,
   authMiddleware.verifyAdmin,
   adminController.getBranchAdminSalesReport
+);
+
+router.get(
+  "/sa-sales-report",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.getSuperAdminSalesReport
 );
 module.exports = router;
