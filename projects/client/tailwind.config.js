@@ -41,5 +41,9 @@ module.exports = {
       widest: "0.3em",
     },
   },
-  plugins: [require("flowbite/plugin")],
+  plugins: [
+    require("flowbite/plugin")({
+      charts: true,
+    }),
+  ],
 };
