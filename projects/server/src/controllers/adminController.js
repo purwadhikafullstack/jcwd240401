@@ -1549,7 +1549,9 @@ module.exports = {
         })
       );
 
-      top5Products.sort((a, b) => b.sales - a.sales).slice(0, 5);
+      const topProducts = top5Products
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
 
       // Calculate courier usage in percentage
       const courierUsagePercentage = [];
@@ -1574,7 +1576,7 @@ module.exports = {
           totalCompletedOrders, // Include the total number of completed orders
           totalCancelledOrders, // Include the total number of cancelled orders
           lastTransactions: lastFiveTransactions, // Include the last 5 transactions
-          topProducts: top5Products, // Include the top 5 products based on sales
+          topProducts, // Include the top 5 products based on sales
         },
       });
     } catch (error) {
@@ -1741,7 +1743,9 @@ module.exports = {
         })
       );
 
-      top5Products.sort((a, b) => b.sales - a.sales).slice(0, 5);
+      const topProducts = top5Products
+        .sort((a, b) => b.sales - a.sales)
+        .slice(0, 5);
 
       // Calculate courier usage in percentage
       const courierUsagePercentage = [];
@@ -1766,7 +1770,7 @@ module.exports = {
           totalCompletedOrders, // Include the total number of completed orders
           totalCancelledOrders, // Include the total number of cancelled orders
           lastTransactions: lastFiveTransactions, // Include the last 5 transactions
-          topProducts: top5Products, // Include the top 5 products based on sales
+          topProducts, // Include the top 5 products based on sales
         },
       });
     } catch (error) {

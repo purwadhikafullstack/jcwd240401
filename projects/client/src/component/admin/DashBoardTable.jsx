@@ -1,7 +1,33 @@
 import React from "react";
+import Label from "../Label"
 
 export default function DashBoardTable({ tableData }) {
   if (tableData) {
+    const labelColor = (text) => {
+      switch (text) {
+        case "Waiting for payment":
+          return "gray";
+          break;
+        case "Waiting for payment confirmation":
+          return "purple";
+          break;
+        case "Processing":
+          return "yellow";
+          break;
+        case "Delivering":
+          return "blue";
+          break;
+        case "Order completed":
+          return "green";
+          break;
+        case "Canceled":
+          return "red";
+          break;
+        default:
+          return "";
+          break;
+      }
+    };
     return (
       <div className="bg-white px-4 pt-3 pb-4 rounded-md border border-gray-200 w-full">
         <span>Recent transactions</span>
@@ -36,7 +62,12 @@ export default function DashBoardTable({ tableData }) {
                   >
                     {transaction.invoiceCode}
                   </th>
-                  <td className="px-6 py-4">{transaction.orderStatus}</td>
+                  <td className="px-6 py-4">
+                    <Label
+                      text={transaction?.orderStatus}
+                      labelColor={labelColor(transaction?.orderStatus)}
+                    />
+                  </td>
                   <td className="px-6 py-4">${transaction.totalPrice}</td>
                   <td className="px-6 py-4">
                     {new Date(transaction.orderDate).toLocaleDateString()}

@@ -262,7 +262,7 @@ router.get(
 router.get(
   "/sa-sales-report",
   authMiddleware.verifyToken,
-  authMiddleware.verifyAdmin,
+  authMiddleware.verifySuperAdmin,
   adminController.getSuperAdminSalesReport
 );
 module.exports = router;
