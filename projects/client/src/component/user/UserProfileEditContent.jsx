@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import * as yup from "yup";
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import { useNavigate } from "react-router-dom";
@@ -7,13 +6,13 @@ import dayjs from 'dayjs'
 
 import Modal from '../Modal';
 import InputField from '../InputField';
-import AlertPopUp from '../AlertPopUp';
 import Button from '../Button';
+import { modifyProfileSchema } from '../../helpers/validationSchema';
+import AlertHelper from '../../helpers/AlertHelper';
 
 export default function UserProfileEditContent() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [profileDetails, setProfileDetails] = useState({
         name: "",
         email: "",
@@ -21,9 +20,7 @@ export default function UserProfileEditContent() {
         birthdate: "",
         gender: "",
     })
-
     const navigate = useNavigate()
-
     const token = localStorage.getItem("token")
     const genderOption = [{ label: "Male", value: "male" }, { label: "Female", value: "female" }]
 
@@ -51,16 +48,6 @@ export default function UserProfileEditContent() {
         }
     }
 
-    const validRgx = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-
-    const modifyProfileSchema = yup.object().shape({
-        name: yup.string().max(50, 'Maximum character is 50').trim().nullable(),
-        email: yup.string().email('Please enter with email format').nullable(),
-        phone: yup.string().matches(validRgx, 'Phone number is not valid').nullable(),
-        gender: yup.string().oneOf(['male', 'female'], 'Gender must be "male" or "female"').nullable(),
-        birthdate: yup.date().max(new Date(), 'Birthdate cannot be in the future').nullable(),
-    });
-
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues }) => {
         const { name, email, phone, birthdate, gender } = values;
         console.log("berhasil click submit")
@@ -79,7 +66,6 @@ export default function UserProfileEditContent() {
                 resetForm({ values: initialValues })
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             const response = error.response;
@@ -99,24 +85,12 @@ export default function UserProfileEditContent() {
             if (response?.status === 500) {
                 setErrorMessage("Modify Product failed: Server error")
             }
-            handleShowAlert()
             resetForm()
         } finally {
             setSubmitting(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
-
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -130,7 +104,7 @@ export default function UserProfileEditContent() {
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Edit My Profile</div>
                 </div>
-                {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
                 <div className='flex flex-col gap-2 pb-6 sm:py-6 mx-2 sm:mx-0'>
                     <Formik enableReinitialize initialValues={{ name: profileDetails.name, email: profileDetails.email, phone: profileDetails.phone, birthdate: profileDetails.birthdate ?? "", gender: profileDetails.gender ?? "" }} validationSchema={modifyProfileSchema} onSubmit={handleSubmit}>
                         {(props) => (
