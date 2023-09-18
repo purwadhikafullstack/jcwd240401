@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BsCart3, BsFillCheckCircleFill, BsXCircleFill } from "react-icons/bs";
 import { FaUserAlt } from "react-icons/fa";
+import { AiFillDollarCircle } from "react-icons/ai";
 import DashBoardGrid from "../../../admin/DashBoardGrid";
 import DashBoardAreaChart from "../../../admin/DashBoardAreaChart";
 import DashBoardPieChart from "../../../admin/DashBoardPieChart";
@@ -114,22 +115,22 @@ export default function SalesReport() {
         <DashBoardGrid
           data={salesReportData.totalTransaction}
           title="Total Sales"
-          logo={<BsCart3 size={25} />}
+          logo={<AiFillDollarCircle size={30} className="text-[#ebd934]" />}
         />
         <DashBoardGrid
           data={salesReportData.totalCompletedOrders}
           title="Total Completed Orders"
-          logo={<BsFillCheckCircleFill size={25} />}
+          logo={<BsFillCheckCircleFill size={25} className="text-[#2E6930]" />}
         />
         <DashBoardGrid
           data={salesReportData.totalCancelledOrders}
           title="Total Canceled Orders"
-          logo={<BsXCircleFill size={25} />}
+          logo={<BsXCircleFill size={25} className="text-[#eb4034]" />}
         />
         <DashBoardGrid
           data={salesReportData.totalUsers}
           title="Total Customers"
-          logo={<FaUserAlt size={25} />}
+          logo={<FaUserAlt size={25} className="text-[#3468eb]" />}
         />
       </div>
       <div className="flex gap-2">

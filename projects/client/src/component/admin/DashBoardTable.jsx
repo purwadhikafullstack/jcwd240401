@@ -1,5 +1,6 @@
 import React from "react";
-import Label from "../Label"
+import Label from "../Label";
+import rupiah from "../../helpers/rupiah";
 
 export default function DashBoardTable({ tableData }) {
   if (tableData) {
@@ -68,7 +69,7 @@ export default function DashBoardTable({ tableData }) {
                       labelColor={labelColor(transaction?.orderStatus)}
                     />
                   </td>
-                  <td className="px-6 py-4">${transaction.totalPrice}</td>
+                  <td className="px-6 py-4">{rupiah(transaction.totalPrice)}</td>
                   <td className="px-6 py-4">
                     {new Date(transaction.orderDate).toLocaleDateString()}
                   </td>
