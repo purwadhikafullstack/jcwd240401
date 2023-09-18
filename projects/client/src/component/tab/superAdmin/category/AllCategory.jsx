@@ -5,15 +5,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { LuEdit } from "react-icons/lu"
 
 import Modal from '../../../Modal';
-import AlertPopUp from '../../../AlertPopUp';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
-import handleImageError from '../../../../helpers/handleImageError'
+import handleImageError from '../../../../helpers/handleImageError';
+import AlertHelper from '../../../../helpers/AlertHelper';
 
 export default function AllCategory() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [allCategory, setAllCategory] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -29,7 +28,6 @@ export default function AllCategory() {
             })
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             console.log(error)
@@ -41,7 +39,6 @@ export default function AllCategory() {
                 setErrorMessage(error?.response?.data?.message)
                 console.log(error?.response?.data?.message);
             }
-            handleShowAlert()
         } finally {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             getCategory();
@@ -115,20 +112,9 @@ export default function AllCategory() {
         navigate({ search: params.toString() });
     };
 
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
-
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <div className='flex flex-col sm:flex-row gap-4 w-10/12 mx-auto my-6'>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search category by name..." />
                 <CustomDropdownURLSearch id="sortName" options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />

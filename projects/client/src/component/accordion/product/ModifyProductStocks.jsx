@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import * as yup from "yup";
 import { Formik, Form, Field } from "formik";
 
 import Modal from '../../Modal';
-import AlertPopUp from '../../AlertPopUp';
 import InputField from '../../InputField';
+import { modifyBranchProductQuantitySchema } from '../../../helpers/validationSchema';
+import AlertHelper from '../../../helpers/AlertHelper';
 
 export default function ModifyProductStocks({ branchProductId }) {
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
-  const [showAlert, setShowAlert] = useState(false)
   const [branchProductDetails, setBranchProductDetails] = useState({
     quantity: "",
   })
-
-  let token = localStorage.getItem("token")
-
-  const modifyBranchProductSchema = yup.object().shape({
-    quantity: yup.number().required("Quantity is required").min(1, "Quantity must be at least 1").typeError('Quantity must be a valid number'),
-  });
+  const token = localStorage.getItem("token")
 
   const getOneBranchProduct = async () => {
     try {
@@ -51,7 +45,6 @@ export default function ModifyProductStocks({ branchProductId }) {
         resetForm({ values: initialValues })
         setErrorMessage("")
         setSuccessMessage(response.data?.message)
-        handleShowAlert()
       }
     } catch (error) {
       const response = error.response;
@@ -74,7 +67,6 @@ export default function ModifyProductStocks({ branchProductId }) {
       if (response.status === 500) {
         setErrorMessage("Modify branch product stock failed: Server error")
       }
-      handleShowAlert()
       resetForm()
     } finally {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -83,23 +75,13 @@ export default function ModifyProductStocks({ branchProductId }) {
     }
   };
 
-  const handleShowAlert = () => {
-    setShowAlert(true)
-    setTimeout(() => {
-      setShowAlert(false)
-    }, 4000)
-  }
-
-  const handleHideAlert = () => {
-    setShowAlert(false)
-  }
-
   useEffect(() => {
     getOneBranchProduct()
   }, [successMessage, errorMessage,])
+
   return (
     <div className="w-5/6 mx-auto flex flex-col justify-center font-inter">
-      {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
       <div className='flex flex-col gap-2 py-6'>
         <div className="font-semibold">
           Stock: {branchProductDetails.quantity} Qty
@@ -107,7 +89,7 @@ export default function ModifyProductStocks({ branchProductId }) {
         <div className="pt-4">
           Modify Below:
         </div>
-        <Formik enableReinitialize initialValues={{ action: "", quantity: "" }} validationSchema={modifyBranchProductSchema} onSubmit={handleSubmit}>
+        <Formik enableReinitialize initialValues={{ action: "", quantity: "" }} validationSchema={modifyBranchProductQuantitySchema} onSubmit={handleSubmit}>
           {(props) => (
             <Form className="flex flex-col gap-2">
               <div className="grid grid-cols-1 md:grid-cols-2 justify-around gap-4 items-center">

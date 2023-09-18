@@ -1,30 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import * as yup from "yup";
 import axios from 'axios';
 import { Formik, Form } from 'formik';
 import { useNavigate, useParams } from "react-router-dom";
 
 import Modal from '../Modal';
 import InputField from '../InputField';
-import AlertPopUp from '../AlertPopUp';
 import Button from '../Button';
 import FarmersMarket from '../../assets/FarmersMarket.png';
 import handleImageError from '../../helpers/handleImageError'
+import { createCategorySchema } from '../../helpers/validationSchema';
+import AlertHelper from '../../helpers/AlertHelper';
 
 export default function SuperAdminModifyCategory() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
-    const [categoryDetails, setCategoryDetails] = useState({
-        name: "",
-        file: ""
-    })
+    const [categoryDetails, setCategoryDetails] = useState({ name: "", file: "" })
     const [imagePreview, setImagePreview] = useState(null);
     const token = localStorage.getItem("token")
-
-    const categorySchema = yup.object().shape({
-        name: yup.string().max(50, 'Category name must not exceed 50 characters').typeError("Name must be a valid text"),
-    })
     const { id } = useParams()
     const navigate = useNavigate()
 
@@ -68,7 +60,6 @@ export default function SuperAdminModifyCategory() {
                 resetForm({ values: initialValues })
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
                 setFieldValue("file", null)
             }
         } catch (error) {
@@ -92,23 +83,11 @@ export default function SuperAdminModifyCategory() {
             if (response?.status === 500) {
                 setErrorMessage("Create category failed: Server error")
             }
-            handleShowAlert()
             resetForm()
         } finally {
             setSubmitting(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    }
-
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
     }
 
     useEffect(() => {
@@ -132,24 +111,24 @@ export default function SuperAdminModifyCategory() {
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Category</div>
             </div>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <div className='grid grid-cols-1 lg:grid-cols-2 h-full justify-center content-center gap-4'>
                 <div className='hidden lg:grid content-center justify-center p-4'>
                     <img src={FarmersMarket} alt="illustration" className='w-full h-full object-cover' />
                 </div>
                 <div className='lg:p-4 grid content-center'>
-                    <Formik enableReinitialize initialValues={{ name: categoryDetails.name, file: null, }} validationSchema={categorySchema} onSubmit={handleSubmit}>
+                    <Formik enableReinitialize initialValues={{ name: categoryDetails.name, file: null, }} validationSchema={createCategorySchema} onSubmit={handleSubmit}>
                         {(props) => (
                             <Form>
                                 <div className="flex flex-col gap-2 py-4 font-inter">
-                                    <label htmlFor="name" className="">Category Name</label>
+                                    <label htmlFor="name" className="font-medium">Name <span className="text-sm font-normal">(max. 50 characters) </span></label>
                                     <div className='relative'>
                                         <InputField value={props.values.name} name="name" id={"name"} type={"string"} onChange={props.handleChange} />
                                         {props.errors.name && props.touched.name && <div className="text-reddanger absolute top-12">{props.errors.name}</div>}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2 py-4 mb-24">
-                                    <label htmlFor="img" className="">Category Image</label>
+                                    <label htmlFor="img" className="font-medium">Image <span className="text-sm font-normal">(.jpg, .jpeg, .png) max. 1MB </span></label>
                                     <div>
                                         {(imagePreview) ? (
                                             <img
