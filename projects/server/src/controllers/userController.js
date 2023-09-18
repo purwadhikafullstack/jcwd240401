@@ -278,6 +278,12 @@ module.exports = {
           user_id: req.user.id,
           isRemoved: 0,
         },
+        include: [{
+          model: db.City,
+          include: [{
+            model: db.Province
+          }]
+        }],
         transaction,
       });
       if (!getAddress) {
