@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BsCart3, BsFillCheckCircleFill, BsXCircleFill } from "react-icons/bs";
 import { FaUserAlt } from "react-icons/fa";
+import { AiFillDollarCircle } from "react-icons/ai";
 import DashBoardGrid from "../../../admin/DashBoardGrid";
 import DashBoardAreaChart from "../../../admin/DashBoardAreaChart";
 import DashBoardPieChart from "../../../admin/DashBoardPieChart";
@@ -42,7 +43,7 @@ export default function SalesReport() {
   }, [filter]);
   return (
     <div>
-      <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
+      <div className="mx-auto py-2 w-full lg:w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Start Date
@@ -50,7 +51,7 @@ export default function SalesReport() {
           <input
             id="startDate"
             type="date"
-            className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0 "
+            className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
             value={filter.startDate}
             onChange={handleFilterChange}
           />
@@ -68,41 +69,41 @@ export default function SalesReport() {
           />
         </div>
       </div>
-      <div className="flex gap-4 w-full">
+      <div className="flex flex-col lg:flex-row gap-2 w-full">
         <DashBoardGrid
           data={salesReportData.totalTransaction}
           title="Total Sales"
-          logo={<BsCart3 size={25} />}
+          logo={<AiFillDollarCircle size={30} className="text-[#ebd934]" />}
         />
         <DashBoardGrid
           data={salesReportData.totalCompletedOrders}
           title="Total Completed Orders"
-          logo={<BsFillCheckCircleFill size={25} />}
+          logo={<BsFillCheckCircleFill size={25} className="text-[#2E6930]" />}
         />
         <DashBoardGrid
           data={salesReportData.totalCancelledOrders}
           title="Total Canceled Orders"
-          logo={<BsXCircleFill size={25} />}
+          logo={<BsXCircleFill size={25} className="text-[#eb4034]" />}
         />
         <DashBoardGrid
           data={salesReportData.totalUsers}
           title="Total Customers"
-          logo={<FaUserAlt size={25} />}
+          logo={<FaUserAlt size={25} className="text-[#3468eb]" />}
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-col lg:flex-row gap-2">
         <div className="w-full">
           <DashBoardAreaChart areaChartData={salesReportData.areaChart} />
         </div>
-        <div className="w-5/12">
+        <div className="w-full lg:w-5/12">
           <DashBoardPieChart pieChartData={salesReportData.pieChart} />
         </div>
       </div>
-      <div className="flex gap-2 mt-2">
+      <div className="flex flex-col lg:flex-row gap-2 mt-2">
         <div className="w-full">
           <DashBoardTable tableData={salesReportData.lastTransactions} />
         </div>
-        <div className="w-5/12">
+        <div className="w-full lg:w-5/12">
           <DashBoardList listData={salesReportData.topProducts} />
         </div>
       </div>
