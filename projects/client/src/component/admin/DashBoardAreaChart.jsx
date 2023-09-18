@@ -7,7 +7,7 @@ const DashBoardAreaChart = ({areaChartData}) => {
     chart: {
       height: "100%",
       maxWidth: "100%",
-      type: "area",
+      type: "bar",
       fontFamily: "Inter, sans-serif",
       dropShadow: {
         enabled: false,
@@ -32,7 +32,7 @@ const DashBoardAreaChart = ({areaChartData}) => {
         new Date(dataPoint.date).getTime(),
         dataPoint.totalPrice,
       ]),
-      color: "#1A56DB",
+      color: "#2E6930",
     },
   ];
 
@@ -59,7 +59,7 @@ const DashBoardAreaChart = ({areaChartData}) => {
         <ReactApexChart
           options={options}
           series={series}
-          type="area"
+          type="bar"
           height={350}
         />
       </div>
