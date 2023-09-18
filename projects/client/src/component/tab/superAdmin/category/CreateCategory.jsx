@@ -1,28 +1,19 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import * as yup from "yup";
 import { Formik, Form } from "formik";
 
 import Modal from "../../../Modal";
 import InputField from "../../../InputField";
-import AlertPopUp from "../../../AlertPopUp";
 import handleImageError from "../../../../helpers/handleImageError";
+import { createCategorySchema } from "../../../../helpers/validationSchema";
+import AlertHelper from "../../../../helpers/AlertHelper";
 
 export default function CreateCategory() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const token = localStorage.getItem("token")
-  const createCategorySchema = yup.object().shape({
-    name: yup
-      .string()
-      .max(50, "Category name must not exceed 50 characters")
-      .required("Category name is required")
-      .typeError("Name must be a valid text"),
-    file: yup.mixed().required("Category image is required"),
-  });
 
   const resetFileInput = () => {
     if (fileInputRef.current) {
@@ -53,7 +44,6 @@ export default function CreateCategory() {
         resetFileInput();
         setErrorMessage("");
         setSuccessMessage(response.data?.message);
-        handleShowAlert();
       }
     } catch (error) {
       console.log(error)
@@ -74,7 +64,6 @@ export default function CreateCategory() {
       if (response.status === 500) {
         setErrorMessage("Create category failed: Server error");
       }
-      handleShowAlert();
       resetForm();
     } finally {
       resetFileInput();
@@ -82,17 +71,6 @@ export default function CreateCategory() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       setSubmitting(false);
     }
-  };
-
-  const handleShowAlert = () => {
-    setShowAlert(true);
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 4000);
-  };
-
-  const handleHideAlert = () => {
-    setShowAlert(false);
   };
 
   function preview(event) {
@@ -107,13 +85,7 @@ export default function CreateCategory() {
 
   return (
     <div className="w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter">
-      {showAlert ? (
-        <AlertPopUp
-          condition={errorMessage ? "fail" : "success"}
-          content={errorMessage ? errorMessage : successMessage}
-          setter={handleHideAlert}
-        />
-      ) : null}
+      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
       <Formik enableReinitialize
         initialValues={{ name: "", file: null }}
         validationSchema={createCategorySchema}
@@ -124,9 +96,7 @@ export default function CreateCategory() {
             <div className="text-xs text-reddanger">* required</div>
             <div className="flex flex-col gap-2 py-4 font-inter mb-4">
               <label htmlFor="name" className="font-medium">
-                Name{" "}
-                <span className="text-sm font-normal">(max. 50 characters) </span>
-                <span className="text-reddanger font-normal">*</span>
+                Name <span className="text-sm font-normal">(max. 50 characters) </span><span className="text-reddanger font-normal">*</span>
               </label>
               <div className="relative">
                 <InputField value={props.values.name} id={"name"} type={"string"} name="name" onChange={props.handleChange} />
@@ -135,9 +105,7 @@ export default function CreateCategory() {
             </div>
             <div className="flex flex-col gap-2 py-4 mb-4">
               <label htmlFor="file" className="font-medium">
-                Image{" "}
-                <span className="text-sm font-normal">(.jpg, .jpeg, .png) max. 1MB </span>
-                <span className="text-reddanger font-normal">*</span>
+                Image <span className="text-sm font-normal">(.jpg, .jpeg, .png) max. 1MB </span><span className="text-reddanger font-normal">*</span>
               </label>
               <div>
                 {(imagePreview) ? (

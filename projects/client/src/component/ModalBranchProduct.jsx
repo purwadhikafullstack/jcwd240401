@@ -5,7 +5,7 @@ import rupiah from "../helpers/rupiah";
 
 export default function ModalBranchProduct({ branchProductId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
-    let token = localStorage.getItem("token")
+    const token = localStorage.getItem("token")
     const getProductDetails = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/api/admins/my-branch/branch-products/${branchProductId}`, {

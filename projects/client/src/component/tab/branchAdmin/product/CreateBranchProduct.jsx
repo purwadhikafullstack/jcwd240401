@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import * as yup from "yup";
 import { Formik, Form, Field } from 'formik';
 
 import Modal from '../../../Modal';
 import InputField from '../../../InputField';
-import AlertPopUp from '../../../AlertPopUp';
+import { createBranchProductSchema } from '../../../../helpers/validationSchema';
+import AlertHelper from '../../../../helpers/AlertHelper';
 
 export default function CreateBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [allUnaddedProduct, setAllUnaddedProduct] = useState([]);
     const [isProductSelected, setIsProductSelected] = useState(false)
 
-    let token = localStorage.getItem("token")
+    const token = localStorage.getItem("token")
     const getUnaddedProduct = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/unadded-products`, {
@@ -36,11 +35,6 @@ export default function CreateBranchProduct() {
             console.log("ini error", error);
         }
     }
-    const createBranchProductSchema = yup.object().shape({
-        product_id: yup.string().trim().required("Product is required"),
-        origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50").typeError("Origin must be a valid text"),
-        quantity: yup.number().required("Quantity is required").min(1, "Quantity must be at least 1").typeError('Quantity must be a valid number'),
-    });
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
         console.log("berhasil click submit")
@@ -53,7 +47,6 @@ export default function CreateBranchProduct() {
                 resetForm()
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             const response = error.response;
@@ -73,7 +66,6 @@ export default function CreateBranchProduct() {
             if (response.status === 500) {
                 setErrorMessage("Create branch product failed: Server error")
             }
-            handleShowAlert()
             resetForm()
         } finally {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -83,23 +75,13 @@ export default function CreateBranchProduct() {
         }
     };
 
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
-
     useEffect(() => {
         getUnaddedProduct()
     }, [])
 
     return (
         <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <Formik initialValues={{ product_id: "", origin: "", quantity: "" }} validationSchema={createBranchProductSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form>
