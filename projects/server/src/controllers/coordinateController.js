@@ -7,8 +7,19 @@ module.exports = {
         const longitude = req.query.longitude
         try{
             if(!latitude && !longitude){
+                const branchData = await db.Branch.findAll({
+                    include: [{
+                        model: db.City,
+                        include: [{
+                            model: db.Province
+                        }]
+                    }]
+                })
+                const result = {city: branchData[0].City?.city_name, state: branchData[0].City?.Province?.province_name}
+
                 return res.status(200).send({
-                    message: "Could not get coordinates"
+                    message: "Default location",
+                    data: result
                 })
             }
             const response = await axios.get(
