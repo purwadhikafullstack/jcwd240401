@@ -6,17 +6,16 @@ import { LuEdit } from "react-icons/lu"
 
 import Modal from '../../../Modal';
 import ModalBranchProduct from '../../../ModalBranchProduct';
-import AlertPopUp from '../../../AlertPopUp';
 import rupiah from '../../../../helpers/rupiah';
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import Label from '../../../Label';
 import handleImageError from '../../../../helpers/handleImageError'
+import AlertHelper from '../../../AlertHelper';
 
 export default function AllBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [allBranchProduct, setAllBranchProduct] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -27,7 +26,7 @@ export default function AllBranchProduct() {
     const statusOptions = [{ label: "All Status", value: "" }, { label: "Ready", value: "ready" }, { label: "Restock", value: "restock" }, { label: "Empty", value: "empty" }]
     const params = new URLSearchParams(window.location.search);
     const navigate = useNavigate();
-    let token = localStorage.getItem("token")
+    const token = localStorage.getItem("token")
 
     const getCategory = async () => {
         try {
@@ -68,16 +67,6 @@ export default function AllBranchProduct() {
         } catch (error) {
             console.warn(error);
         }
-    }
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
     }
 
     const onPageChange = (page) => {
@@ -128,7 +117,6 @@ export default function AllBranchProduct() {
             })
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             if (error?.response?.status === 404) {
@@ -139,7 +127,6 @@ export default function AllBranchProduct() {
                 setErrorMessage(error?.response?.data?.message)
                 console.log(error?.response?.data?.message);
             }
-            handleShowAlert()
         } finally {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             getBranchProduct();
@@ -166,7 +153,7 @@ export default function AllBranchProduct() {
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search product by name..." />
                 <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleDropdownChange} placeholder={"Sort by Name"} />
@@ -217,11 +204,7 @@ export default function AllBranchProduct() {
                                     <td className="py-2 sm:px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid grid-rows-2 justify-center gap-2'><Link to={`branch-product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
-                            {allBranchProduct.length === 0 && (
-                                <tr>
-                                    <td colSpan="4" className="py-4 text-center">No Branch Product Found</td>
-                                </tr>
-                            )}
+                            {allBranchProduct.length === 0 && ( <tr><td colSpan="4" className="py-4 text-center">No Branch Product Found</td></tr>)}
                         </tbody>
                     </table>
                 </div>

@@ -3,22 +3,20 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { HiPlus } from "react-icons/hi"
 import { LuEdit } from "react-icons/lu";
+import { useDispatch } from "react-redux";
 
 import Modal from '../Modal';
 import Label from "../Label";
-import AlertPopUp from "../AlertPopUp";
 import Button from "../Button";
+import { keepLocation } from "../../store/reducer/locationSlice";
+import AlertHelper from '../AlertHelper';
 
 export default function UserAddressContent() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [allAddress, setAllAddress] = useState([])
     const navigate = useNavigate();
-
-    const goBack = () => {
-        navigate(-1);
-    };
+    const dispatch = useDispatch();
 
     const token = localStorage.getItem("token")
     const getAddress = async () => {
@@ -43,9 +41,14 @@ export default function UserAddressContent() {
             const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${id}/${action}`, null, {
                 headers: { Authorization: `Bearer ${token}` }
             })
+            if(action === "main") {
+                // add here
+            }
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
-                handleShowAlert()
+            }
+            if (response.data.data) {
+                dispatch(keepLocation({ city: response.data.data?.City?.city_name, province: response.data.data?.City?.Province?.province_name, latitude: response.data.data?.latitude, longitude: response.data.data?.longitude }))
             }
         } catch (error) {
             if (error?.response?.status === 404) {
@@ -59,33 +62,22 @@ export default function UserAddressContent() {
                 setErrorMessage(error?.response?.data?.message)
                 console.log(error?.response?.data?.message);
             }
-            handleShowAlert()
         } finally {
             getAddress();
         }
     }
 
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
-
     useEffect(() => {
         getAddress()
     }, [token])
+    
     return (
         <div className='sm:py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl mx-auto'>
             <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
-                <div className="grid justify-center content-center"><Button condition={"back"} onClick={goBack} /></div>
+                <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate("/user/account")} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Address</div>
             </div>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             {allAddress.length !== 0 ? (
                 allAddress.map((data) => (
                     <div key={data.id} className="grid grid-cols-1 gap-2 mt-2">
@@ -94,7 +86,7 @@ export default function UserAddressContent() {
                                 <div className="">{data.streetName}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.city_name}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.Province?.province_name}</div>
-                                {data.isMain ? (<div className="w-fit"><Label text="Main Address" labelColor="green" /></div>) : (<div><Modal toggleName="Set As Main" modalTitle="Set to Main Address" buttonCondition="setMain" content="This address will be set as main. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleAction(data.id, "main")} /></div>)}
+                                {data.isMain ? (<div className="w-fit"><Label text="Main Address" labelColor="green" /></div>) : (<div><Modal toggleName="Set As Main" modalTitle="Set to Main Address" buttonCondition="setMain" content="This address will be set as main and product(s) in your cart will be reset. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleAction(data.id, "main")} /></div>)}
                             </div>
                             <div className="basis-1/6 lg:basis-1/4 grid grid-cols-2 content-center">
                                 <div className={` ${data.isMain ? 'col-start-2' : 'col-start-1'} grid justify-center content-center`}>

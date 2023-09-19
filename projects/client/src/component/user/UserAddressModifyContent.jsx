@@ -1,64 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import * as yup from "yup";
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import { useNavigate, useParams } from "react-router-dom";
 
 import Modal from '../Modal';
 import InputField from '../InputField';
-import AlertPopUp from '../AlertPopUp';
 import Button from '../Button';
+import { modifyAddressSchema } from '../../helpers/validationSchema';
+import AlertHelper from '../AlertHelper';
 
 export default function UserAddressModifyContent() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
-    const [addressDetails, setAddressDetails] = useState({
-        receiver: "",
-        contact: "",
-        streetName: "",
-        province: "",
-        city: "",
-        addressLabel: "",
-    })
+    const [addressDetails, setAddressDetails] = useState({ receiver: "", contact: "", streetName: "", province: "", city: "", addressLabel: "", })
     const [provinceData, setProvinceData] = useState([])
     const [cityData, setCityData] = useState([])
     const [selectedProvince, setSelectedProvince] = useState("")
     const [selectedCity, setSelectedCity] = useState("")
     const { name } = useParams()
     const navigate = useNavigate()
-
-    const goBack = () => {
-        navigate(-1);
-    };
     const token = localStorage.getItem("token")
-    const validRgx = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-    const modifyAddressSchema = yup.object().shape({
-        receiver: yup.string().trim().max(50, "Maximum character is 50").typeError("Receiver must be a valid text").nullable(),
-        contact: yup.string().matches(validRgx, "Contact is not valid").nullable(),
-        streetName: yup.string().trim().max(255, "Maximum character is 255").typeError("Street name must be a valid text").nullable(),
-        province: yup.string().nullable(),
-        city: yup.string().nullable(),
-        addressLabel: yup.string().nullable(),
-    });
 
     const getOneAddress = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${encodeURIComponent(name)}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${encodeURIComponent(name)}`, { headers: { Authorization: `Bearer ${token}` } });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
-                    setAddressDetails({
-                        id: data.id,
-                        receiver: data.receiver,
-                        contact: data.contact,
-                        streetName: data.streetName,
-                        province: data?.City?.Province?.province_name,
-                        city: data?.City?.city_name,
-                        addressLabel: data?.addressLabel,
-                    })
+                    setAddressDetails({ id: data.id, receiver: data.receiver, contact: data.contact, streetName: data.streetName, province: data?.City?.Province?.province_name, city: data?.City?.city_name, addressLabel: data?.addressLabel, })
                 } else {
                     setAddressDetails([]);
                 }
@@ -111,7 +80,6 @@ export default function UserAddressModifyContent() {
         if (receiver !== addressDetails.receiver) { data.receiver = receiver }
         if (contact !== addressDetails.contact) { data.contact = contact }
         if (addressLabel !== addressDetails.addressLabel) { data.addressLabel = addressLabel }
-        console.log("berhasil click submit")
         try {
             const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${addressDetails.id}`, data, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -121,7 +89,6 @@ export default function UserAddressModifyContent() {
                 resetForm()
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             const response = error.response;
@@ -145,30 +112,13 @@ export default function UserAddressModifyContent() {
             if (response.status === 500) {
                 setErrorMessage("Modify address failed: Server error")
             }
-            handleShowAlert()
             resetForm()
         } finally {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setSubmitting(false);
-            if (streetName !== addressDetails.streetName) {
-                navigate(`/user/account/my-address/modify/${encodeURIComponent(data.streetName)}`)
-            }
-            setTimeout(() => {
-                navigate('/user/account/my-address');
-            }, 3000);
+            if (streetName !== addressDetails.streetName) { navigate(`/user/account/my-address/modify/${encodeURIComponent(data.streetName)}`) }
         }
     };
-
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
 
     useEffect(() => {
         getOneAddress()
@@ -182,10 +132,10 @@ export default function UserAddressModifyContent() {
     return (
         <div className='sm:py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl lg:justify-center mx-auto'>
             <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
-                <div className="grid justify-center content-center"><Button condition={"back"} onClick={goBack} /></div>
+                <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate("/user/account/my-address")} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6'>Modify My Address</div>
             </div>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <Formik enableReinitialize initialValues={{ receiver: addressDetails.receiver, contact: addressDetails.contact, streetName: addressDetails.streetName, province: addressDetails.province, city: addressDetails.city, addressLabel: addressDetails.addressLabel }} validationSchema={modifyAddressSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form className='mx-4 pb-6 sm:py-6'>
@@ -215,11 +165,7 @@ export default function UserAddressModifyContent() {
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='province' onChange={(e) => { setSelectedProvince(e.target.value); props.setFieldValue('province', e.target.value) }}>
                                     <option key="empty" value=''>--choose a province--</option>
-                                    {provinceData && provinceData.map((province) => (
-                                        <option key={province.label} value={province.value}>
-                                            {province.label}
-                                        </option>
-                                    ))}
+                                    {provinceData && provinceData.map((province) => (<option key={province.label} value={province.value}>{province.label}</option>))}
                                 </Field>
                                 {props.errors.province && props.touched.province && <div className="text-sm text-reddanger absolute top-12">{props.errors.province}</div>}
                             </div>
@@ -229,11 +175,7 @@ export default function UserAddressModifyContent() {
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='city' onChange={(e) => { setSelectedCity(e.target.value); props.setFieldValue('city', e.target.value) }} >
                                     <option key="empty" value=''>--choose a city--</option>
-                                    {cityData.map((city) => (
-                                        <option key={city.label} value={city.value}>
-                                            {city.label}
-                                        </option>
-                                    ))}
+                                    {cityData.map((city) => (<option key={city.label} value={city.value}>{city.label}</option>))}
                                 </Field>
                                 {props.errors.city && props.touched.city && <div className="text-sm text-reddanger absolute top-12">{props.errors.city}</div>}
                             </div>
@@ -241,20 +183,12 @@ export default function UserAddressModifyContent() {
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                             <label htmlFor="addressLabel" className="font-bold">Label As:</label>
                             <div className='relative'>
-                                <label>
-                                    <Field type="radio" name="addressLabel" value={"Home"} checked={props.values.addressLabel === "Home"} onChange={() => props.setFieldValue("addressLabel", "Home")} className=" checked:bg-maingreen mx-2 focus:ring-0" id="Home" />
-                                    Home
-                                </label>
-                                <label>
-                                    <Field type="radio" name="addressLabel" value={"Work"} checked={props.values.addressLabel === "Work"} onChange={() => props.setFieldValue("addressLabel", "Work")} className=" checked:bg-maingreen mx-2 focus:ring-0" id="Work" />
-                                    Work
-                                </label>
+                                <label><Field type="radio" name="addressLabel" value={"Home"} checked={props.values.addressLabel === "Home"} onChange={() => props.setFieldValue("addressLabel", "Home")} className=" checked:bg-maingreen mx-2 focus:ring-0" id="Home" />Home</label>
+                                <label><Field type="radio" name="addressLabel" value={"Work"} checked={props.values.addressLabel === "Work"} onChange={() => props.setFieldValue("addressLabel", "Work")} className=" checked:bg-maingreen mx-2 focus:ring-0" id="Work" /> Work</label>
                                 {props.errors.addressLabel && props.touched.addressLabel && <div className="text-sm text-reddanger absolute top-12">{props.errors.addressLabel}</div>}
                             </div>
                         </div>
-                        <div className="mt-8">
-                            <Modal isDisabled={!props.dirty || !props.isValid} modalTitle={"Modify Address"} toggleName={"Modify Address"} content={"By modifying the address, you're altering information for future use. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
-                        </div>
+                        <div className="mt-8"><Modal isDisabled={!props.dirty || !props.isValid} modalTitle={"Modify Address"} toggleName={"Modify Address"} content={"By modifying the address, you're altering information for future use. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} /></div>
                     </Form >
                 )}
             </Formik >

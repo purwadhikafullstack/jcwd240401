@@ -2,13 +2,19 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export const locationSlice = createSlice({
   name: "location",
-  initialState: { outOfReach: "" },
+  initialState: { location : {
+    city: "",
+    province: "",
+    latitude: "",
+    longitude: "",
+    outOfReach: "", },
+  },
   reducers: {
     keepLocation: (state, action) => {
-      state.outOfReach = action.payload;
+      state.location = {...state.location, ...action.payload};
     },
     clearLocation: (state) => {
-      state.outOfReach = "";
+      state.location = {};
     },
   },
 });

@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as yup from "yup";
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 
 import Modal from '../../../Modal';
 import InputField from '../../../InputField';
-import AlertPopUp from '../../../AlertPopUp';
 import handleImageError from '../../../../helpers/handleImageError';
+import { createProductSchema } from '../../../../helpers/validationSchema';
+import AlertHelper from '../../../AlertHelper';
 
 export default function CreateProduct() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [allCategory, setAllCategory] = useState([]);
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
@@ -39,18 +38,6 @@ export default function CreateProduct() {
             console.warn(error);
         }
     }
-
-    const createProductSchema = yup.object().shape({
-        file: yup.mixed(),
-        name: yup.string().trim().required("Product name is required").max(50, "Maximum character is 50").typeError("Name must be a valid text"),
-        category_id: yup.string().trim().required("Category is required"),
-        description: yup.string().trim().required("Description is required").max(500, "Maximum character is 500").typeError("Description must be a valid text"),
-        weight: yup.number().required("Weight is required").min(5, "Weight must be at least 5").typeError('Weight must be a valid number'),
-        unitOfMeasurement: yup.string().trim().required("Unit of measurement is required").oneOf(["gr", "ml"], "Unit of measurement must be 'gr' or 'ml'"),
-        basePrice: yup.number().required("Price is required").min(1000, "Weight must be at least Rp 1.000").typeError('Base price must be a valid number'),
-        storageInstruction: yup.string().trim().required("Storage instruction is required").max(255, "Maximum character is 255").typeError("Storage instruction must be a valid text"),
-        storagePeriod: yup.string().trim().required("Storage period is required").max(255, "Maximum character is 255").typeError("Storage period must be a valid text"),
-    });
 
     const resetFileInput = () => {
         if (fileInputRef.current) {
@@ -84,7 +71,6 @@ export default function CreateProduct() {
                 resetFileInput();
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             const response = error.response;
@@ -108,7 +94,6 @@ export default function CreateProduct() {
             if (response.status === 500) {
                 setErrorMessage("Create product failed: Server error")
             }
-            handleShowAlert()
             resetForm()
         } finally {
             getCategory();
@@ -118,15 +103,7 @@ export default function CreateProduct() {
             setSubmitting(false);
         }
     };
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
+
     useEffect(() => {
         getCategory()
     }, [])
@@ -142,7 +119,7 @@ export default function CreateProduct() {
     }
     return (
         <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <Formik initialValues={{ name: "", description: "", category_id: "", weight: "", unitOfMeasurement: "", basePrice: "", storageInstruction: "", storagePeriod: "", file: null, }} validationSchema={createProductSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form>
@@ -162,15 +139,11 @@ export default function CreateProduct() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                            <label htmlFor="category_id" className="font-medium">Select Category <span className="text-reddanger">*</span></label>
+                            <label htmlFor="category_id" className="font-medium">Category <span className="text-reddanger">*</span></label>
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='category_id'>
                                     <option key="empty" value=''>--choose a category--</option>
-                                    {allCategory.map((category) => (
-                                        <option key={category.value} value={category.value}>
-                                            {category.label}
-                                        </option>
-                                    ))}
+                                    {allCategory.map((category) => (<option key={category.value} value={category.value}>{category.label}</option>))}
                                 </Field>
                                 {props.errors.category_id && props.touched.category_id && <div className="text-sm text-reddanger absolute top-12">{props.errors.category_id}</div>}
                             </div>
@@ -187,11 +160,7 @@ export default function CreateProduct() {
                             <div className='relative'>
                                 <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='unitOfMeasurement'>
                                     <option key="empty" value=''>--choose one UoM--</option>
-                                    {uOMOptions.map((uOM) => (
-                                        <option key={uOM.value} value={uOM.value}>
-                                            {uOM.label}
-                                        </option>
-                                    ))}
+                                    {uOMOptions.map((uOM) => (<option key={uOM.value} value={uOM.value}>{uOM.label}</option>))}
                                 </Field>
                                 {props.errors.unitOfMeasurement && props.touched.unitOfMeasurement && <div className="text-sm text-reddanger absolute top-12">{props.errors.unitOfMeasurement}</div>}
                             </div>
@@ -221,20 +190,9 @@ export default function CreateProduct() {
                             <label htmlFor="file" className="font-medium">Image <span className="text-sm font-normal">(.jpg, .jpeg, .png) max. 1MB </span><span className="text-reddanger">*</span></label>
                             <div>
                                 {(imagePreview) ? (
-                                    <img
-                                        id="frame"
-                                        className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
-                                        src={imagePreview}
-                                        onError={handleImageError}
-                                        alt="/"
-                                    />
+                                    <img id="frame" className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1" src={imagePreview} onError={handleImageError} alt="/" />
                                 ) : (
-                                    <img
-                                        className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
-                                        src={""}
-                                        onError={handleImageError}
-                                        alt="/"
-                                    />
+                                    <img className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1" src={""} onError={handleImageError} alt="/" />
                                 )}
                             </div>
                             <div className='relative'>

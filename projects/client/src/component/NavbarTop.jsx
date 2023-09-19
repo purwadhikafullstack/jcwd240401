@@ -7,12 +7,13 @@ import Button from "./Button";
 import background from "../assets/BackgroundLeaves.jpg";
 import DropdownForNavbar from "./user/DropdownForNavbar";
 
-export default function NavbarTop({ city, province }) {
-  const cartItems = useSelector((state) => state.cart.cart);
-  const token = localStorage.getItem("token");
-  const profile = useSelector((state) => state.auth.profile);
-  const navigate = useNavigate();
-  const location = useLocation();
+export default function NavbarTop({city, province}) {
+    const token = localStorage.getItem("token")
+    const profile = useSelector((state) => state.auth.profile)
+    const address = useSelector((state) => state.location.location)
+    const navigate = useNavigate()
+    const location = useLocation()
+    const cartItems = useSelector((state) => state.cart.cart);
 
   const defaultRoutes = [
     { menu: "Home", to: "/" },
@@ -42,15 +43,11 @@ export default function NavbarTop({ city, province }) {
         }}
       >
         <div className="w-full h-full col-span-1 grid grid-cols-2 items-center">
-          <div>
-            <Link to="/">
-              <img src={logo} alt="logo" />
-            </Link>
-          </div>
-          <div className="flex gap-4 items-center">
-            <HiOutlineLocationMarker className="w-6 h-6" />
-            <div>{city && province ? `${city}, ${province}` : ""}</div>
-          </div>
+            <div><Link to="/"><img src={logo} alt="logo" /></Link></div>
+            <div className='flex gap-4 items-center'>
+                <HiOutlineLocationMarker className="w-6 h-6" />
+                <div>{ address.city && address.province ? `${address.city}, ${address.province}` : "" }</div> 
+            </div>
         </div>
         <div className="w-full h-full col-span-1 flex justify-end gap-20 items-center font-inter">
           <div className="flex items-center justify-between gap-10">

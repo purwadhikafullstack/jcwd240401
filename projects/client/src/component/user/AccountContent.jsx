@@ -58,7 +58,9 @@ export default function AccountContent() {
   };
 
   useEffect(() => {
-    getProfile();
+    if(token) {
+      getProfile();
+    }
   }, [token]);
 
   return (
@@ -87,7 +89,7 @@ export default function AccountContent() {
                     key={idx}
                     className="border-b border-lightgrey pb-2 font-bold px-4 flex justify-between"
                   >
-                    {name}{" "}
+                    {name}
                     <HiOutlineChevronLeft
                       size={22}
                       className="rotate-180 text-maingreen"

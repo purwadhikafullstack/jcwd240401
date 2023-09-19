@@ -6,16 +6,15 @@ import { LuEdit } from "react-icons/lu"
 
 import Modal from '../../../Modal';
 import ModalProduct from '../../../ModalProduct';
-import AlertPopUp from '../../../AlertPopUp';
 import rupiah from '../../../../helpers/rupiah';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
-import handleImageError from '../../../../helpers/handleImageError'
+import handleImageError from '../../../../helpers/handleImageError';
+import AlertHelper from '../../../AlertHelper';
 
 export default function AllProduct() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [allProduct, setAllProduct] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -25,12 +24,12 @@ export default function AllProduct() {
     const [allCategory, setAllCategory] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const token = localStorage.getItem("token")
+    const nameOptions = [{ label: "Sort By Name", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
+    const priceOptions = [{ label: "Sort By Price", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, { headers: { Authorization: `Bearer ${token}` } });
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -51,22 +50,9 @@ export default function AllProduct() {
         }
     }
 
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
-
     const getProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&sortName=${params.get("sortName") || ""}&sortPrice=${params.get("sortPrice") || ""}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&sortName=${params.get("sortName") || ""}&sortPrice=${params.get("sortPrice") || ""}`, { headers: { Authorization: `Bearer ${token}` } });
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
@@ -81,9 +67,6 @@ export default function AllProduct() {
             console.warn(error);
         }
     }
-
-    const nameOptions = [{ label: "Sort By Name", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
-    const priceOptions = [{ label: "Sort By Price", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
 
     const onPageChange = (page) => {
         setAllProduct([]);
@@ -128,12 +111,9 @@ export default function AllProduct() {
 
     const handleRemove = async (productId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}/remove`, null, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}/remove`, null, { headers: { Authorization: `Bearer ${token}` } })
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
-                handleShowAlert()
             }
         } catch (error) {
             if (error?.response?.status === 404) {
@@ -144,7 +124,6 @@ export default function AllProduct() {
                 setErrorMessage(error?.response?.data?.message)
                 console.log(error?.response?.data?.message);
             }
-            handleShowAlert()
         } finally {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             getProduct();
@@ -158,7 +137,7 @@ export default function AllProduct() {
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
-            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search product by name..." />
                 <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={handleDropdownChange} placeholder={"Filter By Category"} />
@@ -206,11 +185,7 @@ export default function AllProduct() {
                                     <td className="py-2 px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
-                            {allProduct.length === 0 && (
-                                <tr>
-                                    <td colSpan="4" className="py-4 text-center">No Product Found</td>
-                                </tr>
-                            )}
+                            {allProduct.length === 0 && (<tr><td colSpan="4" className="py-4 text-center">No Product Found</td></tr>)}
                         </tbody>
                     </table>
                 </div>

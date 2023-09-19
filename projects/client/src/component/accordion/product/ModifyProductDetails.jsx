@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form } from "formik";
-import * as yup from "yup";
 import axios from "axios";
 
 import Modal from '../../Modal';
-import AlertPopUp from '../../AlertPopUp';
 import InputField from '../../InputField';
+import { modifyBranchProductDetailsSchema } from '../../../helpers/validationSchema';
+import AlertHelper from '../../AlertHelper';
 
 export default function ModifyProductDetails({ branchProductId }) {
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
-  const [showAlert, setShowAlert] = useState(false)
   const [branchProductDetails, setBranchProductDetails] = useState({
     origin: "",
   })
-
-  const modifyBranchProductSchema = yup.object().shape({
-    origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50").typeError("Origin must be a valid text"),
-  });
-
-  let token = localStorage.getItem("token")
+  const token = localStorage.getItem("token")
 
   const getOneBranchProduct = async () => {
     try {
@@ -50,7 +44,6 @@ export default function ModifyProductDetails({ branchProductId }) {
         resetForm({ values: initialValues })
         setErrorMessage("")
         setSuccessMessage(response.data?.message)
-        handleShowAlert()
       }
     } catch (error) {
       const response = error.response;
@@ -70,7 +63,6 @@ export default function ModifyProductDetails({ branchProductId }) {
       if (response.status === 500) {
         setErrorMessage("Modify branch product details failed: Server error")
       }
-      handleShowAlert()
       resetForm()
     } finally {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -78,28 +70,17 @@ export default function ModifyProductDetails({ branchProductId }) {
     }
   };
 
-  const handleShowAlert = () => {
-    setShowAlert(true)
-    setTimeout(() => {
-      setShowAlert(false)
-    }, 4000)
-  }
-
-  const handleHideAlert = () => {
-    setShowAlert(false)
-  }
-
   useEffect(() => {
     getOneBranchProduct()
   }, [successMessage, errorMessage,])
   return (
     <div className="w-5/6 mx-auto flex flex-col justify-center font-inter">
-      {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
       <div className="flex flex-col gap-2 py-6">
         <div className=''>
           Modify Below:
         </div>
-        <Formik enableReinitialize initialValues={{ origin: branchProductDetails.origin }} validationSchema={modifyBranchProductSchema} onSubmit={handleSubmit}>
+        <Formik enableReinitialize initialValues={{ origin: branchProductDetails.origin }} validationSchema={modifyBranchProductDetailsSchema} onSubmit={handleSubmit}>
           {(props) => (
             <Form>
               <div className="flex flex-col gap-2 py-4 font-inter mb-4">

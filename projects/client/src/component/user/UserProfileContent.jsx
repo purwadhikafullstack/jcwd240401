@@ -4,13 +4,12 @@ import axios from 'axios'
 
 import Button from "../Button"
 import ModalImageProfile from '../ModalImageProfile'
-import AlertPopUp from '../AlertPopUp'
 import handleImageError from '../../helpers/handleImageError'
+import AlertHelper from '../AlertHelper';
 
 export default function UserProfileContent() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [profileData, setProfileData] = useState({})
     const token = localStorage.getItem("token")
     const navigate = useNavigate()
@@ -33,7 +32,6 @@ export default function UserProfileContent() {
                 resetForm({ values: initialValues })
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
                 setFieldValue("file", null)
             }
         } catch (error) {
@@ -57,7 +55,6 @@ export default function UserProfileContent() {
             if (response?.status === 500) {
                 setErrorMessage("Create category failed: Server error")
             }
-            handleShowAlert()
             resetForm()
         } finally {
             setSubmitting(false)
@@ -101,18 +98,6 @@ export default function UserProfileContent() {
         getProfile()
     }, [token])
 
-
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
-
     return (
         <div className='sm:py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter'>
             <div className='grid gap-4'>
@@ -120,7 +105,7 @@ export default function UserProfileContent() {
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Profile</div>
                 </div>
-                {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />) : (null)}
+                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <div className='grid justify-center content-center'>
                         <div className='relative'>
