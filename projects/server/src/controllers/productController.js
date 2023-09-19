@@ -142,7 +142,7 @@ module.exports = {
 
       branchProducts.forEach((branchProduct) => {
         const product = branchProduct.Product;
-        const category = product.Category; // Access the associated Category
+        const category = product.Category;
         if (category && !uniqueCategoryIds.has(category.id)) {
           uniqueCategoryIds.add(category.id);
           uniqueCategories.push({
@@ -577,39 +577,6 @@ module.exports = {
       res.status(200).send({
         message: "Successfully retrieved products",
         pagination,
-        data: results,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({
-        message: "Internal Server Error",
-        error: error.message,
-      });
-    }
-  },
-  async allProductNoPagination(req, res) {
-    try {
-      const results = await db.Product.findAll({
-        where: { isRemoved: 0 },
-        include: [
-          {
-            model: db.Category,
-            where: {
-              isRemoved: 0,
-            },
-          },
-        ],
-        order: [["name", "ASC"]],
-      });
-
-      if (results.length === 0) {
-        return res.status(200).send({
-          message: "No products found",
-        });
-      }
-
-      res.status(200).send({
-        message: "Successfully retrieved products",
         data: results,
       });
     } catch (error) {

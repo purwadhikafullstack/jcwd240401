@@ -67,11 +67,6 @@ router.get(
   authMiddleware.verifyToken,
   productController.allProduct
 );
-router.get(
-  "/no-pagination-products",
-  authMiddleware.verifyToken,
-  productController.allProductNoPagination
-);
 // get one product
 router.get(
   "/products/:id",
