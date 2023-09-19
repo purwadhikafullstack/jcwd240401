@@ -292,15 +292,15 @@ module.exports = {
         });
       }
 
-        switch(action) {
-            case "Waiting for payment":
-                try{
-                    if(orderData.orderStatus !== "Waiting for payment confirmation"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "Payment has already confirmed"
-                        })
-                    }
+      switch (action) {
+        case "Waiting for payment":
+          try {
+            if (orderData.orderStatus !== "Waiting for payment confirmation") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "Payment has already confirmed",
+              });
+            }
 
             orderData.orderStatus = "Waiting for payment";
             await orderData.save({ transaction });
@@ -341,42 +341,45 @@ module.exports = {
               });
             }
 
-                    orderData.orderStatus = "Processing"
-                    await orderData.save({transaction})
-                    await transaction.commit()
-                    return res.status(200).send({
-                        message: "Order status is changed to Processing"
-                    })
-                }catch(error){
-                    await transaction.rollback()
-                    return res.status(500).send({
-                        message: "Server error",
-                        error: error.message
-                    })
-                }
-            case "Delivering":
-                try{
-                    if(orderData.orderStatus === "Waiting for payment"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You can't deliver this order, payment hasn't been made"
-                        })
-                    } else if (orderData.orderStatus === "Waiting for payment confirmation"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You can't deliver this order, confirm payment first"
-                        })
-                    } else if (orderData.orderStatus === "Delivering"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You are delivering this order"
-                        })
-                    } else if(orderData.orderStatus === "Canceled"){
-                        await transaction.rollback()
-                        return res.status(400).send({
-                            message: "You can't deliver this order, it has been canceled"
-                        })
-                    }
+            orderData.orderStatus = "Processing";
+            await orderData.save({ transaction });
+            await transaction.commit();
+            return res.status(200).send({
+              message: "Order status is changed to Processing",
+            });
+          } catch (error) {
+            await transaction.rollback();
+            return res.status(500).send({
+              message: "Server error",
+              error: error.message,
+            });
+          }
+        case "Delivering":
+          try {
+            if (orderData.orderStatus === "Waiting for payment") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message:
+                  "You can't deliver this order, payment hasn't been made",
+              });
+            } else if (
+              orderData.orderStatus === "Waiting for payment confirmation"
+            ) {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "You can't deliver this order, confirm payment first",
+              });
+            } else if (orderData.orderStatus === "Delivering") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "You are delivering this order",
+              });
+            } else if (orderData.orderStatus === "Canceled") {
+              await transaction.rollback();
+              return res.status(400).send({
+                message: "You can't deliver this order, it has been canceled",
+              });
+            }
 
             orderData.orderStatus = "Delivering";
             await orderData.save({ transaction });
@@ -556,6 +559,35 @@ module.exports = {
         await transaction.commit();
         return res.status(200).send({
           message: "cart successfully deleted",
+        });
+      }
+    } catch (error) {
+      await transaction.rollback();
+      res.status(500).send({ error: "Internal Server Error" });
+    }
+  },
+  //empty cart
+  async emptyCart(req, res) {
+    const transaction = await db.sequelize.transaction();
+    try {
+      const user = await db.User.findByPk(req.user.id);
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+      const data = await db.Cart.destroy({
+        where: { user_id: user.id },
+        transaction,
+      });
+      if (data > 0) {
+        transaction.commit();
+        res.status(200).send({
+          message: "cart successfully deleted",
+          data,
+        });
+      } else {
+        transaction.commit();
+        res.status(200).send({
+          message: "your cart is empty",
         });
       }
     } catch (error) {
@@ -794,7 +826,7 @@ module.exports = {
           // Check the discount type
           if (item.Branch_Product?.Discount?.discount_type_id === 1) {
             // Discount type 1: No discount, price is equal to basePrice * quantity
-            price = item.Branch_Product?.Product?.basePrice ;
+            price = item.Branch_Product?.Product?.basePrice;
           } else if (item.Branch_Product?.Discount?.discount_type_id === 2) {
             // Discount type 2: Percentage discount
             const percentageAmount = item.Branch_Product.Discount.amount;

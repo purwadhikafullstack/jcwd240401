@@ -78,6 +78,13 @@ router.delete(
   transactionController.deleteCart
 );
 
+router.delete(
+  "/empty-cart",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.emptyCart
+);
+
 router.post(
   "/shipping-cost",
   authMiddleware.verifyToken,
