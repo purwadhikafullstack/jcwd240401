@@ -44,7 +44,6 @@ export default function SuperAdminModifyCategory() {
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues, setFieldValue }) => {
         setSubmitting(true)
         const { name, file } = values;
-        console.log("berhasil click submit")
         const formData = new FormData();
         if (name !== categoryDetails.name) { formData.append('name', name); }
         if (file) { formData.append('file', file); }
