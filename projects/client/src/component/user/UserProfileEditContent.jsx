@@ -50,7 +50,6 @@ export default function UserProfileEditContent() {
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues }) => {
         const { name, email, phone, birthdate, gender } = values;
-        console.log("berhasil click submit")
         const data = {}
         if (name !== profileDetails.name) { data.name = name }
         if (email !== profileDetails.email) { data.email = email }
