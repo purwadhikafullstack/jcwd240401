@@ -15,28 +15,11 @@ export default function ModalImageProfile({ onSubmit }) {
 
     const handleCloseModal = () => {
         setOpenModal(false);
+        setImagePreview(null)
     };
 
-    const MAX_FILE_SIZE = 1024000;
-
-    const validFileExtensions = { image: ['jpg', 'png', 'jpeg'] };
-
-    function isValidFileType(fileName, fileType) {
-        return (
-            fileName && validFileExtensions[fileType].indexOf(fileName.split('.').pop()) > -1
-        );
-    }
-
     const validationSchema = yup.object().shape({
-        file: yup
-            .mixed()
-            .required('File is required')
-            .test('is-valid-type', 'Not a valid image type', (value) =>
-                isValidFileType(value && value.name.toLowerCase(), 'image')
-            )
-            .test('is-valid-size', 'Max allowed size is 100KB', (value) =>
-                value && value.size <= MAX_FILE_SIZE
-            ),
+        file: yup.mixed().required('File is required')
     });
 
     function preview(event) {
@@ -120,6 +103,7 @@ export default function ModalImageProfile({ onSubmit }) {
                                                     )}
                                                 </div>
                                                 <div className='mb-2 relative'>
+                                                <label htmlFor="file" className='font-medium'>Profile Image <span className="text-sm font-normal">(.jpg, .jpeg, .gif, .png) max. 1MB </span></label>
                                                     <input type="file" id="file" name="file" onChange={(e) => { props.setFieldValue('file', e.currentTarget.files[0]); preview(e) }} className='py-1 w-full' required />
                                                     {props.errors.file && props.touched.file && <div className="text-sm text-reddanger absolute top-12">{props.errors.file}</div>}
                                                 </div>

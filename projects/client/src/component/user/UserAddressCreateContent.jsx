@@ -51,8 +51,6 @@ export default function UserAddressCreateContent() {
         }
     }
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
-        console.log(values)
-        console.log("berhasil click submit")
         try {
             const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/address`, values, {
                 headers: { Authorization: `Bearer ${token}` },
