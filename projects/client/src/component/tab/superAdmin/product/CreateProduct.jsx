@@ -6,7 +6,7 @@ import Modal from '../../../Modal';
 import InputField from '../../../InputField';
 import handleImageError from '../../../../helpers/handleImageError';
 import { createProductSchema } from '../../../../helpers/validationSchema';
-import AlertHelper from '../../../../helpers/AlertHelper';
+import AlertHelper from '../../../AlertHelper';
 
 export default function CreateProduct() {
     const [errorMessage, setErrorMessage] = useState("")

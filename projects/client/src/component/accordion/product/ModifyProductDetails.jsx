@@ -5,7 +5,7 @@ import axios from "axios";
 import Modal from '../../Modal';
 import InputField from '../../InputField';
 import { modifyBranchProductDetailsSchema } from '../../../helpers/validationSchema';
-import AlertHelper from '../../../helpers/AlertHelper';
+import AlertHelper from '../../AlertHelper';
 
 export default function ModifyProductDetails({ branchProductId }) {
   const [errorMessage, setErrorMessage] = useState("")

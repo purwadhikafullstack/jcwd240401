@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import * as yup from "yup";
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,7 +8,7 @@ import InputField from '../InputField';
 import Button from '../Button';
 import handleImageError from '../../helpers/handleImageError'
 import { modifyProductSchema } from '../../helpers/validationSchema';
-import AlertHelper from '../../helpers/AlertHelper';
+import AlertHelper from '../AlertHelper';
 
 export default function SuperAdminModifyProduct() {
     const [errorMessage, setErrorMessage] = useState("")

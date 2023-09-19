@@ -8,7 +8,7 @@ import Modal from '../Modal';
 import InputField from '../InputField';
 import Button from '../Button';
 import { modifyProfileSchema } from '../../helpers/validationSchema';
-import AlertHelper from '../../helpers/AlertHelper';
+import AlertHelper from '../AlertHelper';
 
 export default function UserProfileEditContent() {
     const [errorMessage, setErrorMessage] = useState("")

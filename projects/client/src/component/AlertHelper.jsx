@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AlertPopUp from '../component/AlertPopUp';
+import AlertPopUp from './AlertPopUp';
 
 const AlertHelper = ({ errorMessage, successMessage }) => {
   const [showAlert, setShowAlert] = useState(false);

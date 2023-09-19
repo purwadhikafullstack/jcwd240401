@@ -9,7 +9,7 @@ import SingleProductContentImage from "./productComponents/SingleProductContentI
 import SingleProductContentDetails from "./productComponents/SingleProductContentDetails";
 import SingleProductContentPriceBottom from "./productComponents/SingleProductContentPriceBottom";
 import SingleProductContentPriceTop from "./productComponents/SingleProductContentPriceTop";
-import AlertHelper from "../../helpers/AlertHelper";
+import AlertHelper from "../AlertHelper";
 
 export default function SingleProductContent() {
     const [errorMessage, setErrorMessage] = useState("");

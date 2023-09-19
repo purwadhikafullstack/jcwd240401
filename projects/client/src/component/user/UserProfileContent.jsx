@@ -5,7 +5,7 @@ import axios from 'axios'
 import Button from "../Button"
 import ModalImageProfile from '../ModalImageProfile'
 import handleImageError from '../../helpers/handleImageError'
-import AlertHelper from '../../helpers/AlertHelper'
+import AlertHelper from '../AlertHelper';
 
 export default function UserProfileContent() {
     const [errorMessage, setErrorMessage] = useState("")

@@ -8,7 +8,7 @@ import Modal from '../../../Modal';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
 import handleImageError from '../../../../helpers/handleImageError';
-import AlertHelper from '../../../../helpers/AlertHelper';
+import AlertHelper from '../../../AlertHelper';
 
 export default function AllCategory() {
     const [errorMessage, setErrorMessage] = useState("")

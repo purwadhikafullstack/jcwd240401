@@ -9,7 +9,7 @@ import Modal from '../Modal';
 import Label from "../Label";
 import Button from "../Button";
 import { keepLocation } from "../../store/reducer/locationSlice";
-import AlertHelper from "../../helpers/AlertHelper";
+import AlertHelper from '../AlertHelper';
 
 export default function UserAddressContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -41,6 +41,9 @@ export default function UserAddressContent() {
             const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${id}/${action}`, null, {
                 headers: { Authorization: `Bearer ${token}` }
             })
+            if(action === "main") {
+                // add here
+            }
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
             }
@@ -83,7 +86,7 @@ export default function UserAddressContent() {
                                 <div className="">{data.streetName}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.city_name}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.Province?.province_name}</div>
-                                {data.isMain ? (<div className="w-fit"><Label text="Main Address" labelColor="green" /></div>) : (<div><Modal toggleName="Set As Main" modalTitle="Set to Main Address" buttonCondition="setMain" content="This address will be set as main. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleAction(data.id, "main")} /></div>)}
+                                {data.isMain ? (<div className="w-fit"><Label text="Main Address" labelColor="green" /></div>) : (<div><Modal toggleName="Set As Main" modalTitle="Set to Main Address" buttonCondition="setMain" content="This address will be set as main and product(s) in your cart will be reset. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleAction(data.id, "main")} /></div>)}
                             </div>
                             <div className="basis-1/6 lg:basis-1/4 grid grid-cols-2 content-center">
                                 <div className={` ${data.isMain ? 'col-start-2' : 'col-start-1'} grid justify-center content-center`}>

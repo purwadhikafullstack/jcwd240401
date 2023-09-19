@@ -11,7 +11,7 @@ import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import Label from '../../../Label';
 import handleImageError from '../../../../helpers/handleImageError'
-import AlertHelper from '../../../../helpers/AlertHelper';
+import AlertHelper from '../../../AlertHelper';
 
 export default function AllBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")

@@ -5,7 +5,7 @@ import { Formik, Form, Field } from "formik";
 import Modal from '../../Modal';
 import InputField from '../../InputField';
 import { modifyBranchProductQuantitySchema } from '../../../helpers/validationSchema';
-import AlertHelper from '../../../helpers/AlertHelper';
+import AlertHelper from '../../AlertHelper';
 
 export default function ModifyProductStocks({ branchProductId }) {
   const [errorMessage, setErrorMessage] = useState("")

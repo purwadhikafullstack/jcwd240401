@@ -9,7 +9,7 @@ import Button from '../Button';
 import FarmersMarket from '../../assets/FarmersMarket.png';
 import handleImageError from '../../helpers/handleImageError'
 import { createCategorySchema } from '../../helpers/validationSchema';
-import AlertHelper from '../../helpers/AlertHelper';
+import AlertHelper from '../AlertHelper';
 
 export default function SuperAdminModifyCategory() {
     const [errorMessage, setErrorMessage] = useState("")
