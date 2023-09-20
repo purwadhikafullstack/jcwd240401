@@ -11,6 +11,7 @@ export default function UserProfileContent() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
     const [profileData, setProfileData] = useState({})
+    const [isCopy, setIsCopy] = useState(false)
     const token = localStorage.getItem("token")
     const navigate = useNavigate()
 
@@ -80,13 +81,28 @@ export default function UserProfileContent() {
         }
     }
 
+    async function copy(text) {
+        try {
+            await navigator.clipboard.writeText(text)
+            setSuccessMessage("Successfully copied referral code!")
+            setIsCopy(true)
+        } catch (error) {
+            setErrorMessage("Error occurs when copying referral code!")
+        }
+        setTimeout(() => {
+            setIsCopy(false)
+            setSuccessMessage("");
+            setErrorMessage("");
+        }, 4000);
+    }
+
     const data = [
         { name: "Name", value: `${profileData.name}` },
         { name: "Email", value: `${profileData.email}` },
         { name: "Phone", value: `${profileData.phone}` },
         { name: "Birth Date", value: profileData.birthdate ? `${new Date(profileData?.birthdate).toLocaleDateString("id-ID")}` : "-" },
         { name: "Gender", value: profileData.gender ? `${profileData?.gender.charAt(0).toUpperCase() + profileData?.gender.slice(1)}` : "-" },
-        { name: "Referral Code", value: `${profileData?.referralCode}` },
+        { name: "Referral Code", value: `${profileData?.referralCode}`, extra: true },
     ]
 
     const routes = [
@@ -114,10 +130,10 @@ export default function UserProfileContent() {
                         </div>
                     </div>
                     <div className='grid content-center gap-2'>
-                        {data.map(({ name, value }, idx) => (
+                        {data.map(({ name, value, extra }, idx) => (
                             <div key={idx} className='flex flex-col border-b border-lightgrey pb-2'>
                                 <div className='text-darkgrey'>{name}</div>
-                                <div className='font-bold'>{value}</div>
+                                <div className='font-bold flex justify-between'>{value} {extra && (isCopy ? <Button condition={"copied"} /> : <Button condition={"copy"} onClick={() => copy(value)} />)}</div>
                             </div>
                         ))}
                         <div className='flex flex-col 2xl:flex-row gap-2 w-full justify-center mt-10 sm:mt-4'>
