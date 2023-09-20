@@ -40,7 +40,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
             }
         } catch (error) {
             if (error.response) {
-                console.log(error.response.message)
+                console.log(error.message)
             }
         }
     }
