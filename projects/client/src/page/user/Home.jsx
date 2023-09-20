@@ -58,7 +58,7 @@ export default function Home() {
         }
     }
     useEffect(() => {
-        if (!token || !profile) {
+        if (!token || !profile || profile.role !== "3") {
             if ("geolocation" in navigator) {
                 askForLocationPermission();
             } else {
@@ -89,7 +89,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        if(!token){
+        if(!token || profile.role !== "3"){
             coordinateToPlacename()
         } else {
             getAddress()

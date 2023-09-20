@@ -8,19 +8,18 @@ import Modal from '../component/Modal'
 import groceereLogo from '../assets/logo_Groceer-e.svg'
 import forgotPassword from '../assets/Forgot password.png'
 import { forgotPasswordSchema } from '../helpers/validationSchema'
-import AlertPopUp from '../component/AlertPopUp'
+import AlertHelper from '../component/AlertHelper'
 
 export default function Login() {
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     
     const onSubmit = async(values, actions) => {
         try{
             actions.setSubmitting(true)
             setIsLoading(true)
-            const response = await axios.post("http://localhost:8000/api/auth/forgot-password", values, {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/forgot-password`, values, {
                 headers: {"Content-Type" : "application/json"}
             })
             if (response.status === 200){
@@ -29,7 +28,6 @@ export default function Login() {
                 setIsLoading(false)
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
             }
         }catch(error){
             if(error.response.status === 500){
@@ -39,8 +37,6 @@ export default function Login() {
             }
             actions.setSubmitting(false)
             setIsLoading(false)
-            handleShowAlert()
-
         }
     }
     const {values, errors, touched, handleChange, handleBlur, handleSubmit, isValid, isSubmitting} = useFormik({
@@ -50,17 +46,6 @@ export default function Login() {
         validationSchema: forgotPasswordSchema,
         onSubmit
     })
-
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
 
     return (
         <>
@@ -79,7 +64,7 @@ export default function Login() {
                     <img src={forgotPassword} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
-                    {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
+                    <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
                 </div>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-72 flex flex-col gap-2">
                     <div className="w-full">

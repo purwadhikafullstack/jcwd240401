@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import jwtDecode from "jwt-decode";
 import { useDispatch } from "react-redux";
 import Home from "./page/user/Home";
 import AdminHome from "./page/admin/AdminHome";
@@ -21,7 +20,6 @@ import PrivateAdminWrapper from "./wrapper/PrivateAdminWrapper";
 import PrivateUserWrapper from "./wrapper/PrivateUserWrapper";
 import PublicWrapper from "./wrapper/PublicWrapper";
 import Unauthorized from "./page/Unauthorized";
-import { keep } from "./store/reducer/authSlice";
 import NotFound from "./page/NotFound";
 import ForgotPassword from "./page/ForgotPassword";
 import VerifyAccount from "./page/user/VerifyAccount";
@@ -47,33 +45,6 @@ import BranchAdminModifyOrder from "./component/admin/BranchAdminModifyOrder";
 
 function App() {
   const dispatch = useDispatch();
-  let token = localStorage.getItem("token");
-
-  const keepLogin = async () => {
-    let token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.userId) {
-            localStorage.setItem("token", response.data.refreshToken);
-            const decoded = jwtDecode(token);
-            dispatch(keep(decoded));
-          }
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-  };
 
   const userCart = async () => {
     const token = localStorage.getItem("token");
@@ -95,10 +66,6 @@ function App() {
   useEffect(() => {
     userCart();
   }, []);
-
-  useEffect(() => {
-    keepLogin()
-  }, [token])
 
   return (
     <Router>

@@ -27,7 +27,7 @@ export default function NavbarTop({city, province}) {
         {menu: <DropdownForNavbar/>}
     ]
 
-    const routes = token ? loggedInRoutes : defaultRoutes
+    const routes = token && profile.role === "3" ? loggedInRoutes : defaultRoutes
 
     const onClickLogIn = () => {
         navigate("/login")
