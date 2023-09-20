@@ -35,11 +35,7 @@ export default function AllBranchProduct() {
                 const data = response.data.data;
                 if (data) {
                     const optionOne = { label: "All Category", value: "" }
-                    let options = data.map((d) => ({
-                        label: d.name,
-                        value: d.id,
-                    }));
-
+                    let options = data.map((d) => ({label: d.name,value: d.id,}));
                     options.unshift(optionOne)
                     setAllCategory(options);
                 } else {
@@ -80,41 +76,24 @@ export default function AllBranchProduct() {
         navigate({ search: params.toString() });
     }
 
-    const handleSearchSubmit = (searchValue) => {
+    const handleFilterChange = (paramName, paramValue) => {
         const newFilter = new URLSearchParams(filter.toString());
         newFilter.set("page", "1");
-        if (searchValue === "") {
-            newFilter.delete("search");
+        if (paramValue === "") {
+            newFilter.delete(paramName);
         } else {
-            newFilter.set("search", searchValue);
+            newFilter.set(paramName, paramValue);
         }
         setFilter(newFilter);
         const params = new URLSearchParams(window.location.search);
-        params.set("search", searchValue);
+        params.set(paramName, paramValue);
         params.set("page", "1");
         navigate({ search: params.toString() });
     };
 
-    const handleDropdownChange = (e) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (e.target.value === "") {
-            newFilter.delete(e.target.id);
-        } else {
-            newFilter.set(e.target.id, e.target.value);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set(e.target.id, e.target.value);
-        navigate({ search: params.toString() });
-    }
-
     const handleRemove = async (productId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${productId}/remove`, {}, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
+            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${productId}/remove`, {}, { headers: { Authorization: `Bearer ${token}` },})
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
             }
@@ -155,10 +134,10 @@ export default function AllBranchProduct() {
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
-                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search product by name..." />
-                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleDropdownChange} placeholder={"Sort by Name"} />
-                <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={handleDropdownChange} placeholder={"Filter by Category"} />
-                <CustomDropdownURLSearch id="filterStatus" options={statusOptions} onChange={handleDropdownChange} placeholder={"Filter by Status"} />
+                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search product by name..." />
+                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
+                <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Category"} />
+                <CustomDropdownURLSearch id="filterStatus" options={statusOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Status"} />
             </div>
             <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">
@@ -195,9 +174,7 @@ export default function AllBranchProduct() {
                                     </td>
                                     <td className="py-2 px-4 hidden xl:table-cell cursor-pointer text-sm" style={{ width: '35%' }} onClick={() => setSelectedProduct(item.id)}>
                                         {item?.Product?.description.slice(0, 100)}
-                                        {item?.Product?.description.length > 100 && (
-                                            <span className="text-sm">...</span>
-                                        )}
+                                        {item?.Product?.description.length > 100 && (<span className="text-sm">...</span>)}
                                     </td>
                                     <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> <Label labelColor={getLabelColor(item?.status)} text={item?.status} /> </td>
                                     <td className="py-2 px-4 hidden xl:table-cell text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.quantity} </td>

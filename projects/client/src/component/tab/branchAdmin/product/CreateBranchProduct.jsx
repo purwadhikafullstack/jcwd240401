@@ -37,8 +37,6 @@ export default function CreateBranchProduct() {
     }
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
-        console.log("berhasil click submit")
-        console.log(values)
         try {
             const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products`, values, {
                 headers: { Authorization: `Bearer ${token}` }
