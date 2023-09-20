@@ -58,7 +58,7 @@ export default function AccountContent() {
   };
 
   useEffect(() => {
-    if(token) {
+    if (token) {
       getProfile();
     }
   }, [token]);
@@ -97,16 +97,8 @@ export default function AccountContent() {
                   </div>
                 </Link>
               ))}
-              <div className="sm:hidden">
-                <Modal
-                  onClickButton={handleLogout}
-                  modalTitle={"Log Out"}
-                  toggleName={"Log Out"}
-                  content={"Are you sure you want to log out?"}
-                  buttonCondition={"logoutOnAccount"}
-                  buttonLabelOne={"Cancel"}
-                  buttonLabelTwo={"Yes"}
-                />
+              <div className="lg:hidden">
+                <Modal onClickButton={handleLogout} modalTitle={"Log Out"} toggleName={"Log Out"} content={"Are you sure you want to log out?"} buttonCondition={"logoutOnAccount"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} />
               </div>
             </div>
           </div>

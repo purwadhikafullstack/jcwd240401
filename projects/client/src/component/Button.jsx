@@ -8,6 +8,7 @@ import {
 } from "react-icons/hi";
 import { HiPlusCircle } from "react-icons/hi2";
 import { BiSolidEditAlt } from "react-icons/bi";
+import { LuCopy, LuCopyCheck } from "react-icons/lu"
 
 export default function Button({
   label,
@@ -97,6 +98,18 @@ export default function Button({
         "grid text-xl sm:text-2xl w-fit h-fit p-2 content-center bg-maingreen rounded-full";
       hoverClass = !isDisabled && "hover:bg-slate-100";
       icon = <BiSolidEditAlt size={22} className="text-white" />;
+      iconClass = "grid justify-center";
+      break;
+    case "copy":
+      mainButtonClass = "grid text-lg sm:text-xl justify-center content-center p-1 rounded-md";
+      hoverClass = !isDisabled && "hover:bg-gray-100";
+      icon = <LuCopy className="text-maingreen font-medium" />;
+      iconClass = "grid justify-center";
+      break;
+    case "copied":
+      mainButtonClass = "grid text-lg sm:text-xl justify-center content-center p-1 rounded-md";
+      hoverClass = !isDisabled && "cursor-default";
+      icon = <LuCopyCheck className="text-maingreen font-medium" />;
       iconClass = "grid justify-center";
       break;
     default:
