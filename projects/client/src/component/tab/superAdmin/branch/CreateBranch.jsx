@@ -2,9 +2,9 @@ import React, {useState, useEffect} from 'react'
 import {useFormik} from 'formik'
 import axios from 'axios'
 import { registerAdminSchema } from '../../../../helpers/validationSchema'
-import AlertPopUp from '../../../AlertPopUp'
 import InputField from '../../../InputField'
 import Modal from '../../../Modal'
+import AlertHelper from '../../../AlertHelper'
 
 export default function CreateBranch() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -13,24 +13,40 @@ export default function CreateBranch() {
     const [cityData, setCityData] = useState([])
     const [selectedProvince, setSelectedProvince] = useState("")
     const [selectedCity, setSelectedCity] = useState("")
-    const [showAlert, setShowAlert] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const token = localStorage.getItem("token")
 
-    useEffect(() => {
+    const getProvince = async() => {
         try{
-            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-province`).then((response) => {setProvinceData(response.data?.data)})
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-province`)
+            if(response.data){
+                setProvinceData(response.data?.data)
+            }
         }catch(error){
-            console.log(error)
+            if(error.response){
+                console.log(error.response.message)
+            }
         }
+    }
+
+    const getCity = async() => {
+        try{
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-city?province=${selectedProvince}`)
+            if(response.data){
+                setCityData(response.data?.data)
+            }
+        }catch(error){
+            if(error.response){
+                console.log(error.response.message)
+            }
+        }
+    }
+    useEffect(() => {
+        getProvince()
     }, [])
 
     useEffect(() => {
-        try{
-            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-city?province=${selectedProvince}`).then((response) => {setCityData(response.data?.data)})
-        }catch(error){
-            console.log(error)
-        }
+        getCity()
     }, [selectedProvince])
 
     const provinceOptions = provinceData.map((province) => province.province_name)
@@ -52,7 +68,6 @@ export default function CreateBranch() {
                 setErrorMessage("")
                 setSelectedProvince("")
                 setSelectedCity("")
-                handleShowAlert()
                 setSuccessMessage(response.data?.message)
             }
         }catch(error){
@@ -63,10 +78,11 @@ export default function CreateBranch() {
             }
             actions.setSubmitting(false)
             setIsLoading(false)
-            handleShowAlert()
+        }finally{
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
-    const {values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue, isValid, isSubmitting} = useFormik({
+    const {values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue, isValid, isSubmitting, dirty} = useFormik({
         initialValues: {
             name: "",
             email: "",
@@ -79,42 +95,32 @@ export default function CreateBranch() {
         onSubmit
     })
 
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
-    }
-
     return (
         <>
                 <div className='w-full h-full flex justify-center items-center'>
-                    <div className="lg:w-1/2 w-72 flex flex-col gap-2">
+                    <div className="w-full sm:w-8/12 flex flex-col gap-2">
                         <div className="w-full">
-                            {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
+                            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
                         </div>
                         <form onSubmit={(e) => {e.preventDefault(); handleSubmit(e)}} autoComplete="off" className="w-full flex flex-col gap-2">
+                            <div className="text-xs text-reddanger">* required</div>
                             <div className="w-full">
-                                <label htmlFor="name" className="font-inter">Name <span className="text-xs text-reddanger">* required</span></label>
+                                <label htmlFor="name" className="font-inter">Name <span className="text-reddanger">*</span></label>
                                 <InputField value={values.name} id={"name"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.name && touched.name && <p className="text-reddanger text-sm font-inter">{errors.name}</p>}
                             </div>
                             <div className="w-full">
-                                <label htmlFor="email" className="font-inter">Email <span className="text-xs text-reddanger">* required</span></label>
+                                <label htmlFor="email" className="font-inter">Email <span className="text-reddanger">*</span></label>
                                 <InputField value={values.email} id={"email"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.email && touched.email && <p className="text-reddanger text-sm font-inter">{errors.email}</p>}
                             </div>
                             <div className="w-full">
-                                <label htmlFor="phone" className="font-inter">Phone <span className="text-xs text-reddanger">* required</span></label>
+                                <label htmlFor="phone" className="font-inter">Phone <span className="text-reddanger">*</span></label>
                                 <InputField value={values.phone} id={"phone"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.phone && touched.phone && <p className="text-reddanger text-sm font-inter">{errors.phone}</p>}
                             </div>
                             <div className="w-full flex flex-col">
-                                <label htmlFor="province" className="font-inter">Province <span className="text-xs text-reddanger">* required</span></label>
+                                <label htmlFor="province" className="font-inter">Province <span className="text-reddanger">*</span></label>
                                 <select id="province" value={selectedProvince} name="province" onChange={(e)=> {setSelectedProvince(e.target.value); setFieldValue('province', e.target.value)}} className="w-full h-10 bg-lightgrey font-inter rounded-md">
                                     <option value="">--Choose a Province--</option>
                                     {provinceOptions.map((options) => (
@@ -124,7 +130,7 @@ export default function CreateBranch() {
                                 {errors.province && touched.province && <p className="text-reddanger text-sm font-inter">{errors.province}</p>}
                             </div>
                             <div className="w-full flex flex-col">
-                                <label htmlFor="city" className="font-inter">City <span className="text-xs text-reddanger">* required</span></label>
+                                <label htmlFor="city" className="font-inter">City <span className="text-reddanger">*</span></label>
                                 <select id="city" value={selectedCity} name="city" onChange={(e) => {setSelectedCity(e.target.value); setFieldValue('city', e.target.value)}} className="w-full h-10 bg-lightgrey font-inter rounded-md">
                                     <option value="">--Select a City--</option>
                                     {cityOptions.map((options) => (
@@ -134,13 +140,13 @@ export default function CreateBranch() {
                                 {errors.city && touched.city && <p className="text-reddanger text-sm font-inter">{errors.city}</p>}
                             </div>
                             <div className="w-full">
-                                <label htmlFor="streetName" className="font-inter">Street Address <span className="text-xs text-reddanger">* required</span></label>
+                                <label htmlFor="streetName" className="font-inter">Street Address <span className="text-reddanger">*</span></label>
                                 <InputField value={values.streetName} id={"streetName"} type={"string"} onChange={handleChange} onBlur={handleBlur} autoComplete="off"/>
                                 {errors.streetName && touched.streetName && <p className="text-reddanger text-sm font-inter">{errors.streetName}</p>}
                             </div>
                             <div className="mt-10 flex flex-col items-center gap-2">
                                 {isLoading ? (<div className='text-sm text-maingreen font-inter'>Loading...</div>) : null}
-                                <Modal isDisabled={!isValid || isSubmitting} modalTitle={"Add Branch Admin"} toggleName={"Add Branch Admin"} content={`Are you sure to add ${values.name} (${values.email}) as branch admin at ${values.city}, ${values.province}?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={handleSubmit}/>
+                                <Modal isDisabled={!dirty || !isValid || isSubmitting} modalTitle={"Add Branch Admin"} toggleName={"Add Branch Admin"} content={`Are you sure to add ${values.name} (${values.email}) as branch admin at ${values.city}, ${values.province}?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={handleSubmit}/>
                             </div>
                         </form>
                     </div>

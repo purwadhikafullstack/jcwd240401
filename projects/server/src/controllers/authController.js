@@ -124,9 +124,11 @@ module.exports = {
                 }
             })
 
+            const city_details = city.split(" (")
+
             const selectedCity = await db.City.findOne({
                 where: {
-                    city_name: city,
+                    city_name: city_details[0],
                     province_id: selectedProvince.province_id
                 },
                 attributes: {
@@ -187,7 +189,7 @@ module.exports = {
             const link = `${process.env.BASE_PATH_FE}/set-password/${verificationToken}`
             const template = fs.readFileSync("./src/helpers/template/setaccount.html", "utf-8")
             const templateCompile = handlebars.compile(template)
-            const registerEmail = templateCompile({link})
+            const registerEmail = templateCompile({name: newAdmin.name, link})
             
             await transporter.sendMail({
                 from: "Groceer-e",
