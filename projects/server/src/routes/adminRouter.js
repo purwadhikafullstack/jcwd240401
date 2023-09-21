@@ -260,4 +260,11 @@ router.get(
   authMiddleware.verifySuperAdmin,
   adminController.getSuperAdminSalesReport
 );
+
+router.get(
+  "/branch-info",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  adminController.branchInfo
+)
 module.exports = router;
