@@ -51,10 +51,10 @@ export default function UserProfileContent() {
                 setErrorMessage(`${errMsg}`);
             }
             if (response?.status === 404) {
-                setErrorMessage("Category not found")
+                setErrorMessage("Profile image not found")
             }
             if (response?.status === 500) {
-                setErrorMessage("Create category failed: Server error")
+                setErrorMessage("Modify image failed: Server error")
             }
             resetForm()
         } finally {
@@ -84,16 +84,13 @@ export default function UserProfileContent() {
     async function copy(text) {
         try {
             await navigator.clipboard.writeText(text)
-            setSuccessMessage("Successfully copied referral code!")
             setIsCopy(true)
         } catch (error) {
-            setErrorMessage("Error occurs when copying referral code!")
+            setIsCopy(false)
         }
         setTimeout(() => {
             setIsCopy(false)
-            setSuccessMessage("");
-            setErrorMessage("");
-        }, 4000);
+        }, 2000);
     }
 
     const data = [
@@ -133,7 +130,7 @@ export default function UserProfileContent() {
                         {data.map(({ name, value, extra }, idx) => (
                             <div key={idx} className='flex flex-col border-b border-lightgrey pb-2'>
                                 <div className='text-darkgrey'>{name}</div>
-                                <div className='font-bold flex justify-between'>{value} {extra && (isCopy ? <Button condition={"copied"} /> : <Button condition={"copy"} onClick={() => copy(value)} />)}</div>
+                                <div className='font-bold flex justify-between'>{value} {extra && (isCopy ? (<div className='w-fit flex font-normal gap-1'><span className='text-sm contents'>Copied</span><Button condition={"copied"} /> </div>) : <Button condition={"copy"} onClick={() => copy(value)} />)}</div>
                             </div>
                         ))}
                         <div className='flex flex-col 2xl:flex-row gap-2 w-full justify-center mt-10 sm:mt-4'>
