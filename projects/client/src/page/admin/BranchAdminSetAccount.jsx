@@ -78,7 +78,7 @@ export default function BranchAdminSetAccount() {
                         <div className='relative'>
                             <label htmlFor="password" className="font-inter relative">Password</label>
                             <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
-                            <div className='absolute bottom-2 right-2'>{showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} />)}</div>
+                            <div className='absolute bottom-2 right-2 cursor-pointer'>{showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} />)}</div>
                         </div>
                         {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                     </div>
