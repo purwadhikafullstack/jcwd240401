@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import logo from "../assets/logo_Groceer-e.svg";
 import { HiOutlineLocationMarker, HiOutlineShoppingCart } from "react-icons/hi";
@@ -59,8 +59,9 @@ export default function NavbarTop({city, province}) {
                     ? `text-maingreen font-bold border-b-2 border-maingreen`
                     : `text-darkgrey`
                 }`}
+                key={idx}
               >
-                <div key={idx}>{menu}</div>
+                <div>{menu}</div>
               </Link>
             ))}
             {cartItems.length > 0 && (

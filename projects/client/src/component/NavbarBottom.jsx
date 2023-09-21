@@ -10,7 +10,7 @@ import {
   HiUser,
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 export default function BottomNavbar() {
   const cartItems = useSelector((state) => state.cart.cart);
@@ -55,9 +55,8 @@ export default function BottomNavbar() {
               },
               index
             ) => (
-              <Link to={to}>
+              <Link to={to} key={index}>
                 <div
-                  key={index}
                   className={`flex flex-col h-full justify-center items-center ${
                     isActive || location.pathname === to
                       ? `text-white font-medium`

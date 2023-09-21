@@ -9,6 +9,7 @@ import {
   clearCart,
   clearSelectedCartItems,
 } from "../../store/reducer/cartSlice";
+import handleImageError from "../../helpers/handleImageError";
 
 export default function DropdownForNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +47,7 @@ export default function DropdownForNavbar() {
               src={`${process.env.REACT_APP_BASE_URL}${profile.imgProfile}`}
               alt="Profile Picture"
               className="rounded-full h-full w-full object-cover"
+              onError={handleImageError}
             />
           ) : (
             <HiOutlineUser className="h-6 w-6 rounded-full text-darkgrey bg-lightgrey" />
