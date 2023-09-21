@@ -293,8 +293,8 @@ export default function Payment() {
                 basePrice={product.Product?.basePrice}
                 discountAmount={product.Discount?.amount}
                 productStock={product.quantity}
-                cartId={product.id}
-                productId={product.id}
+                cartId={product?.id}
+                productId={product?.id}
               />
             ))}
 
