@@ -15,20 +15,20 @@ export default function NavbarTop({city, province}) {
     const location = useLocation()
     const cartItems = useSelector((state) => state.cart.cart);
 
-  const defaultRoutes = [
-    { menu: "Home", to: "/" },
-    { menu: "Orders", to: "/user/orders" },
-    { menu: "Cart", to: "/user/cart" },
-    { menu: "Account", to: "/user/account" },
-  ];
-  const loggedInRoutes = [
-    { menu: "Home", to: "/" },
-    { menu: "Orders", to: "/user/orders" },
-    { menu: <HiOutlineShoppingCart size={25} />, to: "/user/cart" },
-    { menu: <DropdownForNavbar /> },
-  ];
+    const defaultRoutes = [
+        {menu: "Home", to: "/"},
+        {menu: "Orders", to: "/user/orders"},
+        {menu: "Cart", to: "/user/cart"},
+        {menu: "Account", to: "/user/account"}
+    ]
+    const loggedInRoutes = [
+        {menu: "Home", to: "/"},
+        {menu: "Orders", to: "/user/orders"},
+        {menu: <HiOutlineShoppingCart size={25}/>, to: "/user/cart"},
+        {menu: <DropdownForNavbar/>}
+    ]
 
-  const routes = token ? loggedInRoutes : defaultRoutes;
+    const routes = token && profile.role === "3" ? loggedInRoutes : defaultRoutes
 
   const onClickLogIn = () => {
     navigate("/login");

@@ -530,7 +530,7 @@ module.exports = {
             const link = `${process.env.BASE_PATH_FE}/verify-account/${verificationToken}`
             const template = fs.readFileSync("./src/helpers/template/verifyaccount.html", "utf-8")
             const templateCompile = handlebars.compile(template)
-            const registerEmail = templateCompile({link})
+            const registerEmail = templateCompile({name: newUser.name, link})
             
             await transporter.sendMail({
                 from: "Groceer-e",
@@ -622,13 +622,13 @@ module.exports = {
             const link = `${process.env.BASE_PATH_FE}/reset-password/${token}`
             const template = fs.readFileSync("./src/helpers/template/resetpassword.html", "utf-8")
             const templateCompile = handlebars.compile(template)
-            const registerEmail = templateCompile({link})
+            const resetPasswordEmail = templateCompile({name: userData.name, link})
             
             await transporter.sendMail({
                 from: "Groceer-e",
                 to: email,
                 subject: "Reset Your Groceer-e Account Password",
-                html: registerEmail
+                html: resetPasswordEmail
             })
 
             await transaction.commit()

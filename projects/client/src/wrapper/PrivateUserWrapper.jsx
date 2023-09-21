@@ -44,7 +44,11 @@ const PrivateUserWrapper = ({allowedRoles}) => {
   };
 
   if (!token) {
-    return <Outlet />;
+    if(location.pathname.includes("my-address") || location.pathname.includes("my-profile")){
+      return <Navigate to="/user/account" />
+    } else {
+      return <Outlet />;
+    }
   } else {
     keepLogin()
   }

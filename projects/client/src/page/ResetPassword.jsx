@@ -2,14 +2,14 @@ import React, {useState} from 'react'
 import { useFormik } from 'formik'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
-import { HiEye } from 'react-icons/hi'
+import { HiEye, HiEyeOff } from 'react-icons/hi'
 import background from '../assets/BackgroundLeaves.jpg'
 import groceereLogo from '../assets/logo_Groceer-e.svg'
 import setPasswordPic from '../assets/SetPasswordPic.png'
-import AlertPopUp from '../component/AlertPopUp'
 import InputField from '../component/InputField'
 import Button from '../component/Button'
 import { setPasswordSchema } from '../helpers/validationSchema'
+import AlertHelper from '../component/AlertHelper'
 
 
 export default function ResetPassword() {
@@ -18,13 +18,12 @@ export default function ResetPassword() {
     const {resetPasswordToken} = useParams()
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [showAlert, setShowAlert] = useState(false)
 
     const onSubmit = async(values, actions) => {
         try{
             actions.setSubmitting(true)
             setIsLoading(true)
-            const response = await axios.post(`http://localhost:8000/api/auth/users/reset-password?token=${resetPasswordToken}`, values, {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/users/reset-password?token=${resetPasswordToken}`, values, {
                 headers: {"Content-Type" : "application/json"}
             })
             if (response.status === 200){
@@ -33,7 +32,6 @@ export default function ResetPassword() {
                 setIsLoading(false)
                 setErrorMessage("")
                 setSuccessMessage(response.data?.message)
-                handleShowAlert()
             }
         }catch(error){
             if(error.response.status === 500){
@@ -43,7 +41,6 @@ export default function ResetPassword() {
             }
             actions.setSubmitting(false)
             setIsLoading(false)
-            handleShowAlert()
         }
     }
     const {values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting} = useFormik({
@@ -57,17 +54,6 @@ export default function ResetPassword() {
 
     const togglePassword = () => {
         setShowPassword(!showPassword);
-    }
-
-    const handleShowAlert = () => {
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 4000)
-    }
-
-    const handleHideAlert = () => {
-        setShowAlert(false)
     }
 
   return (
@@ -86,14 +72,14 @@ export default function ResetPassword() {
                     <img src={setPasswordPic} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
-                    {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
+                    <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
                 </div>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-72 flex flex-col gap-2">
                     <div className="w-full">
                         <div className="relative">
                             <label htmlFor="password" className="font-inter relative">Password</label>
                             <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
-                            <div className='absolute bottom-2 right-2'><HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} /></div>
+                            <div className='absolute bottom-2 right-2'>{showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} />)}</div>
                         </div>
                         {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                     </div>
