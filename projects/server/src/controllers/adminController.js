@@ -750,6 +750,7 @@ module.exports = {
                 voucher_type_id,
                 isReferral,
                 isExpired: false,
+                maxDiscount:0
               },
               { transaction }
             );
