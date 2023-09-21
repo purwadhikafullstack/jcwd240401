@@ -55,7 +55,7 @@ export default function UserRegister() {
     }, [selectedProvince])
 
     const provinceOptions = provinceData.map((province) => province.province_name)
-    const cityOptions = selectedProvince ? cityData.map((city) => city.city_name) : []
+    const cityOptions = selectedProvince ? cityData.map((city) => `${city.city_name} (${city.postal_code})`) : []
     
     const onSubmit = async(values, actions) => {
         try{
@@ -133,7 +133,7 @@ export default function UserRegister() {
                             <div className='relative'>
                                 <label htmlFor="password" className="font-inter relative">Password <span className="text-reddanger font-normal">*</span></label>
                                 <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
-                                <div className='absolute bottom-2 right-2'>{showPassword ? (<HiEyeOff className='h-6 w-6 text-darkgrey' onClick={togglePassword}/>) : (<HiEye className='h-6 w-6 text-darkgrey' onClick={togglePassword}/>)}</div>
+                                <div className='absolute bottom-2 right-2 cursor-pointer'>{showPassword ? (<HiEyeOff className='h-6 w-6 text-darkgrey' onClick={togglePassword}/>) : (<HiEye className='h-6 w-6 text-darkgrey' onClick={togglePassword}/>)}</div>
                             </div>
                             {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                         </div>

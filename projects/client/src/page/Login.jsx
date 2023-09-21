@@ -114,7 +114,7 @@ export default function Login() {
           </div>
           <div className="flex justify-center flex-col gap-2 items-center">
             <div className="mb-10 lg:hidden">
-              <img src={groceereLogo} alt="logo" />
+              <Link to="/"><img src={groceereLogo} alt="logo" /></Link>
               <div className="font-inter font-bold">
                 Your go-to grocery shop
               </div>
@@ -149,7 +149,7 @@ export default function Login() {
                     onBlur={handleBlur}
                     className="relative"
                   />
-                  <div className="absolute bottom-2 right-2">
+                  <div className="absolute bottom-2 right-2 cursor-pointer">
                     {showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword}/>) : (<HiEye
                       className="w-6 h-6 text-darkgrey"
                       onClick={togglePassword}

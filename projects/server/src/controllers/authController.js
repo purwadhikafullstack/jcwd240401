@@ -409,6 +409,9 @@ module.exports = {
                     message: "Password doesn't match"
                 })
             }
+
+            const city_details = city.split(" (")
+
             const selectedProvince = await db.Province.findOne({
                 where: {
                     province_name: province
@@ -420,7 +423,7 @@ module.exports = {
 
             const selectedCity = await db.City.findOne({
                 where: {
-                    city_name: city,
+                    city_name: city_details[0],
                     province_id: selectedProvince.province_id
                 },
                 attributes: {
