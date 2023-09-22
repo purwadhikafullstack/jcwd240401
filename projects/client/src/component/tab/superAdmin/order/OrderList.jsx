@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
-import dayjs from 'dayjs';
 import { Pagination } from 'flowbite-react';
-import Label from '../../../Label';
 import ModalOrder from '../../../ModalOrder';
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import { useNavigate } from 'react-router-dom';
+import OrderListTable from '../../../admin/SuperAdminOrderListComponent/OrderListTable';
 
 export default function OrderList() {
     const [orderData, setOrderData] = useState([])
@@ -89,32 +88,6 @@ export default function OrderList() {
         navigate({ search: params.toString() });
     };
 
-    const labelColor = (text) => {
-        switch(text) {
-            case "Waiting for payment":
-                return "gray";
-                break;
-            case "Waiting for payment confirmation":
-                return "purple";
-                break;
-            case "Processing":
-                return "yellow";
-                break;
-            case "Delivering":
-                return "blue";
-                break;
-            case "Order completed":
-                return "green";
-                break
-            case "Canceled":
-                return "red";
-                break;
-            default:
-                return "";
-                break;
-        }
-    }
-
     const handleFilterChange = (paramName, paramValue) => {
       const newFilter = new URLSearchParams(filter.toString());
       newFilter.set("page", "1");
@@ -129,21 +102,6 @@ export default function OrderList() {
       params.set("page", "1");
       navigate({ search: params.toString() });
   };
-
-    const handleDropdownChange = (e) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (e.target.value === "") {
-            newFilter.delete(e.target.id);
-        } else {
-            newFilter.set(e.target.id, e.target.value);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set(e.target.id, e.target.value);
-        navigate({ search: params.toString() });
-    }
 
     function getBranchLabel(branchId) {
       const selectedBranch = allBranchData.find((branch) => Number(branch.value) === Number(branchId));
@@ -173,7 +131,7 @@ export default function OrderList() {
               id="startDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              onChange={handleDropdownChange}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
           <div>
@@ -184,7 +142,7 @@ export default function OrderList() {
               id="endDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              onChange={handleDropdownChange}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
         </div>
@@ -192,40 +150,19 @@ export default function OrderList() {
           <CustomDropdownURLSearch
             id="sort"
             options={options}
-            onChange={handleDropdownChange}
+            onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             placeholder={"Sort by Order Date"}
           />
           <CustomDropdownURLSearch
             id="status"
             options={options2}
-            onChange={handleDropdownChange}
+            onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             placeholder={"Filter by Status"}
           />
         </div>
         <div className="w-full text-left my-2">Showing Orders From Branch: <span className="font-bold text-maingreen">{branchLabel}</span></div>
         <div className="w-72 overflow-x-auto lg:w-full">
-          <table className="w-full text-center font-inter">
-            <thead className="text-maingreen uppercase border-b-2 border-maingreen ">
-              <tr>
-                <th scope="col" className="px-2 py-4s">Invoice Code</th>
-                <th scope="col" className="px-2 py-4">Status</th>
-                <th scope="col" className="px-2 py-4">Order Date</th>
-              </tr>
-            </thead>
-            <tbody className='text-black text-sm'>
-                {orderData.length !==0 ? orderData.map((data, index) => (
-                    <tr key={index} className="hover:bg-gray-100 border-b-2 border-gray-200">
-                        <td className="py-2 px-4" onClick={() => setSelectedOrder(data.id)}>{data.invoiceCode}</td>
-                        <td className="py-2 px-4 flex justify-center" onClick={() => setSelectedOrder(data.id)}><Label text={data.orderStatus} labelColor={labelColor(data.orderStatus)} /></td>
-                        <td className="py-2 px-4" onClick={() => setSelectedOrder(data.id)}>{dayjs(data.orderDate).format("DD/MM/YYYY")}</td>
-                    </tr>
-                )) : (
-                <tr>
-                    <td colSpan="3" className='py-4 text-center'>No Orders Found</td>
-                </tr>
-                )}
-            </tbody>
-          </table>
+          <OrderListTable orderData={orderData} setSelectedOrder={setSelectedOrder}/>
         </div>
         {selectedOrder && (
             <ModalOrder
