@@ -817,7 +817,6 @@ module.exports = {
       );
 
       // Create order items
-      // Create order items
       for (const item of selectedItem) {
         let price;
 
@@ -869,6 +868,28 @@ module.exports = {
             { transaction: transaction }
           );
         }
+        // Create stock history entry
+        await db.Stock_History.create(
+          {
+            branch_product_id: item.branch_product_id,
+            totalQuantity: item.Branch_Product.quantity,
+            quantity: item.quantity, // Negative quantity indicates a deduction
+            status: "purchased by user",
+          },
+          { transaction }
+        );
+
+        // Update stock
+        await db.Branch_Product.update(
+          { quantity: db.sequelize.literal(`quantity - ${item.quantity}`) },
+          {
+            where: {
+              branch_id: item.Branch_Product.branch_id,
+              id: item.branch_product_id,
+            },
+            transaction,
+          }
+        );
 
         await item.destroy({ transaction: transaction });
       }
@@ -891,6 +912,8 @@ module.exports = {
   //get user Voucher
   async getUserVoucher(req, res) {
     const userId = req.user.id;
+    const grandTotal = req.params.grandTotal;
+
     try {
       const userVoucher = await db.User_Voucher.findAll({
         where: { user_id: userId, isUsed: false },
@@ -906,19 +929,27 @@ module.exports = {
           },
         ],
       });
+
       if (userVoucher.length === 0) {
         return res.status(200).send({
-          message: "no vouchers found",
+          message: "No vouchers found",
           data: [],
         });
       }
+
+      // Calculate isEligible for each user voucher
+      const vouchersWithEligibility = userVoucher.map((voucher) => ({
+        ...voucher.toJSON(),
+        isEligible: grandTotal >= voucher.Voucher.minTransaction,
+      }));
+
       return res.status(200).send({
-        message: "user vouchers successfully retrieved",
-        data: userVoucher,
+        message: "User vouchers successfully retrieved",
+        data: vouchersWithEligibility,
       });
     } catch (error) {
       return res.status(500).send({
-        message: "fatal error",
+        message: "Fatal error",
         error: error.message,
       });
     }
@@ -1032,17 +1063,30 @@ module.exports = {
     try {
       const orderData = await db.Order.findOne({
         where: { id: orderId, user_id: userId },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+            ],
+          },
+        ],
       });
+
       if (!orderData) {
         await transaction.rollback();
         return res.status(400).send({
-          message: "no order data found",
+          message: "No order data found",
         });
       }
+
       if (
         orderData.orderStatus === "Waiting for payment" ||
         orderData.orderStatus === "Waiting for payment confirmation"
       ) {
+        // Update order status to "Canceled"
         await orderData.update(
           {
             orderStatus: "Canceled",
@@ -1050,24 +1094,60 @@ module.exports = {
           },
           { transaction }
         );
+
+        // Return the stock and update stock history
+        for (const orderItem of orderData.Branch_Products) {
+          const { branch_product_id, quantity } = orderItem.Order_Item;
+
+          // Get the current stock quantity
+          const branchProduct = await db.Branch_Product.findOne({
+            where: { id: branch_product_id },
+            transaction,
+          });
+
+          if (branchProduct) {
+            const currentStockQuantity = branchProduct.quantity;
+
+            // Increment the stock
+            await db.Branch_Product.increment("quantity", {
+              by: quantity,
+              where: { id: branch_product_id },
+              transaction,
+            });
+
+            // Create a stock history entry for the return
+            await db.Stock_History.create(
+              {
+                branch_product_id,
+                totalQuantity: currentStockQuantity + quantity, // Update totalQuantity
+                quantity: orderItem.Order_Item.quantity,
+                status: "canceled by user",
+              },
+              { transaction }
+            );
+          }
+        }
       } else {
         await transaction.rollback();
         return res.status(400).send({
-          message: "you can't cancel this order",
+          message: "You can't cancel this order",
         });
       }
+
       await transaction.commit();
       return res.status(200).send({
-        message: "your oder successfully canceled",
+        message: "Your order was successfully canceled",
       });
     } catch (error) {
       await transaction.rollback();
-      console.log(error);
+      console.error(error);
       return res.status(500).send({
         message: "Internal Server Error",
+        error: error.message,
       });
     }
   },
+
   // user confirm order
   async confirmOrder(req, res) {
     const userId = req.user.id;
@@ -1112,21 +1192,6 @@ module.exports = {
           { transaction }
         );
 
-        // Update stock
-        const branchId = orderData.Branch_Products[0].branch_id;
-        for (const item of orderData.Branch_Products) {
-          await db.Branch_Product.update(
-            { quantity: item.quantity - item.Order_Item.quantity },
-            {
-              where: {
-                branch_id: branchId,
-                id: item.id,
-              },
-            },
-            { transaction }
-          );
-        }
-
         // Check vouchers available
         if (orderData.totalPrice >= 200000) {
           const vouchers = await db.Voucher.findAll({
@@ -1162,9 +1227,12 @@ module.exports = {
           );
 
           //update available vouchers on branch
-          await db.Voucher.update(
-            { usedLimit: db.Voucher.usedLimit - 1 },
-            { where: { id: orderData.voucher_id } },
+          await db.Voucher.decrement(
+            "usedLimit",
+            {
+              by: 1,
+              where: { id: orderData.voucher_id },
+            },
             { transaction }
           );
         }

@@ -31,7 +31,7 @@ export default function Payment() {
         `${process.env.REACT_APP_API_BASE_URL}/users/order/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (response.data?.data?.Voucher?.maxDiscount !== undefined) {
+      if (response.data?.data?.voucher_id) {
         setSelectedVoucher(response.data?.data?.Voucher?.maxDiscount);
       }
       setDeliveryFee(response.data.data.shippingCost);
@@ -42,7 +42,7 @@ export default function Payment() {
         response.data?.data?.Branch_Products
       );
       setSubTotal(calculatedSubTotal);
-      console.log(response?.data?.data?.Voucher?.maxDiscount);
+      console.log(response?.data?.data);
     } catch (error) {
       console.log(error.message);
     }
