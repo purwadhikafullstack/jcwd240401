@@ -8,7 +8,7 @@ import InputField from '../InputField';
 import Button from '../Button';
 import FarmersMarket from '../../assets/FarmersMarket.png';
 import handleImageError from '../../helpers/handleImageError'
-import { createCategorySchema } from '../../helpers/validationSchema';
+import { modifyCategorySchema } from '../../helpers/validationSchema';
 import AlertHelper from '../AlertHelper';
 
 export default function SuperAdminModifyCategory() {
@@ -116,7 +116,7 @@ export default function SuperAdminModifyCategory() {
                     <img src={FarmersMarket} alt="illustration" className='w-full h-full object-cover' />
                 </div>
                 <div className='lg:p-4 grid content-center'>
-                    <Formik enableReinitialize initialValues={{ name: categoryDetails.name, file: null, }} validationSchema={createCategorySchema} onSubmit={handleSubmit}>
+                    <Formik enableReinitialize initialValues={{ name: categoryDetails.name, file: null, }} validationSchema={modifyCategorySchema} onSubmit={handleSubmit}>
                         {(props) => (
                             <Form>
                                 <div className="flex flex-col gap-2 py-4 font-inter">

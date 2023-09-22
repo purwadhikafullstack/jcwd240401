@@ -7,6 +7,7 @@ import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 
 export default function AllBranch() {
     const [branchData, setBranchData] = useState([])
+    const [totalData, setTotalData] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [filter, setFilter] = useState(new URLSearchParams());
@@ -24,6 +25,7 @@ export default function AllBranch() {
 
             if(response.data){
                 setBranchData(response.data.data?.rows)
+                setTotalData(response.data.data?.count)
                 if(response.data.pagination) {
                     setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
                 }
@@ -95,25 +97,24 @@ export default function AllBranch() {
                     placeholder={"Sort by city"}
                 />            
             </div>
+            <div className="w-full text-left">Total: <span className="font-bold text-maingreen">{`${totalData}`}</span> branch locations</div>
             <div className='w-72 overflow-x-auto lg:w-full'>
             <table className="border-collapse w-full text-xs sm:text-base">
                 <thead className="border-b-2 border-maingreen text-maingreen uppercase">
                     <tr>
-                        <th className="py-2 px-4" style={{ width: '4%' }}>No</th>
-                        <th className="py-2 px-4" style={{ width: '24%%' }}>City</th>
-                        <th className="py-2 px-4" style={{ width: '24%' }}>Province</th>
-                        <th className="py-2 px-4" style={{ width: '24%' }}>Branch Admin</th>
-                        <th className="py-2 px-4" style={{ width: '24%' }}>Contact</th>
+                        <th className="py-2 px-4" style={{ width: '25%' }}>City</th>
+                        <th className="py-2 px-4" style={{ width: '25%' }}>Province</th>
+                        <th className="py-2 px-4" style={{ width: '25%' }}>Branch Admin</th>
+                        <th className="py-2 px-4" style={{ width: '25%' }}>Contact</th>
                     </tr>
                 </thead>
                 <tbody>
-                {branchData ? branchData.map((data, index) => (
+                {branchData ? branchData.map((data) => (
                         <tr>
-                            <td className="py-2 px-4" style={{ width: '4%'}}>{index + 1}</td>
-                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.City?.city_name}</td>
-                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.City?.Province?.province_name}</td>
-                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.User?.name}</td>
-                            <td className="py-2 px-4" style={{ width: '24%'}}>{data.User?.phone}</td>
+                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.City?.city_name}</td>
+                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.City?.Province?.province_name}</td>
+                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.User?.name}</td>
+                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.User?.phone}</td>
                         </tr>
                 )) : (
                 <tr>

@@ -181,7 +181,8 @@ module.exports = {
             const newReferralVoucher = await db.Voucher.create({
                 branch_id: newBranch.id,
                 voucher_type_id: 1,
-                isReferral: true
+                isReferral: true,
+                isExpired : false
             }, {
                 transaction
             })

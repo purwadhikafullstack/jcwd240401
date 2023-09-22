@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AlertPopUp from './AlertPopUp';
 
-const AlertHelper = ({ errorMessage, successMessage }) => {
+const AlertHelper = ({ errorMessage, successMessage, setErrorMessage, setSuccessMessage }) => {
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
@@ -9,7 +9,10 @@ const AlertHelper = ({ errorMessage, successMessage }) => {
       setShowAlert(true);
       const timeout = setTimeout(() => {
         setShowAlert(false);
+        setErrorMessage("")
+        setSuccessMessage("")
       }, 4000);
+      
 
       return () => {
         clearTimeout(timeout);

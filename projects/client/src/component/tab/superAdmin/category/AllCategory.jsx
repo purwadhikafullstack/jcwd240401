@@ -95,7 +95,7 @@ export default function AllCategory() {
         getCategory()
     }, [filter, currentPage])
 
-    const options = [{ label: "Sort By Name", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
+    const options = [{ label: "Default", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
 
     const handleChangeDropdown = (e) => {
         const newFilter = new URLSearchParams(filter.toString());

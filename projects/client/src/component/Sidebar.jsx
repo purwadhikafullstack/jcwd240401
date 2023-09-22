@@ -31,16 +31,16 @@ export default function Sidebar(props) {
         { to: "/admin/manage-product", tab: ["all-product", "create-product"], name: "Manage Product" },
         { to: "/admin/manage-category", tab: ["all-category", "create-category"], name: "Manage Category" },
         { to: "/admin/manage-branch", tab: ["all-branch", "create-branch"], name: "Manage Branch" },
-        { to: "/admin/order", name: "Orders" },
-        { to: "/admin/report", name: "Reports" },
+        { to: "/admin/order", tab: ["order-list"], name: "Orders" },
+        { to: "/admin/report", tab: ["sales-report", "stock-report"], name: "Reports" },
     ]
 
     const adminRoutes = [
         { to: "/admin", name: "Home" },
         { to: "/admin/branch/manage-product", tab: ["my-branch-product", "create-branch-product"], name: "Manage Product" },
         { to: "/admin/branch/manage-promotion", tab: ["my-discount", "my-voucher"], name: "Manage Promotion" },
-        { to: "/admin/branch/manage-order", name: "Manage Orders" },
-        { to: "/admin/branch/report", name: "Reports" },
+        { to: "/admin/branch/manage-order", tab: ["order-list"], name: "Manage Orders" },
+        { to: "/admin/branch/report", tab: ["sales-report", "stock-report"], name: "Reports" },
     ]
 
     const profileRole = Number(profile.role)

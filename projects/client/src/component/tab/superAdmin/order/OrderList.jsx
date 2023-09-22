@@ -50,7 +50,7 @@ export default function OrderList() {
                 label: `${d.City?.city_name}, ${d.City?.Province?.province_name}`,
                 value: d.id,
               }));
-              options.splice(0, 0, { label: "filter by branch", value: "" });
+              options.splice(0, 0, { label: "All branch", value: "" });
               setAllBranchData(options);
             } else {
               setAllBranchData([]);
@@ -64,13 +64,13 @@ export default function OrderList() {
     }, [currentPage, filter])
 
     const options = [
-        { label: "Sort by order date", value: "" },
+        { label: "Default", value: "" },
         { label: "order date: oldest", value: "ASC" },
         { label: "order date: newest", value: "DESC" },
     ];
 
     const options2 = [
-        { label: "Filter by status", value: "" },
+        { label: "Default", value: "" },
         { label: "Waiting for payment", value: "Waiting for payment" },
         { label: "Waiting for payment confirmation", value: "Waiting for payment confirmation" },
         { label: "Processing", value: "Processing" },
@@ -114,20 +114,21 @@ export default function OrderList() {
                 break;
         }
     }
-    const handleSearchSubmit = (searchValue) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (searchValue === "") {
-            newFilter.delete("search");
-        } else {
-            newFilter.set("search", searchValue);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("search", searchValue);
-        params.set("page", "1");
-        navigate({ search: params.toString() });
-    };
+
+    const handleFilterChange = (paramName, paramValue) => {
+      const newFilter = new URLSearchParams(filter.toString());
+      newFilter.set("page", "1");
+      if (paramValue === "") {
+          newFilter.delete(paramName);
+      } else {
+          newFilter.set(paramName, paramValue);
+      }
+      setFilter(newFilter);
+      const params = new URLSearchParams(window.location.search);
+      params.set(paramName, paramValue);
+      params.set("page", "1");
+      navigate({ search: params.toString() });
+  };
 
     const handleDropdownChange = (e) => {
         const newFilter = new URLSearchParams(filter.toString());
@@ -143,20 +144,25 @@ export default function OrderList() {
         params.set(e.target.id, e.target.value);
         navigate({ search: params.toString() });
     }
-    
+
+    function getBranchLabel(branchId) {
+      const selectedBranch = allBranchData.find((branch) => Number(branch.value) === Number(branchId));
+      return selectedBranch ? selectedBranch.label : 'Default';
+    }
+
+    let branchLabel = getBranchLabel(params.get("branchId"));
+
+    useEffect(()=> {
+      branchLabel = getBranchLabel(params.get("branchId"));
+    }, [filter])
     return (
         <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
-            <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Search by invoice code" />
+          <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Search by invoice code" />
         </div>
         <div className="mx-auto py-2 w-5/6">
-          <CustomDropdownURLSearch
-            id="branchId"
-            options={allBranchData}
-            onChange={handleDropdownChange}
-            placeholder={"Filter by branch"}
-          />
+          <CustomDropdownURLSearch id="branchId" options={allBranchData} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Branch"}/>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div>
@@ -187,15 +193,16 @@ export default function OrderList() {
             id="sort"
             options={options}
             onChange={handleDropdownChange}
-            placeholder={"Sort by order date"}
+            placeholder={"Sort by Order Date"}
           />
           <CustomDropdownURLSearch
             id="status"
             options={options2}
             onChange={handleDropdownChange}
-            placeholder={"Filter by status"}
+            placeholder={"Filter by Status"}
           />
         </div>
+        <div className="w-full text-left my-2">Showing Orders From Branch: <span className="font-bold text-maingreen">{branchLabel}</span></div>
         <div className="w-72 overflow-x-auto lg:w-full">
           <table className="w-full text-center font-inter">
             <thead className="text-maingreen uppercase border-b-2 border-maingreen ">

@@ -52,15 +52,16 @@ module.exports = {
       page: Number(req.query.page) || 1,
       perPage: 12,
       search: req.query.search,
-      name: req.query.sortName || "ASC",
+      name: req.query.sortName || "",
     };
 
     const where = {};
-    const order = [];
+    let order = [["createdAt", "DESC"]];
     try {
       where.isRemoved = 0;
 
       if (pagination.name) {
+        order = [];
         if (pagination.name.toUpperCase() === "DESC") {
           order.push(["name", "DESC"]);
         } else {
@@ -253,7 +254,7 @@ module.exports = {
             if (isUsed !== null) {
               await transaction.rollback();
               return res.status(400).send({
-                message: "Unable to delete. Category in use by product/s.",
+                message: "Unable to delete. Category in use by product(s).",
               });
             }
 
@@ -479,7 +480,7 @@ module.exports = {
             if (isUsed) {
               await transaction.rollback();
               return res.status(400).send({
-                message: "Unable to delete. Product in use by branch/es",
+                message: "Unable to delete. Product in use by branch(es)",
               });
             }
 
@@ -523,7 +524,7 @@ module.exports = {
 
     try {
       const where = {};
-      const order = [];
+      let order = [["createdAt", "DESC"]];
 
       where.isRemoved = 0;
 
@@ -536,6 +537,7 @@ module.exports = {
         where.category_id = pagination.category;
       }
       if (pagination.name) {
+        order = []
         if (pagination.name.toUpperCase() === "DESC") {
           order.push(["name", "DESC"]);
         } else {
@@ -543,6 +545,7 @@ module.exports = {
         }
       }
       if (pagination.price) {
+        order = []
         if (pagination.price.toUpperCase() === "DESC") {
           order.push(["basePrice", "DESC"]);
         } else {

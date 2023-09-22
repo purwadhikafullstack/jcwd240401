@@ -24,8 +24,8 @@ export default function AllProduct() {
     const [allCategory, setAllCategory] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const token = localStorage.getItem("token")
-    const nameOptions = [{ label: "Sort By Name", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
-    const priceOptions = [{ label: "Sort By Price", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
+    const nameOptions = [{ label: "Default", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
+    const priceOptions = [{ label: "Default", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
 
     const getCategory = async () => {
         try {
@@ -137,7 +137,7 @@ export default function AllProduct() {
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search product by name..." />
                 <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={handleDropdownChange} placeholder={"Filter By Category"} />

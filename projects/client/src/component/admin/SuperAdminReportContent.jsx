@@ -1,24 +1,37 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import CustomHeader from "../CustomHeader";
 import SalesReport from "../tab/superAdmin/report/SalesReport";
 import StockReport from "../tab/superAdmin/report/StockReport";
 
 export default function SuperAdminReportContent() {
-  const [content, setContent] = useState(<SalesReport />);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const activeTabParam = queryParams.get("tab");
+
+  const [content, setContent] = useState(() => {
+    if (activeTabParam === "sales-report") {
+        return <SalesReport />;
+    } else {
+        return <StockReport />;
+    }
+});
+
   const title = "Reports";
   const tabList = [
     {
-      name: "Sale report",
+      name: "Sales report",
       icon: "",
       isActive: false,
+      param: "sales-report",
       tab: <SalesReport />,
     },
     {
       name: "Stock history",
       icon: "",
       isActive: false,
+      param: "stock-report",
       tab: <StockReport />,
     },
   ];
