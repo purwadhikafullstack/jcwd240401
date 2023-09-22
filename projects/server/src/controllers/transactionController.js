@@ -872,7 +872,7 @@ module.exports = {
         await db.Stock_History.create(
           {
             branch_product_id: item.branch_product_id,
-            totalQuantity: item.quantity,
+            totalQuantity: item.Branch_Product.quantity,
             quantity: item.quantity, // Negative quantity indicates a deduction
             status: "purchased by user",
           },
@@ -1099,23 +1099,33 @@ module.exports = {
         for (const orderItem of orderData.Branch_Products) {
           const { branch_product_id, quantity } = orderItem.Order_Item;
 
-          // Increment the stock
-          await db.Branch_Product.increment("quantity", {
-            by: quantity,
+          // Get the current stock quantity
+          const branchProduct = await db.Branch_Product.findOne({
             where: { id: branch_product_id },
             transaction,
           });
 
-          // Create a stock history entry for the return
-          await db.Stock_History.create(
-            {
-              branch_product_id,
-              totalQuantity: quantity,
-              quantity,
-              status: "canceled by user",
-            },
-            { transaction }
-          );
+          if (branchProduct) {
+            const currentStockQuantity = branchProduct.quantity;
+
+            // Increment the stock
+            await db.Branch_Product.increment("quantity", {
+              by: quantity,
+              where: { id: branch_product_id },
+              transaction,
+            });
+
+            // Create a stock history entry for the return
+            await db.Stock_History.create(
+              {
+                branch_product_id,
+                totalQuantity: currentStockQuantity + quantity, // Update totalQuantity
+                quantity: orderItem.Order_Item.quantity,
+                status: "canceled by user",
+              },
+              { transaction }
+            );
+          }
         }
       } else {
         await transaction.rollback();

@@ -80,6 +80,10 @@ export default function StockReport() {
         return <td className="px-6 py-4 text-reddanger">{`-${data}`}</td>;
       case "purchased by user":
         return <td className="px-6 py-4 text-reddanger">{`-${data}`}</td>;
+      case "canceled by user":
+        return <td className="px-6 py-4 text-maingreen">{`+${data}`}</td>;
+      case "canceled by admin":
+        return <td className="px-6 py-4 text-maingreen">{`+${data}`}</td>;
       default:
         return <td className="px-6 py-4">{param}</td>;
     }

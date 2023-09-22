@@ -9,6 +9,7 @@ import CustomDropdown from "../CustomDropdown";
 import Modal from "../Modal";
 import { updateCart } from "../../store/reducer/cartSlice";
 import VoucherList from "./voucherList";
+import AlertPopUp from "../AlertPopUp";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -22,6 +23,9 @@ export default function UserCheckoutContent() {
   const [grandTotal, setGrandTotal] = useState("");
   const [vouchersList, setVouchersList] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState({ id: "", value: "" });
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const token = localStorage.getItem("token");
 
   const fetchUserVouchers = async () => {
@@ -236,6 +240,18 @@ export default function UserCheckoutContent() {
       }
     }
   };
+  const handleShowAlert = (condition) => {
+    if (condition) {
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
+    }
+    if (!condition) {
+      setShowAlert(false);
+    }
+  };
+
   const handleCheckout = async () => {
     const cart = localStorage.getItem("selectedCartItems");
 
@@ -250,6 +266,11 @@ export default function UserCheckoutContent() {
       // Check if a voucher is selected
       if (selectedVoucher.id !== "") {
         requestBody.voucher_id = selectedVoucher.id;
+      }
+
+      if (!courier || !deliveryFee) {
+        setErrorMessage("please select a courier and shipping method");
+        handleShowAlert("open");
       }
 
       const response = await axios.post(
@@ -283,6 +304,13 @@ export default function UserCheckoutContent() {
   console.log(selectedVoucher, "ini selected");
   return (
     <div className="flex flex-col items-center">
+      {showAlert && (
+        <AlertPopUp
+          condition={errorMessage && "fail"}
+          content={errorMessage && errorMessage}
+          setter={() => handleShowAlert(false)}
+        />
+      )}
       <div className="sm:w-full lg:w-4/6">
         <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
           Checkout
