@@ -6,7 +6,7 @@ module.exports = {
       page: Number(req.query.page) || 1,
       perPage: 12,
       search: req.query.search,
-      city_id: req.query.sortOrder || "ASC",
+      city_id: req.query.sortOrder || "",
     };
 
     const where = {};
@@ -1780,6 +1780,41 @@ module.exports = {
       });
     }
   },
+  async branchInfo(req,res) {
+    const userId = req.user.id
+    try{
+      const branchInfo = await db.Branch.findOne({
+        where: {
+          user_id: userId,
+        },
+        include: [{
+          model: db.City,
+          include: [{
+            model: db.Province
+          }]
+        },
+        {
+          model: db.User,
+          attributes: ["name", "email", "phone"]
+        }]
+      })
+
+      if(!branchInfo) {
+        return res.status(500).send({
+          message: "No branch found"
+        })
+      }
+
+      return res.status(200).send({
+        message: "Branch Info",
+        data: branchInfo
+      })
+    }catch(error){
+      return res.status(500).send({
+        message: "Internal server error"
+      })
+    }
+  }
 };
 
 // stock history (A)

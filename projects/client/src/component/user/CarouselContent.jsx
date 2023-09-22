@@ -4,6 +4,7 @@ import { Carousel } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import rupiah from '../../helpers/rupiah'
 import marketPic from '../../assets/marketPic.png'
+import handleImageError from '../../helpers/handleImageError'
 
 export default function CarouselContent({branchId}) {
   const [promotedProducts, setPromotedProducts] = useState([])
@@ -28,18 +29,13 @@ export default function CarouselContent({branchId}) {
     promotions()
   }, [branchId])
 
-  const handleImageError = (event) => {
-    event.target.src =
-        'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-  };
-
   return (
     <Carousel>
       {promotedProducts.length !== 0 ? (
         promotedProducts.map((product) => (
           <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative'>
             <div className="w-full h-full flex flex-col lg:flex-row justify-center px-20 py-10 items-center relative">
-              <div className='min-w-full h-full absolute flex justify-center items-center'>
+              <div className='min-w-full h-full absolute flex justify-center items-center overflow-y-hidden'>
                 <img src={product.Product?.imgProduct} alt="Product Image" className='min-w-full min-h-full absolute object-cover' onError={handleImageError}/>
               </div>
               <div className='w-full h-full flex flex-col lg:flex-row justify-end'>
@@ -56,7 +52,7 @@ export default function CarouselContent({branchId}) {
           </Link>))
       ) : (
         <div className='w-full h-full flex flex-col lg:flex-row gap-2 justify-center items-center'>
-          <div className='w-1/2'><img src={marketPic} alt="Market Illustration" className='w-full object-cover'/></div>
+          <div className='w-72 lg:w-1/2 overflow-y-hidden'><img src={marketPic} alt="Market Illustration" className='w-full object-cover'/></div>
           <div className='font-inter font-bold text-maingreen'>Sorry, no promotion available</div>
         </div>)}
     </Carousel>

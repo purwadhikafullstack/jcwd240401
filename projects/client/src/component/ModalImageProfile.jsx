@@ -112,7 +112,7 @@ export default function ModalImageProfile({ onSubmit }) {
                                                 <Button data-modal-hide="staticModal" label="Cancel" buttonType="button" condition="negative" onClick={handleCloseModal} />
                                                 <Button
                                                     isDisabled={!props.dirty || !props.isValid}
-                                                    type={"submit"}
+                                                    buttonType={"submit"}
                                                     label="Save"
                                                     onClick={props.handleSubmit}
                                                     condition="positive"

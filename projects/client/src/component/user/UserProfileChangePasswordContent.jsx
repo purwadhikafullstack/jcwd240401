@@ -70,7 +70,7 @@ export default function UserProfileChangePasswordContent() {
                         <div className="relative">
                             <label htmlFor="currentPassword" className="font-inter relative">Current Password</label>
                             <InputField value={values.currentPassword} id={"currentPassword"} type={showCurrentPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
-                            <div className='absolute bottom-2 right-2'>{showCurrentPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showCurrentPassword, setShowCurrentPassword)}} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showCurrentPassword, setShowCurrentPassword)}} />)}</div>
+                            <div className='absolute bottom-2 right-2 cursor-pointer'>{showCurrentPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showCurrentPassword, setShowCurrentPassword)}} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showCurrentPassword, setShowCurrentPassword)}} />)}</div>
                         </div>
                         {errors.currentPassword && touched.currentPassword && <p className="text-reddanger text-sm font-inter">{errors.currentPassword}</p>}
                     </div>
@@ -78,7 +78,7 @@ export default function UserProfileChangePasswordContent() {
                         <div className="relative">
                             <label htmlFor="password" className="font-inter relative">New Password</label>
                             <InputField value={values.password} id={"password"} type={showNewPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
-                            <div className='absolute bottom-2 right-2'>{showNewPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showNewPassword, setShowNewPassword)}} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showNewPassword, setShowNewPassword)}} />)}</div>
+                            <div className='absolute bottom-2 right-2 cursor-pointer'>{showNewPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showNewPassword, setShowNewPassword)}} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={() => {togglePassword(showNewPassword, setShowNewPassword)}} />)}</div>
                         </div>
                         {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                     </div>

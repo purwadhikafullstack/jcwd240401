@@ -3,14 +3,14 @@ import { useFormik } from 'formik'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
-import { HiEye } from 'react-icons/hi'
+import { HiEye, HiEyeOff } from 'react-icons/hi'
 import backgroundLogin from '../../assets/BackgroundLeaves.jpg'
 import groceereLogo from '../../assets/logo_Groceer-e.svg'
 import setPasswordPic from '../../assets/SetPasswordPic.png'
-import AlertPopUp from '../../component/AlertPopUp'
 import InputField from '../../component/InputField'
 import Button from '../../component/Button'
 import { setPasswordSchema } from '../../helpers/validationSchema'
+import AlertHelper from '../../component/AlertHelper'
 
 export default function BranchAdminSetAccount() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -21,7 +21,7 @@ export default function BranchAdminSetAccount() {
 
     const onSubmit = async(values, actions) => {
         try{
-            const response = await axios.post(`http://localhost:8000/api/auth/admins/set-password?token=${verificationToken}`, values, {
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/admins/set-password?token=${verificationToken}`, values, {
                 headers: {"Content-Type" : "application/json"}
             })
             if (response.status === 200){
@@ -71,15 +71,14 @@ export default function BranchAdminSetAccount() {
                     <img src={setPasswordPic} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
-                    {errorMessage ? (<AlertPopUp condition={"fail"} content={errorMessage}/>) : (null)}
-                    {successMessage ? (<AlertPopUp condition={"success"} content={successMessage} />) : (null)}
+                    <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
                 </div>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-72 flex flex-col gap-2">
                     <div className="w-full">
                         <div className='relative'>
                             <label htmlFor="password" className="font-inter relative">Password</label>
                             <InputField value={values.password} id={"password"} type={showPassword ? "text" : "password"} onChange={handleChange} onBlur={handleBlur} className="relative"/>
-                            <div className='absolute bottom-2 right-2'><HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} /></div>
+                            <div className='absolute bottom-2 right-2 cursor-pointer'>{showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword} />) : (<HiEye className="w-6 h-6 text-darkgrey" onClick={togglePassword} />)}</div>
                         </div>
                         {errors.password && touched.password && <p className="text-reddanger text-sm font-inter">{errors.password}</p>}
                     </div>
