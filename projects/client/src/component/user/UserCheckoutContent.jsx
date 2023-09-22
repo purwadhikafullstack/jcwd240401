@@ -8,6 +8,8 @@ import rupiah from "../../helpers/rupiah";
 import CustomDropdown from "../CustomDropdown";
 import Modal from "../Modal";
 import { updateCart } from "../../store/reducer/cartSlice";
+import VoucherList from "./voucherList";
+import AlertPopUp from "../AlertPopUp";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -20,13 +22,16 @@ export default function UserCheckoutContent() {
   const [deliveryFee, setDeliveryFee] = useState("");
   const [grandTotal, setGrandTotal] = useState("");
   const [vouchersList, setVouchersList] = useState([]);
-  const [selectedVoucher, setSelectedVoucher] = useState("");
+  const [selectedVoucher, setSelectedVoucher] = useState({ id: "", value: "" });
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const token = localStorage.getItem("token");
 
   const fetchUserVouchers = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/vouchers`,
+        `${process.env.REACT_APP_API_BASE_URL}/users/vouchers/${grandTotal}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -35,18 +40,7 @@ export default function UserCheckoutContent() {
       } else {
         const data = response?.data?.data;
         if (data) {
-          let options = data?.map((d) => ({
-            label: `${d.Voucher.Voucher_Type.type} ${
-              d.Voucher.voucher_type_id === 2 ? `${d.Voucher.amount}%` : ""
-            }${
-              d.Voucher.voucher_type_id === 3
-                ? `${rupiah(d.Voucher.amount)}`
-                : ""
-            }`,
-            value: d.Voucher.maxDiscount || 0,
-            voucher_id: d.Voucher.id, // Add voucher_id to options
-          }));
-          setVouchersList(options);
+          setVouchersList(data);
         }
       }
     } catch (error) {
@@ -136,26 +130,18 @@ export default function UserCheckoutContent() {
     return total;
   };
   const calculateTotalPrice = () => {
-    const selectedVoucherObject = vouchersList.find(
-      (voucher) => voucher.value === selectedVoucher
-    );
-    console.log(selectedVoucherObject, "ini");
-    if (selectedVoucher === "") {
+    if (selectedVoucher.value === "") {
       setGrandTotal(Number(subTotal) + Number(deliveryFee));
       console.log("gaada voucher");
     } else {
-      if (selectedVoucherObject) {
-        const selectedVoucherType = selectedVoucherObject?.label;
-
-        if (selectedVoucher === 0) {
-          setGrandTotal(Number(subTotal));
-          console.log("gratis ongkir");
-        } else if (selectedVoucher !== 0) {
-          setGrandTotal(
-            Number(subTotal) + Number(deliveryFee) - Number(selectedVoucher)
-          );
-          console.log("pake voucher");
-        }
+      if (selectedVoucher.value === 0) {
+        setGrandTotal(Number(subTotal));
+        console.log("gratis ongkir");
+      } else if (selectedVoucher.value !== 0) {
+        setGrandTotal(
+          Number(subTotal) + Number(deliveryFee) - Number(selectedVoucher.value)
+        );
+        console.log("pake voucher");
       }
     }
   };
@@ -195,8 +181,10 @@ export default function UserCheckoutContent() {
   const totalWeight = calculateTotalWeight(checkoutItems);
   useEffect(() => {
     fetchUserAddress();
-    fetchUserVouchers();
   }, []);
+  useEffect(() => {
+    fetchUserVouchers();
+  }, [grandTotal]);
   useEffect(() => {
     fetchCartItems();
   }, [selectedItems]);
@@ -239,14 +227,31 @@ export default function UserCheckoutContent() {
         setDeliveryFee(obj.value);
       }
     }
-    if (action === "vouchers") {
-      if (!obj.value && obj.value !== 0) {
-        setSelectedVoucher("");
+  };
+  const handleVoucherClick = (id, value) => {
+    if (selectedVoucher.id === id) {
+      // If the clicked voucher is already selected, deselect it
+      setSelectedVoucher({ id: "", value: "" });
+    } else {
+      if (value === null) {
+        setSelectedVoucher({ id: "", value: "" });
       } else {
-        setSelectedVoucher(obj.value);
+        setSelectedVoucher({ id, value });
       }
     }
   };
+  const handleShowAlert = (condition) => {
+    if (condition) {
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
+    }
+    if (!condition) {
+      setShowAlert(false);
+    }
+  };
+
   const handleCheckout = async () => {
     const cart = localStorage.getItem("selectedCartItems");
 
@@ -259,15 +264,13 @@ export default function UserCheckoutContent() {
       };
 
       // Check if a voucher is selected
-      if (selectedVoucher !== "") {
-        // Find the selected voucher in vouchersList
-        const selectedVoucherObject = vouchersList.find(
-          (voucher) => voucher.value === selectedVoucher
-        );
+      if (selectedVoucher.id !== "") {
+        requestBody.voucher_id = selectedVoucher.id;
+      }
 
-        if (selectedVoucherObject) {
-          requestBody.voucher_id = selectedVoucherObject.voucher_id;
-        }
+      if (!courier || !deliveryFee) {
+        setErrorMessage("please select a courier and shipping method");
+        handleShowAlert("open");
       }
 
       const response = await axios.post(
@@ -298,9 +301,16 @@ export default function UserCheckoutContent() {
 
   const destination = userAddress?.city_id;
   const origin = checkoutItems[0]?.Branch_Product?.Branch?.city_id;
-
+  console.log(selectedVoucher, "ini selected");
   return (
     <div className="flex flex-col items-center">
+      {showAlert && (
+        <AlertPopUp
+          condition={errorMessage && "fail"}
+          content={errorMessage && errorMessage}
+          setter={() => handleShowAlert(false)}
+        />
+      )}
       <div className="sm:w-full lg:w-4/6">
         <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
           Checkout
@@ -332,17 +342,14 @@ export default function UserCheckoutContent() {
           <label htmlFor="name" className="">
             Voucher
           </label>
-          <div className="relative">
-            <CustomDropdown
-              disabled={vouchersList.length === 0}
-              options={vouchersList}
-              onChange={(e) => handleChangeDropdown(e, "vouchers")}
-              placeholder={
-                vouchersList.length === 0
-                  ? "no vouchers available"
-                  : "--select vouchers--"
-              }
-            />
+          <div className="flex flex-col gap-4">
+            {vouchersList.map((voucher) => (
+              <VoucherList
+                vouchers={voucher}
+                selectedVoucher={selectedVoucher}
+                handleVoucherClick={handleVoucherClick}
+              />
+            ))}
           </div>
         </div>
         <div className="text-maingreen font-semibold">My Order Summary</div>
@@ -372,9 +379,9 @@ export default function UserCheckoutContent() {
             {rupiah(subTotal)}
           </span>
         </div>
-        {selectedVoucher === "" ? (
+        {selectedVoucher.id === "" ? (
           ""
-        ) : selectedVoucher === 0 ? (
+        ) : selectedVoucher.value === 0 ? (
           <div className="flex justify-between">
             <span className="font-semibold text-xl text-maingreen">
               Voucher
@@ -389,7 +396,7 @@ export default function UserCheckoutContent() {
               Voucher
             </span>
             <span className="text-reddanger text-xl font-bold ">
-              {rupiah(selectedVoucher)}
+              {rupiah(selectedVoucher.value)}
             </span>
           </div>
         )}
@@ -399,7 +406,7 @@ export default function UserCheckoutContent() {
               Delivery fee
             </span>
             <span className="text-reddanger text-xl font-bold ">
-              {selectedVoucher === 0 ? (
+              {selectedVoucher.value === 0 ? (
                 <s>{rupiah(deliveryFee)}</s>
               ) : (
                 rupiah(deliveryFee)

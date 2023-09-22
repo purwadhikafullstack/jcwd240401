@@ -107,7 +107,7 @@ router.patch(
 );
 
 router.get(
-  "/vouchers",
+  "/vouchers/:grandTotal",
   authMiddleware.verifyToken,
   authMiddleware.verifyUser,
   transactionController.getUserVoucher
