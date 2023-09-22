@@ -3,6 +3,7 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import rupiah from '../helpers/rupiah'
 import Label from './Label'
+import handleImageError from '../helpers/handleImageError'
 
 export default function ModalOrder({orderId, onClose}) {
     const [selectedOrder, setSelectedOrder] = useState([])
@@ -24,11 +25,6 @@ export default function ModalOrder({orderId, onClose}) {
             }
         }
     }
-
-    const handleImageError = (event) => {
-        event.target.src =
-            'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-    };
 
     useEffect(() => {
         order()
@@ -133,7 +129,7 @@ export default function ModalOrder({orderId, onClose}) {
                             {selectedOrder?.Branch_Products?.map((product) => (
                                 <div className='my-2 flex gap-2 font-inter'>
                                     <div className='h-24 w-24 flex items-center'>
-                                        <img src={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProgduct}`} alt="product image" onError={handleImageError}/>
+                                        <img src={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} alt="product image" onError={handleImageError}/>
                                     </div>
                                     <div>
                                         <p className="text-black font-bold">{product.Product?.name}</p>
@@ -168,7 +164,7 @@ export default function ModalOrder({orderId, onClose}) {
                             Payment Proof
                             <div className='flex gap-4 items-end'>
                                 <div className="h-52 w-40">
-                                    <img src={`${process.env.REACT_APP_BASE_URL}${selectedOrder?.imgRefund}`} alt="Refund Image" className='object-cover w-full h-full' onError={handleImageError}/>
+                                    <img src={`${process.env.REACT_APP_BASE_URL}${selectedOrder?.imgPayment}`} alt="Payment proof" className='object-cover w-full h-full' onError={handleImageError}/>
                                 </div>
                             </div>
                         </div>

@@ -9,7 +9,8 @@ import rupiah from '../../helpers/rupiah'
 import Button from '../Button'
 import InputField from '../InputField'
 import Modal from '../Modal';
-import AlertPopUp from '../AlertPopUp';
+import handleImageError from '../../helpers/handleImageError';
+import AlertHelper from '../AlertHelper';
 
 export default function BranchAdminModifyOrder() {
   const [orderData, setOrderData] = useState([])
@@ -44,11 +45,6 @@ export default function BranchAdminModifyOrder() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [successMessage, errorMessage])
 
-  const handleImageError = (event) => {
-    event.target.src =
-        'https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg';
-};
-
 const labelColor = (text) => {
   switch(text) {
       case "Waiting for payment":
@@ -81,12 +77,10 @@ const labelColor = (text) => {
       })
       if(response.status === 200){
         setSuccessMessage(response.data.message)
-        handleShowAlert()
       }
     }catch(error){
       if(error.response){
         setErrorMessage(error.response?.data?.message)
-        handleShowAlert()
         console.log(error)
       }
     }
@@ -111,14 +105,12 @@ const labelColor = (text) => {
         setCancel(false)
         setSuccessMessage(response.data?.message)
         setFieldValue("file", null)
-        handleShowAlert()
       }
     }catch(error){
       if(error.response){
         setErrorMessage(error.response?.data?.message)
         setSubmitting(false)
         resetForm()
-        handleShowAlert()
         console.log(error)
       }
     }
@@ -130,20 +122,12 @@ const labelColor = (text) => {
 
   function preview(event) {
     const file = event.target.files[0];
-    if (file) {
+    if (file === undefined) {
+        setImagePreview(null)
+    } else {
         const previewUrl = URL.createObjectURL(file);
         setImagePreview(previewUrl);
     }
-}
-  const handleShowAlert = () => {
-    setShowAlert(true)
-    setTimeout(() => {
-    setShowAlert(false)
-    }, 4000)
-  }
-
-  const handleHideAlert = () => {
-    setShowAlert(false)
   }
 
   return (
@@ -156,7 +140,7 @@ const labelColor = (text) => {
         <div className='w-full'>
         <div className="py-6 space-y-6 px-10 font-inter">
           <div className='w-full flex justify-center'>
-          {showAlert ? (<AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert}/>) : (null)}
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
           </div>
           <div className="text-base text-darkgrey border-b-2 pb-2">
             Invoice Code
@@ -272,12 +256,19 @@ const labelColor = (text) => {
                 {(imagePreview) ? (
                   <img
                     id="frame"
-                    className="h-52 w-40 object-cover"
+                    className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
                     src={imagePreview}
+                    onError={handleImageError}
+                    alt="Refund proof"
+                  />
+                ) : (
+                  <img
+                    className="w-36 h-36 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
+                    src={""}
                     onError={handleImageError}
                     alt="/"
                   />
-                ) : (null)}
+                )}
               <input className='border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0' type="file" id="file" name="file" onChange={(e) => { props.setFieldValue("file", e.currentTarget.files[0]); preview(e) }} />
             </div>
             <div className='flex mt-4 w-3/4'>
