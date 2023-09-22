@@ -419,6 +419,16 @@ module.exports = {
         where: {
           id: orderId,
         },
+        include: [
+          {
+            model: db.Branch_Product,
+            include: [
+              {
+                model: db.Product,
+              },
+            ],
+          },
+        ],
       });
 
       if (!orderData) {
@@ -444,6 +454,36 @@ module.exports = {
           message: "You cannot cancel this order, it has been canceled by user",
         });
       }
+
+      for (const orderItem of orderData.Branch_Products) {
+        const { branch_product_id, quantity } = orderItem.Order_Item;
+
+        const branchProduct = await db.Branch_Product.findOne({
+          where: { id: branch_product_id },
+          transaction,
+        });
+
+        if (branchProduct) {
+          const currentStockQuantity = branchProduct.quantity;
+
+          await db.Branch_Product.increment("quantity", {
+            by: quantity,
+            where: { id: branch_product_id },
+            transaction,
+          });
+
+          await db.Stock_History.create(
+            {
+              branch_product_id,
+              totalQuantity: currentStockQuantity + quantity,
+              quantity: orderItem.Order_Item.quantity,
+              status: "canceled by admin",
+            },
+            { transaction }
+          );
+        }
+      }
+
       if (!cancelReason || !imgFileName) {
         await transaction.rollback();
         return res.status(400).send({
