@@ -150,7 +150,7 @@ export default function SingleProductContent() {
                     </div>
                     <div className="sm:grid sm:grid-cols-2 sm:gap-4 sm:mt-9">
                         <div>
-                            <SingleProductContentImage imgUrl={`${process.env.REACT_APP_BASE_URL}${branchProductData?.Product?.imgProduct}`} branchDiscount={branchProductData.discount_id} branchDiscountExpired={branchProductData.Discount?.isExpired} branchDiscountId={branchProductData.Discount?.discount_type_id} />
+                            <SingleProductContentImage imgUrl={`${process.env.REACT_APP_BASE_URL}${branchProductData?.Product?.imgProduct}`} branchDiscount={branchProductData.discount_id} branchDiscountExpired={branchProductData.Discount?.isExpired} branchDiscountId={branchProductData.Discount?.discount_type_id} branchProductStock={branchProductData.quantity} />
                             <SingleProductContentPriceTop productData={branchProductData} />
                         </div>
                         <div>
