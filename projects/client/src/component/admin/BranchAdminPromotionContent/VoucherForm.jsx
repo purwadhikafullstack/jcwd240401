@@ -26,9 +26,12 @@ export default function VoucherForm({
         <form>
           <div className="w-full">
             <div>
+            <span className="text-xs text-reddanger">* required</span>
+            </div>
+            <div>
               <label htmlFor="isReferral" className="font-inter">
                 referral code?
-                <span className="text-xs text-reddanger">* required</span>
+                <span className="text-xs text-reddanger">*</span>
               </label>
             </div>
             <div>
@@ -59,7 +62,7 @@ export default function VoucherForm({
             </div>
             <label htmlFor="voucher_type_id" className="font-inter">
               Voucher type
-              <span className="text-xs text-reddanger">* required</span>
+              <span className="text-xs text-reddanger">*</span>
             </label>
             <div>
               <Field
@@ -91,7 +94,7 @@ export default function VoucherForm({
               <div>
                 <label htmlFor="amount" className="font-inter">
                   amount
-                  <span className="text-xs text-reddanger">* required</span>
+                  <span className="text-xs text-reddanger">*</span>
                 </label>
                 <InputField
                   value={props.values.amount}
@@ -128,7 +131,7 @@ export default function VoucherForm({
               <div>
                 <label htmlFor="minTransaction" className="font-inter">
                   min. Transaction
-                  <span className="text-xs text-reddanger">* required</span>
+                  <span className="text-xs text-reddanger">*</span>
                 </label>
                 <InputField
                   value={props.values.minTransaction}
@@ -147,7 +150,7 @@ export default function VoucherForm({
               <div>
                 <label htmlFor="usedLimit" className="font-inter">
                   Usage limit
-                  <span className="text-xs text-reddanger">* required</span>
+                  <span className="text-xs text-reddanger">*</span>
                 </label>
                 <InputField
                   value={props.values.usedLimit}
@@ -164,7 +167,7 @@ export default function VoucherForm({
               <div>
                 <label htmlFor="expiredDate" className="font-inter">
                   Expired date
-                  <span className="text-xs text-reddanger">* required</span>
+                  <span className="text-xs text-reddanger">*</span>
                 </label>
                 <Field
                   type="date"
