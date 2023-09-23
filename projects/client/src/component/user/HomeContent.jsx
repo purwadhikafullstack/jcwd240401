@@ -92,47 +92,17 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
         navigate({ search: params.toString() });
     };
 
-    const handleFilterChange = (e) => {
+    const handleFilterChange = (paramName, paramValue) => {
         const newFilter = new URLSearchParams(filter.toString());
         newFilter.set("page", "1");
-        if (e.target.value === "") {
-            newFilter.delete(e.target.id);
+        if (paramValue === "") {
+            newFilter.delete(paramName);
         } else {
-            newFilter.set(e.target.id, e.target.value);
+            newFilter.set(paramName, paramValue);
         }
         setFilter(newFilter);
         const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set(e.target.id, e.target.value);
-        navigate({ search: params.toString() });
-    };
-
-    const handleCategoryChange = (categoryId) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (categoryId === "") {
-            newFilter.delete("category_id");
-        } else {
-            newFilter.set("category_id", categoryId);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set("category_id", categoryId);
-        navigate({ search: params.toString() });
-    };
-
-    const handleSearchValue = (searchValue) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (searchValue === "") {
-            newFilter.delete("search");
-        } else {
-            newFilter.set("search", searchValue);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("search", searchValue);
+        params.set(paramName, paramValue);
         params.set("page", "1");
         navigate({ search: params.toString() });
     };
@@ -151,7 +121,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
                 </div>
                 <div className="w-11/12 gap-2 lg:w-full mb-10 relative z-10">
                     <div className="lg:hidden bg-white px-2 rounded-md font-inter text-sm mb-2">Showing products from <span className='text-maingreen font-medium'>{`${branchCity}, ${branchProvince}`}</span> branch</div>
-                    <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchValue} placeholder="Enter here to search product by name..." />
+                    <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search product by name..." />
                 </div>
                 <div className="w-full gap-2 lg:w-full h-96 lg:h-64 absolute top-0 lg:static">
                     <CarouselContent branchId={branchId} />
@@ -160,13 +130,13 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
             <div className="w-11/12 gap-2 sm:w-9/12 lg:w-full h-fit flex overflow-x-auto lg:mb-10 mb-4">
                 {categories.map((category) => (
                     <div key={category.value} className='relative inline-block rounded-md bg-darkgrey' style={{ backgroundImage: `${category.imgCategory}`, backgroundSize: 'cover' }}>
-                        <button id="category_id" onClick={() => handleCategoryChange(category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className={`absolute inset-0 bg-black w-full h-full rounded-md z-5 ${params.get("category_id") == category.value ? `bg-opacity-70 border-maingreen border-4` : `bg-black bg-opacity-40`}`}></div><span className={`relative font-inter text-white z-90`}>{category.label}</span></button>
+                        <button id="category_id" onClick={(e) => handleFilterChange("category_id", category.value)} className='w-full h-full whitespace-nowrap relative py-2 px-4'><div className={`absolute inset-0 bg-black w-full h-full rounded-md z-5 ${params.get("category_id") == category.value ? `bg-opacity-70 border-maingreen border-4` : `bg-black bg-opacity-40`}`}></div><span className={`relative font-inter text-white z-90`}>{category.label}</span></button>
                     </div>
                 ))}
             </div>
             <div className='w-11/12 gap-2 sm:w-9/12 lg:w-full flex lg:mb-10 mb-4'>
-                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleFilterChange} placeholder={"Sort by Name"} />
-                <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={handleFilterChange} placeholder={"Sort by Price"} />
+                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
+                <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Price"} />
             </div>
             <div className='w-11/12 gap-2 sm:w-9/12 lg:w-full grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
                 {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (

@@ -29,6 +29,11 @@ export default function ProductCard({ product, productImg }) {
                         alt="img"
                         onError={handleImageError}
                     />
+                    {product.quantity === 0 ? (
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black opacity-75 rounded-full w-16 h-16 flex justify-center items-center">
+                            <p className="text-white font-inter text-sm text-center">Sold Out</p>
+                        </div>
+                    ) : null}
                 </div>
                 <div className="grid grid-rows-2 items-start w-full h-[150px]">
                     <div className="flex flex-col font-semibold text-sm sm:text-base my-1 mx-2 justify-center content-center h-full">

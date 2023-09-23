@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../../Button'
 import handleImageError from '../../../helpers/handleImageError';
 
-export default function SingleProductContentImage({ imgUrl, branchDiscount, branchDiscountExpired, branchDiscountId }) {
+export default function SingleProductContentImage({ imgUrl, branchDiscount, branchDiscountExpired, branchDiscountId, branchProductStock }) {
     const navigate = useNavigate();
 
     return (
@@ -21,12 +21,27 @@ export default function SingleProductContentImage({ imgUrl, branchDiscount, bran
                             : "Discount"}
                     </div>
                 ) : null}
-                <img
-                    className="w-full h-fit justify-center mx-auto object-cover sm:rounded-lg"
-                    src={imgUrl}
-                    onError={handleImageError}
-                    alt="/"
-                />
+                {branchProductStock !== 0 ? (
+                    <img
+                        className="w-full h-fit justify-center mx-auto object-cover sm:rounded-lg"
+                        src={imgUrl}
+                        onError={handleImageError}
+                        alt="/"
+                    />
+                ) : (
+                    <div className='relative'>
+                        <img
+                            className="w-full h-fit justify-center mx-auto object-cover sm:rounded-lg"
+                            src={imgUrl}
+                            onError={handleImageError}
+                            alt="/"
+                        />
+                        <div className="absolute top-0 bg-black opacity-75 w-full h-full flex justify-center items-center">
+                            <p className="text-greensuccesssurface font-inter text-xl sm:text-2xl text-center">Sold Out</p>
+                        </div>
+                    </div>
+
+                )}
             </div>
         </div>
     )
