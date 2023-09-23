@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 
 import AlertHelper from '../../../AlertHelper';
 import CreateProductForm from '../../../admin/SuperAdminCreateProductComponent/CreateProductForm';
+import { getCategoriesNoPagination } from '../../../../api/category';
+import { createProduct } from '../../../../api/product';
 
 export default function CreateProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -15,9 +16,7 @@ export default function CreateProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getCategoriesNoPagination(token);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -54,13 +53,7 @@ export default function CreateProduct() {
         formData.append('storageInstruction', storageInstruction);
         formData.append('storagePeriod', storagePeriod);
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/product`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${token}`
-                },
-            })
-
+            const response = await createProduct(token, formData)
             if (response.status === 201) {
                 resetForm()
                 resetFileInput();

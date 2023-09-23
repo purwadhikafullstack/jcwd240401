@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
 import { LuEdit } from "react-icons/lu"
@@ -12,6 +11,8 @@ import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import Label from '../../../Label';
 import handleImageError from '../../../../helpers/handleImageError'
 import AlertHelper from '../../../AlertHelper';
+import { getCategoriesNoPagination } from '../../../../api/category';
+import { getBranchProducts, removeBranchProduct } from '../../../../api/branchProduct';
 
 export default function AllBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -30,7 +31,7 @@ export default function AllBranchProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await getCategoriesNoPagination(token);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -48,9 +49,7 @@ export default function AllBranchProduct() {
     }
     const getBranchProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&filterStatus=${params.get("filterStatus") || ""}&sortName=${params.get("sortName") || ""}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await getBranchProducts(token, params.get("page") || 1, params.get("search") || "", params.get("category_id") || "", params.get("filterStatus") || "", params.get("sortName") || "")
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
                 if (responseData) {
@@ -91,9 +90,9 @@ export default function AllBranchProduct() {
         navigate({ search: params.toString() });
     };
 
-    const handleRemove = async (productId) => {
+    const handleRemove = async (branchProductId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${productId}/remove`, {}, { headers: { Authorization: `Bearer ${token}` },})
+            const response = await removeBranchProduct(token, branchProductId)
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
             }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 
 import Button from '../Button';
 import AlertHelper from '../AlertHelper';
 import ModifyProductForm from './SuperAdminModifyProductComponent/ModifyProductForm';
+import { getProductById, modifyProduct } from '../../api/product';
+import { getCategoriesNoPagination } from '../../api/category';
 
 export default function SuperAdminModifyProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -19,9 +20,7 @@ export default function SuperAdminModifyProduct() {
 
     const getOneProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getProductById(token, id)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -47,9 +46,7 @@ export default function SuperAdminModifyProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getCategoriesNoPagination(token);
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -82,7 +79,7 @@ export default function SuperAdminModifyProduct() {
         if (storageInstruction !== productDetails.storageInstruction) { formData.append('storageInstruction', storageInstruction); }
         if (storagePeriod !== productDetails.storagePeriod) { formData.append('storagePeriod', storagePeriod); }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${id}/modify`, formData, { headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}` }, })
+            const response = await modifyProduct(token, id, formData)
             if (response.status === 200) {
                 resetForm({ values: initialValues })
                 setErrorMessage("")

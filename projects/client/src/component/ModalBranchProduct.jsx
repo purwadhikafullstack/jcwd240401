@@ -8,7 +8,7 @@ export default function ModalBranchProduct({ branchProductId, onClose }) {
     const token = localStorage.getItem("token")
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/my-branch/branch-products/${branchProductId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${branchProductId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (response.data) {

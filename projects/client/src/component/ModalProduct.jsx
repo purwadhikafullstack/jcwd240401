@@ -7,7 +7,7 @@ export default function ModalProduct({ productId, onClose }) {
 
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/admins/products/${productId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.data) {

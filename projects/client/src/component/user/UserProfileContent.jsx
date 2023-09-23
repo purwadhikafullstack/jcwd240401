@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 
 import Button from "../Button"
 import ModalImageProfile from '../ModalImageProfile'
 import handleImageError from '../../helpers/handleImageError'
 import AlertHelper from '../AlertHelper';
+import { getProfileByToken, modifyImageProfile } from '../../api/profile'
 
 export default function UserProfileContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -23,12 +23,7 @@ export default function UserProfileContent() {
             formData.append("file", file)
         }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/profile/image-profile`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${token}`
-                },
-            })
+            const response = await modifyImageProfile(token, formData)
             if (response.status === 200) {
                 resetForm({ values: initialValues })
                 setErrorMessage("")
@@ -65,9 +60,7 @@ export default function UserProfileContent() {
 
     const getProfile = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/profile`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getProfileByToken(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {

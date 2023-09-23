@@ -8,6 +8,7 @@ import InputField from '../InputField';
 import Button from '../Button';
 import { modifyAddressSchema } from '../../helpers/validationSchema';
 import AlertHelper from '../AlertHelper';
+import { getAddressByName, modifyAddress } from '../../api/profile';
 
 export default function UserAddressModifyContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -23,7 +24,7 @@ export default function UserAddressModifyContent() {
 
     const getOneAddress = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${encodeURIComponent(name)}`, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await getAddressByName(token, name)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -81,10 +82,7 @@ export default function UserAddressModifyContent() {
         if (contact !== addressDetails.contact) { data.contact = contact }
         if (addressLabel !== addressDetails.addressLabel) { data.addressLabel = addressLabel }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${addressDetails.id}`, data, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-
+            const response = await modifyAddress(token, addressDetails.id, data)
             if (response.status === 200) {
                 resetForm()
                 setErrorMessage("")

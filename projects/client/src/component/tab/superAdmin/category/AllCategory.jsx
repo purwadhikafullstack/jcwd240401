@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
 import { LuEdit } from "react-icons/lu"
@@ -9,6 +8,7 @@ import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
 import handleImageError from '../../../../helpers/handleImageError';
 import AlertHelper from '../../../AlertHelper';
+import { removeCategory, getCategories } from '../../../../api/category';
 
 export default function AllCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -23,9 +23,7 @@ export default function AllCategory() {
     const token = localStorage.getItem("token")
     const handleRemove = async (categoryId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${categoryId}/remove`, null, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await removeCategory(token, categoryId)
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
             }
@@ -62,9 +60,7 @@ export default function AllCategory() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories?page=${params.get("page") || 1}&search=${params.get("search") || ""}&sortName=${params.get("sortName") || ""}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getCategories(token, params.get("page") || 1, params.get("search") || "", params.get("sortName") || "")
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
@@ -135,7 +131,7 @@ export default function AllCategory() {
                                     <td className="py-2 px-4 hidden lg:table-cell" style={{ width: '25%' }} >
                                         <img
                                             className="w-28 h-28 justify-center mx-auto m-2 object-cover"
-                                            src={`http://localhost:8000${item.imgCategory}`}
+                                            src={`${process.env.REACT_APP_BASE_URL}${item.imgCategory}`}
                                             onError={handleImageError}
                                             alt="/"
                                         />

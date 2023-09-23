@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Formik, Form } from 'formik';
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -10,6 +9,7 @@ import FarmersMarket from '../../assets/FarmersMarket.png';
 import handleImageError from '../../helpers/handleImageError'
 import { modifyCategorySchema } from '../../helpers/validationSchema';
 import AlertHelper from '../AlertHelper';
+import { getCategoryById, modifyCategory } from '../../api/category';
 
 export default function SuperAdminModifyCategory() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -22,9 +22,7 @@ export default function SuperAdminModifyCategory() {
 
     const getOneCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getCategoryById(token, id)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -48,13 +46,7 @@ export default function SuperAdminModifyCategory() {
         if (name !== categoryDetails.name) { formData.append('name', name); }
         if (file) { formData.append('file', file); }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/categories/${id}/modify`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    "Authorization": `Bearer ${token}`
-                },
-            })
-
+            const response = await modifyCategory(token, id, formData);
             if (response.status === 200) {
                 resetForm({ values: initialValues })
                 setErrorMessage("")

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 import { Formik, Form, Field } from "formik";
 
 import Modal from '../../Modal';
 import InputField from '../../InputField';
 import { modifyBranchProductQuantitySchema } from '../../../helpers/validationSchema';
 import AlertHelper from '../../AlertHelper';
+import { getBranchProductById, modifyBranchProductStock } from '../../../api/branchProduct';
 
 export default function ModifyProductStocks({ branchProductId }) {
   const [errorMessage, setErrorMessage] = useState("")
@@ -17,9 +17,7 @@ export default function ModifyProductStocks({ branchProductId }) {
 
   const getOneBranchProduct = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${branchProductId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await getBranchProductById(token, branchProductId)
       if (response.data) {
         const data = response.data.data;
         if (data) {
@@ -38,9 +36,7 @@ export default function ModifyProductStocks({ branchProductId }) {
   const handleSubmit = async (values, { setSubmitting, resetForm, setStatus, initialValues }) => {
     const { action, quantity } = values
     try {
-      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${branchProductId}/stock/${action}`, { quantity: quantity }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      const response = await modifyBranchProductStock(token, branchProductId, action, quantity)
       if (response.status === 200) {
         resetForm({ values: initialValues })
         setErrorMessage("")

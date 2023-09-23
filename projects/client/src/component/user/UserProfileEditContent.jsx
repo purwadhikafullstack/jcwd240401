@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import { useNavigate } from "react-router-dom";
 import dayjs from 'dayjs'
@@ -9,6 +8,7 @@ import InputField from '../InputField';
 import Button from '../Button';
 import { modifyProfileSchema } from '../../helpers/validationSchema';
 import AlertHelper from '../AlertHelper';
+import { getProfileByToken, modifyCredential } from '../../api/profile';
 
 export default function UserProfileEditContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -26,9 +26,7 @@ export default function UserProfileEditContent() {
 
     const getProfile = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/profile`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getProfileByToken(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -57,10 +55,7 @@ export default function UserProfileEditContent() {
         if (birthdate !== profileDetails.birthdate) { data.birthdate = birthdate }
         if (gender !== profileDetails.gender) { data.gender = gender }
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/profile/credential`, data, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-
+            const response = await modifyCredential(token, data)
             if (response.status === 200) {
                 resetForm({ values: initialValues })
                 setErrorMessage("")

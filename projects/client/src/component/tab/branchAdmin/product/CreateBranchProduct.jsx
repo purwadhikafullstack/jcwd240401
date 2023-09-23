@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 
 import Modal from '../../../Modal';
 import InputField from '../../../InputField';
 import { createBranchProductSchema } from '../../../../helpers/validationSchema';
 import AlertHelper from '../../../AlertHelper';
+import { createBranchProduct } from '../../../../api/branchProduct';
 
 export default function CreateBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -16,9 +16,7 @@ export default function CreateBranchProduct() {
     const token = localStorage.getItem("token")
     const getUnaddedProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/unadded-products`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getUnaddedProduct(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -38,9 +36,7 @@ export default function CreateBranchProduct() {
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products`, values, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await createBranchProduct(token, values)
             if (response.status === 201) {
                 resetForm()
                 setErrorMessage("")

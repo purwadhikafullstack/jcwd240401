@@ -9,6 +9,7 @@ import InputField from '../InputField';
 import Button from '../Button';
 import { createAddressSchema } from '../../helpers/validationSchema';
 import AlertHelper from '../AlertHelper';
+import { createAddress } from '../../api/profile';
 
 export default function UserAddressCreateContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -52,9 +53,7 @@ export default function UserAddressCreateContent() {
     }
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/users/address`, values, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
+            const response = await createAddress(token, values)
             if (response.status === 201) {
                 resetForm()
                 setErrorMessage("")

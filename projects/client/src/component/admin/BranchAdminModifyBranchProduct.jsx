@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
-import axios from 'axios';
 
 import Button from '../Button';
 import ModifyBranchProduct from '../tab/branchAdmin/product/ModifyBranchProduct';
 import handleImageError from '../../helpers/handleImageError'
+import { getBranchProductById } from '../../api/branchProduct';
 
 export default function BranchAdminModifyBranchProduct() {
     const [branchProductDetails, setBranchProductDetails] = useState({})
@@ -14,9 +14,7 @@ export default function BranchAdminModifyBranchProduct() {
 
     const getOneBranchProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getBranchProductById(token, id)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {

@@ -11,6 +11,7 @@ import Button from "../Button";
 import { keepLocation } from "../../store/reducer/locationSlice";
 import AlertHelper from '../AlertHelper';
 import { clearCart } from "../../store/reducer/cartSlice";
+import { getAddressByToken, removeOrSetMainAddress } from "../../api/profile";
 
 export default function UserAddressContent() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -22,9 +23,7 @@ export default function UserAddressContent() {
     const token = localStorage.getItem("token")
     const getAddress = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/addresses`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getAddressByToken(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -39,11 +38,8 @@ export default function UserAddressContent() {
     }
     const handleAction = async (id, action) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/users/addresses/${id}/${action}`, null, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const response = await removeOrSetMainAddress(token, action, id)
             if(action === "main") {
-                // add here
                 await axios.delete(
                     `${process.env.REACT_APP_API_BASE_URL}/users/empty-cart`,
                     { headers: { Authorization: `Bearer ${token}` } }

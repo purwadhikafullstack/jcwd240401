@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineChevronLeft } from "react-icons/hi";
-import axios from "axios";
 
 import Button from "../Button";
 import marketPic from "../../assets/marketPic.png";
@@ -19,7 +18,6 @@ export default function AccountContent() {
   const profile = useSelector((state) => state.auth.profile);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const location = useLocation();
 
   const routes = [
     { name: "My Profile", to: "/user/account/my-profile" },
@@ -38,12 +36,7 @@ export default function AccountContent() {
 
   const getProfile = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/profile`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await getProfile(token)
       if (response.data) {
         const data = response.data.data;
         if (data) {

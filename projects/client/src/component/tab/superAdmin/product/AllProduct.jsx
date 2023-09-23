@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
 import { Pagination } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
 import { LuEdit } from "react-icons/lu"
@@ -11,6 +10,8 @@ import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import SearchInputBar from '../../../SearchInputBar';
 import handleImageError from '../../../../helpers/handleImageError';
 import AlertHelper from '../../../AlertHelper';
+import { getProducts, removeProduct } from '../../../../api/product';
+import { getCategoriesNoPagination } from '../../../../api/category';
 
 export default function AllProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -29,7 +30,7 @@ export default function AllProduct() {
 
     const getCategory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-categories`, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await getCategoriesNoPagination(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -52,7 +53,7 @@ export default function AllProduct() {
 
     const getProduct = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&sortName=${params.get("sortName") || ""}&sortPrice=${params.get("sortPrice") || ""}`, { headers: { Authorization: `Bearer ${token}` } });
+            const response = await getProducts(token, params.get("page") || 1, params.get("search") || "", params.get("category_id") || "", params.get("sortName") || "", params.get("sortPrice") || "")
             if (response.data) {
                 const { data: responseData, pagination } = response.data;
 
@@ -79,39 +80,24 @@ export default function AllProduct() {
         navigate({ search: params.toString() });
     }
 
-    const handleSearchSubmit = (searchValue) => {
+    const handleFilterChange = (paramName, paramValue) => {
         const newFilter = new URLSearchParams(filter.toString());
         newFilter.set("page", "1");
-        if (searchValue === "") {
-            newFilter.delete("search");
+        if (paramValue === "") {
+            newFilter.delete(paramName);
         } else {
-            newFilter.set("search", searchValue);
+            newFilter.set(paramName, paramValue);
         }
         setFilter(newFilter);
         const params = new URLSearchParams(window.location.search);
-        params.set("search", searchValue);
+        params.set(paramName, paramValue);
         params.set("page", "1");
         navigate({ search: params.toString() });
     };
 
-    const handleDropdownChange = (e) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (e.target.value === "") {
-            newFilter.delete(e.target.id);
-        } else {
-            newFilter.set(e.target.id, e.target.value);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set(e.target.id, e.target.value);
-        navigate({ search: params.toString() });
-    }
-
     const handleRemove = async (productId) => {
         try {
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}/remove`, null, { headers: { Authorization: `Bearer ${token}` } })
+            const response = await removeProduct(token, productId)
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
             }
@@ -139,10 +125,10 @@ export default function AllProduct() {
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
-                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search product by name..." />
-                <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={handleDropdownChange} placeholder={"Filter By Category"} />
-                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={handleDropdownChange} placeholder={"Sort by Name"} />
-                <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={handleDropdownChange} placeholder={"Sort by Price"} />
+                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search product by name..." />
+                <CustomDropdownURLSearch id="category_id" options={allCategory} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter By Category"} />
+                <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
+                <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Price"} />
             </div>
             <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">

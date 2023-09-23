@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import axios from "axios";
 import { Formik, Form } from "formik";
 
 import Modal from "../../../Modal";
@@ -7,6 +6,7 @@ import InputField from "../../../InputField";
 import handleImageError from "../../../../helpers/handleImageError";
 import { createCategorySchema } from "../../../../helpers/validationSchema";
 import AlertHelper from "../../../AlertHelper";
+import { createCategory } from "../../../../api/category";
 
 export default function CreateCategory() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,15 +30,7 @@ export default function CreateCategory() {
     formData.append("name", name);
     formData.append("file", file);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/category`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-        }
-      );
+      const response = await createCategory(token, formData);
       if (response.status === 201) {
         resetForm();
         resetFileInput();
