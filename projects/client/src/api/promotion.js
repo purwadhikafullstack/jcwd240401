@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default function getAllDiscountTypes() {
+export function getAllDiscountType() {
   const token = localStorage.getItem("token");
   return axios.get(
     `${process.env.REACT_APP_API_BASE_URL}/admins/discount-types`,
@@ -27,3 +27,29 @@ export function getAllVoucherType() {
     }
   );
 }
+
+export const getDataAllBranchProduct = async (token, currentPage) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const handleSubmitDiscount = async (values, token) => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/discounts`,
+      values,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
