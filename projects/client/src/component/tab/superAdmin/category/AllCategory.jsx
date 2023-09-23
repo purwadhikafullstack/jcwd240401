@@ -43,17 +43,17 @@ export default function AllCategory() {
         }
     }
 
-    const handleSearchSubmit = (searchValue) => {
+    const handleFilterChange = (paramName, paramValue) => {
         const newFilter = new URLSearchParams(filter.toString());
         newFilter.set("page", "1");
-        if (searchValue === "") {
-            newFilter.delete("search");
+        if (paramValue === "") {
+            newFilter.delete(paramName);
         } else {
-            newFilter.set("search", searchValue);
+            newFilter.set(paramName, paramValue);
         }
         setFilter(newFilter);
         const params = new URLSearchParams(window.location.search);
-        params.set("search", searchValue);
+        params.set(paramName, paramValue);
         params.set("page", "1");
         navigate({ search: params.toString() });
     };
@@ -93,27 +93,12 @@ export default function AllCategory() {
 
     const options = [{ label: "Default", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
 
-    const handleChangeDropdown = (e) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (e.target.value === "") {
-            newFilter.delete("sortName");
-        } else {
-            newFilter.set("sortName", e.target.value);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set("sortName", e.target.value);
-        navigate({ search: params.toString() });
-    };
-
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
             <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
             <div className='flex flex-col sm:flex-row gap-4 w-10/12 mx-auto my-6'>
-                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Enter here to search category by name..." />
-                <CustomDropdownURLSearch id="sortName" options={options} onChange={handleChangeDropdown} placeholder={"Sort by Name"} />
+                <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search category by name..." />
+                <CustomDropdownURLSearch id="sortName" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
             </div>
             <div className='w-full md:w-11/12 mx-auto'>
                 <div className="grid gap-2">
