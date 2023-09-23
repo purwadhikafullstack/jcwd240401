@@ -97,6 +97,12 @@ export default function CreateDiscount() {
         setErrorMessage(`${errMsg}`);
         handleShowAlert("open");
       }
+      if (response.status === 400) {
+        console.log(error)
+        setErrorMessage(response.data.message);
+        setSuccessMessage("");
+        handleShowAlert("open");
+      }
       if (response.status === 500) {
         setErrorMessage("Create discount failed: Server error");
         handleShowAlert("open");
@@ -241,9 +247,8 @@ export default function CreateDiscount() {
                           className=" form-checkbox text-maindarkgreen rounded-sm mr-1 "
                           checked={props.values.products.includes(
                             data.product_id
-                          )} 
+                          )}
                           onChange={() => {
-                            
                             const updatedProducts =
                               props.values.products.includes(data.product_id)
                                 ? props.values.products.filter(
