@@ -10,21 +10,39 @@ export function getAllDiscountType() {
   );
 }
 
-export const getAllDiscount = async (token, currentPage, filterSort, filterType) => {
+export const getAllDiscount = async (
+  token,
+  currentPage,
+  filterSort,
+  filterType
+) => {
   try {
     const response = await axios.get(
       `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filterSort}&filterDiscountType=${filterType}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    return response
+    return response;
   } catch (error) {
-    console.log(error,"inini");
+    console.log(error);
   }
 };
 
-export function getAllVoucher() {
-  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`);
-}
+export const getAllVoucher = async (
+  token,
+  currentPage,
+  filterSort,
+  filterType
+) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filterSort}&filterVoucherType=${filterType}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response;
+  } catch (error) {
+    console.log(error)
+  }
+};
 
 export function getAllVoucherType() {
   const token = localStorage.getItem("token");

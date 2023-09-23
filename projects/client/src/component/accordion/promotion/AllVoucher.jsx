@@ -4,6 +4,7 @@ import axios from "axios";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
 import rupiah from "../../../helpers/rupiah";
+import { getAllVoucher } from "../../../api/promotion";
 
 export default function AllVoucher() {
   const [dataAllVoucher, setDataAllVoucher] = useState([]);
@@ -16,10 +17,7 @@ export default function AllVoucher() {
   const fetchDataAllVoucher = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filter.sort}&filterVoucherType=${filter.voucher_type_id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await getAllVoucher(token, currentPage, filter.sort, filter.voucher_type_id)
       if (response.data) {
         const { data: responseData, pagination } = response.data;
         if (responseData) {
