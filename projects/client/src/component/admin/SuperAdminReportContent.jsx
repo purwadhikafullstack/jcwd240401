@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import {RiFolderChartLine, RiFolderHistoryLine} from "react-icons/ri"
 
 import CustomHeader from "../CustomHeader";
 import SalesReport from "../tab/superAdmin/report/SalesReport";
@@ -16,20 +17,20 @@ export default function SuperAdminReportContent() {
     } else {
         return <StockReport />;
     }
-});
+  });
 
   const title = "Reports";
   const tabList = [
     {
-      name: "Sales report",
-      icon: "",
+      name: "Sales Report",
+      icon: <RiFolderChartLine size={25}/>,
       isActive: false,
       param: "sales-report",
       tab: <SalesReport />,
     },
     {
-      name: "Stock history",
-      icon: "",
+      name: "Stock History",
+      icon: <RiFolderHistoryLine size={25}/>,
       isActive: false,
       param: "stock-report",
       tab: <StockReport />,

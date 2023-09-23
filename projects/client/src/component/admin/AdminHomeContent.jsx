@@ -38,11 +38,10 @@ export default function AdminHomeContent() {
         <div className="w-full h-full flex justify-center">
             <div className='w-1/2 flex flex-col items-center'>
                 <img src={adminHomePic} alt="illustration" className='w-96'/>
-                <div className="text-3xl font-inter font-bold">Welcome, {profile.name}</div>
+                <div className="text-3xl font-inter font-bold text-center">Welcome, {profile.name}</div>
                 {branchData.length !== 0 ? (
-                    <div className='flex gap-2'>
-                        <HiOutlineLocationMarker className='w-6 h-6 text-maingreen' />
-                        <div>{`${branchData.streetName}, ${branchData.City?.city_name}, ${branchData.City?.Province?.province_name}, ${branchData.postalCode}`}</div>
+                    <div className='text-center mt-5 sm:mt-0'>
+                        <div className='text-center flex justify-center gap-1'> <HiOutlineLocationMarker className='text-maingreen text-5xl sm:text-2xl md:text-2xl lg:text-lg' /> {`${branchData.streetName}, ${branchData.City?.city_name}, ${branchData.City?.Province?.province_name}, ${branchData.postalCode}`}</div>
                     </div>
                 ) : null}
             </div>

@@ -52,7 +52,7 @@ export default function OrderList() {
     ];
 
     const options2 = [
-        { label: "Default", value: "" },
+        { label: "All Status", value: "" },
         { label: "Waiting for payment", value: "Waiting for payment" },
         { label: "Waiting for payment confirmation", value: "Waiting for payment confirmation" },
         { label: "Processing", value: "Processing" },
@@ -130,7 +130,7 @@ export default function OrderList() {
             placeholder={"Filter by Status"}
           />
         </div>
-        <div className="w-72 overflow-x-auto lg:w-full">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-center font-inter">
             <thead className="text-maingreen uppercase border-b-2 border-maingreen ">
               <tr>

@@ -372,7 +372,7 @@ module.exports = {
       const productWhere = {
         isRemoved: 0,
       };
-      const order = [];
+      let order = [["createdAt", "DESC"]];
       if (pagination.search) {
         productWhere.name = {
           [db.Sequelize.Op.like]: `%${pagination.search}%`,
@@ -385,6 +385,7 @@ module.exports = {
         where.status = pagination.status;
       }
       if (pagination.name) {
+        order = []
         if (pagination.name.toUpperCase() === "DESC") {
           order.push(["Product", "name", "DESC"]);
         } else {
@@ -1131,7 +1132,7 @@ module.exports = {
       perPage: 12,
       search: req.query.search || "",
       status: req.query.filterStatus || "",
-      date: req.query.sortDate,
+      date: req.query.sortDate || "DESC",
       branch_product_id: req.query.filterBranchProduct || "",
       startDate: req.query.startDate || "",
       endDate: req.query.endDate || "",

@@ -189,7 +189,7 @@ export default function StockReport() {
             placeholder={"filter by status"}
           />
         </div>
-        <div className="w-72 overflow-x-auto lg:w-full">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
               <tr>

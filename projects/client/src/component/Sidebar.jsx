@@ -65,7 +65,7 @@ export default function Sidebar(props) {
             <div className={`lg:hidden fixed top-0 w-64 bg-cover bg-center font-inter text-darkgrey transform ${isMobileMenuOpen ? 'translate-x-0 left-0 h-screen shadow-md' : '-translate-x-full left-14 h-14'} transition-transform`} style={isMobileMenuOpen ? { backgroundImage: `url(${backgroundSideBar})`, backgroundSize: `cover` } : null}>
                 <div className="flex justify-between p-4 pl-6 h-16" onClick={toggleMobileMenu}>
                     <img src={logo} alt="logo" />
-                    {isMobileMenuOpen ? (<HiX className="text-maingreen w-6 h-6" />) : (<HiMenu className='text-maingreen w-6 h-6 bg-white' />)}
+                    {isMobileMenuOpen ? (<HiX className="text-maingreen w-6 h-6 cursor-pointer" />) : (<HiMenu className='text-maingreen w-6 h-6 bg-white cursor-pointer' />)}
                 </div>
                 <ul className={`${isMobileMenuOpen ? "pt-4 w-full flex flex-col items-center" : "hidden"}`}>
                     {routes.map(({ to, tab, name }, idx) => (
