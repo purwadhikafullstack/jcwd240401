@@ -125,6 +125,36 @@ const modifyBranchProductDetailsSchema = yup.object().shape({
     origin: yup.string().trim().required("Origin is required").max(50, "Maximum character is 50").typeError("Origin must be a valid text"),
 });
 
+const createDiscountSchema = yup.object().shape({
+    discount_type_id: yup.number().required("discount type is required"),
+    amount: yup
+      .number()
+      .typeError("amount must be a number")
+      .when("discount_type_id", (discount_type_id, createDiscountSchema) => {
+        if (discount_type_id == 2)
+          return createDiscountSchema
+            .min(1, "amount must be greater than 1")
+            .max(100, "amount cannot be greater than 100")
+            .required("amount is required");
+        if (discount_type_id == 3)
+          return createDiscountSchema
+            .min(1, "amount must be greater than 1")
+            .required("amount is required");
+        return createDiscountSchema;
+      }),
+
+    expiredDate: yup
+      .date()
+      .typeError("expired date must be a date format")
+      .min(new Date(), "expired date can't be in the past or today")
+      .required("expired date is required"),
+    products: yup.array().min(1, "you have to add atleast one product"),
+  });
+
+  const createVoucherSchema = yup.object().shape({
+    isReferral: yup.boolean(),
+  });
+
 export {
     loginSchema,
     registerAdminSchema,
@@ -141,5 +171,7 @@ export {
     modifyProductSchema,
     modifyCategorySchema,
     modifyBranchProductQuantitySchema,
-    modifyBranchProductDetailsSchema
+    modifyBranchProductDetailsSchema,
+    createDiscountSchema,
+    createVoucherSchema
   };

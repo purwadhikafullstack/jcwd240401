@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default function getAllDiscountTypes() {
+export function getAllDiscountType() {
   const token = localStorage.getItem("token");
   return axios.get(
     `${process.env.REACT_APP_API_BASE_URL}/admins/discount-types`,
@@ -10,13 +10,39 @@ export default function getAllDiscountTypes() {
   );
 }
 
-export function getAllDiscount() {
-  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/discounts`);
-}
+export const getAllDiscount = async (
+  token,
+  currentPage,
+  filterSort,
+  filterType
+) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filterSort}&filterDiscountType=${filterType}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-export function getAllVoucher() {
-  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`);
-}
+export const getAllVoucher = async (
+  token,
+  currentPage,
+  filterSort,
+  filterType
+) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filterSort}&filterVoucherType=${filterType}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export function getAllVoucherType() {
   const token = localStorage.getItem("token");
@@ -27,3 +53,42 @@ export function getAllVoucherType() {
     }
   );
 }
+
+export const getDataAllBranchProduct = async (token, currentPage) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const handleSubmitDiscount = async (values, token) => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/discounts`,
+      values,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const handleSubmitVoucher = async (values, token) => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`,
+      values,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response;
+  } catch (error) {
+    throw error
+  }
+};
