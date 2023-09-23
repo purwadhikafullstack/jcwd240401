@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Pagination, Table } from "flowbite-react";
+import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
 import dayjs from "dayjs";
 import rupiah from "../../../helpers/rupiah";
@@ -119,7 +119,7 @@ export default function AllDiscount() {
             placeholder={"filter by discount type"}
           />
         </div>
-        <div className="w-72 overflow-x-auto lg:w-full">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
               <tr>

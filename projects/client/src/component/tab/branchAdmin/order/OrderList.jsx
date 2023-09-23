@@ -2,14 +2,13 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import dayjs from 'dayjs';
 import { LuEdit } from 'react-icons/lu';
-import SearchBar from '../../../SearchBar';
-import CustomDropdown from '../../../CustomDropdown'
 import { Pagination } from 'flowbite-react';
 import Label from '../../../Label';
 import ModalOrder from '../../../ModalOrder';
 import SearchInputBar from '../../../SearchInputBar';
 import {Link, useNavigate} from 'react-router-dom'
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
+import { orderStatusLabelColor } from '../../../../helpers/labelColor';
 
 export default function OrderList() {
     const [orderData, setOrderData] = useState([])
@@ -47,13 +46,13 @@ export default function OrderList() {
     }, [currentPage, filter])
 
     const options = [
-        { label: "Sort by order date", value: "" },
+        { label: "Default", value: "" },
         { label: "order date: oldest", value: "ASC" },
         { label: "order date: newest", value: "DESC" },
     ];
 
     const options2 = [
-        { label: "Filter by status", value: "" },
+        { label: "All Status", value: "" },
         { label: "Waiting for payment", value: "Waiting for payment" },
         { label: "Waiting for payment confirmation", value: "Waiting for payment confirmation" },
         { label: "Processing", value: "Processing" },
@@ -72,66 +71,26 @@ export default function OrderList() {
         navigate({ search: params.toString() });
     };
 
-    const labelColor = (text) => {
-        switch(text) {
-            case "Waiting for payment":
-                return "gray";
-                break;
-            case "Waiting for payment confirmation":
-                return "purple";
-                break;
-            case "Processing":
-                return "yellow";
-                break;
-            case "Delivering":
-                return "blue";
-                break;
-            case "Order completed":
-                return "green";
-                break
-            case "Canceled":
-                return "red";
-                break;
-            default:
-                return "";
-                break;
-        }
-    }
-    const handleSearchSubmit = (searchValue) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (searchValue === "") {
-            newFilter.delete("search");
-        } else {
-            newFilter.set("search", searchValue);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("search", searchValue);
-        params.set("page", "1");
-        navigate({ search: params.toString() });
-    };
+    const handleFilterChange = (paramName, paramValue) => {
+      const newFilter = new URLSearchParams(filter.toString());
+      newFilter.set("page", "1");
+      if (paramValue === "") {
+          newFilter.delete(paramName);
+      } else {
+          newFilter.set(paramName, paramValue);
+      }
+      setFilter(newFilter);
+      const params = new URLSearchParams(window.location.search);
+      params.set(paramName, paramValue);
+      params.set("page", "1");
+      navigate({ search: params.toString() });
+  };
 
-    const handleDropdownChange = (e) => {
-        const newFilter = new URLSearchParams(filter.toString());
-        newFilter.set("page", "1");
-        if (e.target.value === "") {
-            newFilter.delete(e.target.id);
-        } else {
-            newFilter.set(e.target.id, e.target.value);
-        }
-        setFilter(newFilter);
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", "1");
-        params.set(e.target.id, e.target.value);
-        navigate({ search: params.toString() });
-    }
-    
     return (
         <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
-            <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Search by invoice code" />
+            <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Search by Invoice Code" />
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div>
@@ -142,7 +101,7 @@ export default function OrderList() {
               id="startDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              onChange={handleDropdownChange}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
           <div>
@@ -153,7 +112,7 @@ export default function OrderList() {
               id="endDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              onChange={handleDropdownChange}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
         </div>
@@ -161,23 +120,23 @@ export default function OrderList() {
           <CustomDropdownURLSearch
             id="sort"
             options={options}
-            onChange={handleDropdownChange}
-            placeholder={"Sort by order date"}
+            onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
+            placeholder={"Sort by Order Date"}
           />
           <CustomDropdownURLSearch
             id="status"
             options={options2}
-            onChange={handleDropdownChange}
-            placeholder={"Filter by status"}
+            onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
+            placeholder={"Filter by Status"}
           />
         </div>
-        <div className="w-72 overflow-x-auto lg:w-full">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-center font-inter">
             <thead className="text-maingreen uppercase border-b-2 border-maingreen ">
               <tr>
-                <th scope="col" className="px-2 py-4s" style={{ width: '30%' }}>Invoice Code</th>
-                <th scope="col" className="px-2 py-4" style={{ width: '30%' }}>Status</th>
-                <th scope="col" className="px-2 py-4" style={{ width: '30%' }}>Order Date</th>
+                <th scope="col" className="px-2 py-4s" style={{ width: '25%' }}>Invoice Code</th>
+                <th scope="col" className="px-2 py-4" style={{ width: '40%' }}>Status</th>
+                <th scope="col" className="px-2 py-4" style={{ width: '25%' }}>Order Date</th>
                 <th className="py-2 px-4" style={{ width: '10%' }}></th>
               </tr>
             </thead>
@@ -185,7 +144,7 @@ export default function OrderList() {
                 {orderData.length !==0 ? orderData.map((data, index) => (
                     <tr key={index} className="hover:bg-gray-100 border-b-2 border-gray-200">
                         <td className="py-2 px-4" style={{ width: '30%' }} onClick={() => setSelectedOrder(data.id)}>{data.invoiceCode}</td>
-                        <td className="py-2 px-4 flex justify-center" onClick={() => setSelectedOrder(data.id)}><Label text={data.orderStatus} labelColor={labelColor(data.orderStatus)} /></td>
+                        <td className="py-2 px-4 flex justify-center" onClick={() => setSelectedOrder(data.id)}><Label text={data.orderStatus} labelColor={orderStatusLabelColor(data.orderStatus)} /></td>
                         <td className="py-2 px-4" style={{ width: '30%' }} onClick={() => setSelectedOrder(data.id)}>{dayjs(data.orderDate).format("DD/MM/YYYY")}</td>
                         <td className="py-2 px-4" style={{ width: '10%' }}>{data.orderStatus === "Waiting for payment confirmation" || data.orderStatus === "Processing" ? <Link to={`order/${data.id}/modify`}><LuEdit className='text-maingreen w-6 h-6'/></Link> : null}</td>
                     </tr>

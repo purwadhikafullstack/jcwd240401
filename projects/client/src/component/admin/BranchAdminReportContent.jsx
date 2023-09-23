@@ -1,24 +1,37 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import {RiFolderChartLine, RiFolderHistoryLine} from "react-icons/ri"
 
 import CustomHeader from "../CustomHeader";
 import SalesReport from "../tab/branchAdmin/report/SalesReport";
 import StockReport from "../tab/branchAdmin/report/StockReport";
 
 export default function BranchAdminReportContent() {
-  const [content, setContent] = useState(<SalesReport />);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const activeTabParam = queryParams.get("tab");
+
+  const [content, setContent] = useState(() => {
+    if (activeTabParam === "sales-report") {
+        return <SalesReport />;
+    } else {
+        return <StockReport />;
+    }
+});
   const title = "Reports";
   const tabList = [
     {
-      name: "Sale report",
-      icon: "",
+      name: "Sale Report",
+      icon: <RiFolderChartLine size={25}/>,
       isActive: false,
+      param: "sales-report",
       tab: <SalesReport />,
     },
     {
-      name: "Stock history",
-      icon: "",
+      name: "Stock History",
+      icon: <RiFolderHistoryLine size={25}/>,
       isActive: false,
+      param: "stock-history",
       tab: <StockReport />,
     },
   ];

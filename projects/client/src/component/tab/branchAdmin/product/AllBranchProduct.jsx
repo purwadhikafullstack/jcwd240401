@@ -23,7 +23,7 @@ export default function AllBranchProduct() {
     const [filter, setFilter] = useState(new URLSearchParams());
     const [allCategory, setAllCategory] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const nameOptions = [{ label: "Sort By Name", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
+    const nameOptions = [{ label: "Default", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
     const statusOptions = [{ label: "All Status", value: "" }, { label: "Ready", value: "ready" }, { label: "Restock", value: "restock" }, { label: "Empty", value: "empty" }]
     const params = new URLSearchParams(window.location.search);
     const navigate = useNavigate();

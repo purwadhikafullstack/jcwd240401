@@ -372,7 +372,7 @@ module.exports = {
       const productWhere = {
         isRemoved: 0,
       };
-      const order = [];
+      let order = [["createdAt", "DESC"]];
       if (pagination.search) {
         productWhere.name = {
           [db.Sequelize.Op.like]: `%${pagination.search}%`,
@@ -385,6 +385,7 @@ module.exports = {
         where.status = pagination.status;
       }
       if (pagination.name) {
+        order = []
         if (pagination.name.toUpperCase() === "DESC") {
           order.push(["Product", "name", "DESC"]);
         } else {
@@ -570,15 +571,69 @@ module.exports = {
             },
           });
           updateProductDiscount.discount_id = newDiscount.id;
-          console.log(updateProductDiscount, "ini updateProductDiscount");
           await updateProductDiscount.save();
         });
         await transaction.commit();
         return res.status(200).send({
-          message: "new discount created",
+          message: "Successfully created discount",
           data: newDiscount,
           totalProduct: `${products.length} product(s)`,
         });
+      } else if (discount_type_id == 3) {
+        // Check if any product has a base price less than the discount amount
+        const invalidProducts = await db.Branch_Product.findOne({
+          where: {
+            product_id: {
+              [db.Sequelize.Op.in]: products,
+            },
+            branch_id: user.Branch.id,
+          },
+          include: {
+            model: db.Product, // Include the Product model to access basePrice
+            where: {
+              basePrice: {
+                [db.Sequelize.Op.lte]: amount,
+              },
+            },
+          },
+        });
+
+        if (invalidProducts) {
+          await transaction.rollback();
+          return res.status(400).send({
+            message:
+              "The discount is not applicable to one or more selected products",
+          });
+        } else {
+          const newDiscount = await db.Discount.create(
+            {
+              branch_id: user.Branch.id,
+              discount_type_id,
+              amount,
+              expiredDate,
+            },
+            { transaction }
+          );
+
+          // selected
+
+          const results = products.forEach(async (data) => {
+            const updateProductDiscount = await db.Branch_Product.findOne({
+              where: {
+                product_id: data,
+                branch_id: user.Branch.id,
+              },
+            });
+            updateProductDiscount.discount_id = newDiscount.id;
+            await updateProductDiscount.save();
+          });
+          await transaction.commit();
+          return res.status(200).send({
+            message: "Successfully created discount",
+            data: newDiscount,
+            totalProduct: `${products.length} product(s)`,
+          });
+        }
       } else {
         const newDiscount = await db.Discount.create(
           {
@@ -604,7 +659,7 @@ module.exports = {
         });
         await transaction.commit();
         return res.status(200).send({
-          message: "new discount created",
+          message: "Successfully created discount",
           data: newDiscount,
           totalProduct: `${products.length} product(s)`,
         });
@@ -750,7 +805,7 @@ module.exports = {
                 voucher_type_id,
                 isReferral,
                 isExpired: false,
-                maxDiscount:0
+                maxDiscount: 0,
               },
               { transaction }
             );
@@ -1077,7 +1132,7 @@ module.exports = {
       perPage: 12,
       search: req.query.search || "",
       status: req.query.filterStatus || "",
-      date: req.query.sortDate,
+      date: req.query.sortDate || "DESC",
       branch_product_id: req.query.filterBranchProduct || "",
       startDate: req.query.startDate || "",
       endDate: req.query.endDate || "",
@@ -1551,8 +1606,8 @@ module.exports = {
       );
 
       const topProducts = top5Products
-      .sort((a, b) => b.sales - a.sales)
-      .slice(0, 5);
+        .sort((a, b) => b.sales - a.sales)
+        .slice(0, 5);
 
       // Calculate courier usage in percentage
       const courierUsagePercentage = [];
@@ -1780,41 +1835,45 @@ module.exports = {
       });
     }
   },
-  async branchInfo(req,res) {
-    const userId = req.user.id
-    try{
+  async branchInfo(req, res) {
+    const userId = req.user.id;
+    try {
       const branchInfo = await db.Branch.findOne({
         where: {
           user_id: userId,
         },
-        include: [{
-          model: db.City,
-          include: [{
-            model: db.Province
-          }]
-        },
-        {
-          model: db.User,
-          attributes: ["name", "email", "phone"]
-        }]
-      })
+        include: [
+          {
+            model: db.City,
+            include: [
+              {
+                model: db.Province,
+              },
+            ],
+          },
+          {
+            model: db.User,
+            attributes: ["name", "email", "phone"],
+          },
+        ],
+      });
 
-      if(!branchInfo) {
+      if (!branchInfo) {
         return res.status(500).send({
-          message: "No branch found"
-        })
+          message: "No branch found",
+        });
       }
 
       return res.status(200).send({
         message: "Branch Info",
-        data: branchInfo
-      })
-    }catch(error){
+        data: branchInfo,
+      });
+    } catch (error) {
       return res.status(500).send({
-        message: "Internal server error"
-      })
+        message: "Internal server error",
+      });
     }
-  }
+  },
 };
 
 // stock history (A)
