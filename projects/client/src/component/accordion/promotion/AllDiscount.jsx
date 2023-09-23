@@ -2,9 +2,11 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
-import CustomDropdown from "../../CustomDropdown";
 import dayjs from "dayjs";
+
+import CustomDropdown from "../../CustomDropdown";
 import rupiah from "../../../helpers/rupiah";
+import { getAllDiscount } from "../../../api/promotion";
 
 export default function AllDiscount() {
   const [dataAllDiscount, setDataAllDiscount] = useState([]);
@@ -14,12 +16,14 @@ export default function AllDiscount() {
     sort: "",
     discount_type_id: "",
   });
+  const token = localStorage.getItem("token");
   const fetchDataAllDiscount = async () => {
-    const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filter.sort}&filterDiscountType=${filter.discount_type_id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await getAllDiscount(
+        token,
+        currentPage,
+        filter.sort,
+        filter.discount_type_id
       );
       if (response.data) {
         const { data: responseData, pagination } = response.data;
@@ -31,7 +35,7 @@ export default function AllDiscount() {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.log(error,"ininini");
     }
   };
   useEffect(() => {

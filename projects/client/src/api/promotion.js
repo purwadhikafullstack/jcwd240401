@@ -10,9 +10,17 @@ export function getAllDiscountType() {
   );
 }
 
-export function getAllDiscount() {
-  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/discounts`);
-}
+export const getAllDiscount = async (token, currentPage, filterSort, filterType) => {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filterSort}&filterDiscountType=${filterType}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response
+  } catch (error) {
+    console.log(error,"inini");
+  }
+};
 
 export function getAllVoucher() {
   return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`);
