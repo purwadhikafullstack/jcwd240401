@@ -40,7 +40,7 @@ export const getAllVoucher = async (
     );
     return response;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
@@ -77,5 +77,18 @@ export const handleSubmitDiscount = async (values, token) => {
     return response;
   } catch (error) {
     throw error;
+  }
+};
+
+export const handleSubmitVoucher = async (values, token) => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers`,
+      values,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response;
+  } catch (error) {
+    throw error
   }
 };

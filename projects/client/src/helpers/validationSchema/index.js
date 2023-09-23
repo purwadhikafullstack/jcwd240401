@@ -151,6 +151,10 @@ const createDiscountSchema = yup.object().shape({
     products: yup.array().min(1, "you have to add atleast one product"),
   });
 
+  const createVoucherSchema = yup.object().shape({
+    isReferral: yup.boolean(),
+  });
+
 export {
     loginSchema,
     registerAdminSchema,
@@ -168,5 +172,6 @@ export {
     modifyCategorySchema,
     modifyBranchProductQuantitySchema,
     modifyBranchProductDetailsSchema,
-    createDiscountSchema
+    createDiscountSchema,
+    createVoucherSchema
   };

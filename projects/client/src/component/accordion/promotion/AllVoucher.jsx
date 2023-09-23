@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Pagination } from "flowbite-react";
 import CustomDropdown from "../../CustomDropdown";
 import rupiah from "../../../helpers/rupiah";

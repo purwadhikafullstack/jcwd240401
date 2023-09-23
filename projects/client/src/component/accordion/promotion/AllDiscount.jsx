@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 import dayjs from "dayjs";
