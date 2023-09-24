@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { BsTrash } from "react-icons/bs";
+import { CgUnavailable } from "react-icons/cg";
 import CartItem from "../../component/user/CartItem";
 import cartImg from "../../assets/cart.png";
 import { useNavigate } from "react-router-dom";
@@ -11,18 +12,37 @@ import AlertPopUp from "../../component/AlertPopUp";
 import { updateCart } from "../../store/reducer/cartSlice";
 import Modal from "../../component/Modal";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
+import UnavailableCartItem from "./UnavailableCartItem";
 
 export default function UserCartContent() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [unavailableCart, setUnavailableCart] = useState([]);
+  const [hasFetchedUnavailableCart, setHasFetchedUnavailableCart] =
+    useState(false);
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const cartItems = useSelector((state) => state.cart.cart);
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
 
+  const fetchUnavailableCart = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/users/unavailable-cart`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.data) {
+        setUnavailableCart(response.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(unavailableCart);
   const calculateTotalPrice = (selectedCartItems) => {
     let total = 0;
 
@@ -126,6 +146,10 @@ export default function UserCartContent() {
     calculateTotalPrice(selectedCartItems);
   }, [cartItems, selectedItems]);
 
+  useEffect(() => {
+    fetchUnavailableCart();
+  }, [hasFetchedUnavailableCart]);
+
   const handleHideAlert = () => {
     setShowAlert(false);
   };
@@ -163,22 +187,7 @@ export default function UserCartContent() {
         </div>
       </div>
       <div>
-        {cartItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center">
-            <img src={cartImg} alt="Empty Cart" />
-            <span className="font-bold text-3xl p-2">
-              Oops! It looks like your cart is empty. Time to fill it up with
-              your favorite items!
-            </span>
-            <div className="w-60 p-2">
-              <Button
-                label="Shop Now"
-                condition="positive"
-                onClick={() => navigate("/")}
-              />
-            </div>
-          </div>
-        ) : (
+        {cartItems.length !== 0 && (
           <div>
             {cartItems.map((data) => (
               <CartItem
@@ -219,6 +228,58 @@ export default function UserCartContent() {
                   }}
                 />
               </div>
+            </div>
+          </div>
+        )}
+        {unavailableCart.length > 0 && (
+          <>
+            <div className="flex mx-2 py-2 content-center gap-4 border-b mb-4 sm:mx-4 lg:mx-8 xl:mx-16">
+              <div className="grid">
+                <CgUnavailable size={25} />
+              </div>
+              <div className="font-medium">
+                {" "}
+                Invalid Items{" "}
+                <span className="text-maindarkgreen font-medium">
+                  ({unavailableCart.length})
+                </span>
+              </div>
+            </div>
+            {unavailableCart.map((data) => (
+              <UnavailableCartItem
+                key={data.id}
+                quantity={data.quantity}
+                name={data.Branch_Product.Product.name}
+                weight={data.Branch_Product.Product.weight}
+                UOM={data.Branch_Product.Product.unitOfMeasurement}
+                productImg={data.Branch_Product.Product.imgProduct}
+                discountId={data.Branch_Product.discount_id}
+                discountType={data.Branch_Product.Discount?.discount_type_id}
+                isExpired={data.Branch_Product.Discount?.isExpired}
+                basePrice={data.Branch_Product.Product.basePrice}
+                discountAmount={data.Branch_Product.Discount?.amount}
+                productStock={data.Branch_Product.quantity}
+                cartId={data.id}
+                setterDelete={setHasFetchedUnavailableCart}
+                stateDelete={hasFetchedUnavailableCart}
+              />
+            ))}
+          </>
+        )}
+
+        {cartItems.length === 0 && unavailableCart.length === 0 && (
+          <div className="flex flex-col items-center justify-center">
+            <img src={cartImg} alt="Empty Cart" />
+            <span className="font-bold text-3xl p-2">
+              Oops! It looks like your cart is empty. Time to fill it up with
+              your favorite items!
+            </span>
+            <div className="w-60 p-2">
+              <Button
+                label="Shop Now"
+                condition="positive"
+                onClick={() => navigate("/")}
+              />
             </div>
           </div>
         )}

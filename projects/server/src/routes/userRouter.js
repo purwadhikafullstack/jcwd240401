@@ -142,4 +142,18 @@ router.patch(
   transactionController.confirmOrder
 );
 
+router.get(
+  "/unavailable-cart",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.getUnavailableCart
+);
+
+router.delete(
+  "/unavailable-carts/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyUser,
+  transactionController.deleteCartById
+);
+
 module.exports = router;
