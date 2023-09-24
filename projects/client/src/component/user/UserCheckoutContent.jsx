@@ -35,6 +35,8 @@ export default function UserCheckoutContent() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      console.log(response.data.data,"ini response voucher")
+
       if (response.data.data.length === 0) {
         setVouchersList(response.data.data);
       } else {
@@ -47,6 +49,7 @@ export default function UserCheckoutContent() {
       console.log(error);
     }
   };
+
 
   const fetchCartItems = async () => {
     try {
@@ -229,13 +232,17 @@ export default function UserCheckoutContent() {
     }
   };
   const handleVoucherClick = (id, value) => {
+    console.log("abc")
     if (selectedVoucher.id === id) {
       // If the clicked voucher is already selected, deselect it
+      console.log("A")
       setSelectedVoucher({ id: "", value: "" });
     } else {
       if (value === null) {
-        setSelectedVoucher({ id: "", value: "" });
+        console.log("b")
+        setSelectedVoucher({ id, value:0 });
       } else {
+        console.log("c")
         setSelectedVoucher({ id, value });
       }
     }
@@ -343,13 +350,13 @@ export default function UserCheckoutContent() {
             Voucher
           </label>
           <div className="flex flex-col gap-4">
-            {vouchersList.map((voucher) => (
+            {vouchersList.length !== 0?vouchersList.map((voucher) => (
               <VoucherList
                 vouchers={voucher}
                 selectedVoucher={selectedVoucher}
                 handleVoucherClick={handleVoucherClick}
               />
-            ))}
+            )):"no  voucher available"}
           </div>
         </div>
         <div className="text-maingreen font-semibold">My Order Summary</div>

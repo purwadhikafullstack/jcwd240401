@@ -649,6 +649,88 @@ module.exports = {
         include: [
           {
             model: db.Branch_Product,
+            where: { isRemoved: false, quantity: { [db.Sequelize.Op.gt]: 0 } },
+            attributes: [
+              "id",
+              "product_id",
+              "origin",
+              "discount_id",
+              "quantity",
+              "branch_id",
+            ],
+            include: [
+              {
+                model: db.Discount,
+                attributes: ["discount_type_id", "amount", "isExpired"],
+                include: [
+                  {
+                    model: db.Discount_Type,
+                    attributes: ["type"],
+                  },
+                ],
+              },
+              {
+                model: db.Branch,
+                attributes: ["city_id"],
+                include: [
+                  {
+                    model: db.City,
+                    attributes: ["city_name"],
+                  },
+                ],
+              },
+              {
+                model: db.Product,
+                attributes: [
+                  "name",
+                  "description",
+                  "weight",
+                  "unitOfMeasurement",
+                  "basePrice",
+                  "imgProduct",
+                  "storageInstruction",
+                  "storagePeriod",
+                  "category_id",
+                ],
+                include: [
+                  {
+                    model: db.Category,
+                    attributes: ["name"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      res.status(201).send({
+        message: "Cart retrieved successfully",
+        data: cart,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
+  // user get unavailable cart
+  async getUnavailableCart(req,res){
+    try {
+      const user = await db.User.findByPk(req.user.id);
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+
+      const cart = await db.Cart.findAll({
+        where: { user_id: user.id },
+        attributes: ["id", "branch_product_id", "quantity"],
+        include: [
+          {
+            model: db.Branch_Product,
+            where: { isRemoved: true, quantity: { [db.Sequelize.Op.eq]: 0 } },
             attributes: [
               "id",
               "product_id",
@@ -960,7 +1042,7 @@ module.exports = {
         include: [
           {
             model: db.Voucher,
-            where: { isExpired: false, usedLimit: { [db.Sequelize.Op.gt]: 0 } },
+            where: { isExpired: false },
             include: [
               {
                 model: db.Voucher_Type,
@@ -1236,7 +1318,7 @@ module.exports = {
         if (orderData.totalPrice >= 200000) {
           const vouchers = await db.Voucher.findAll({
             where: {
-              branch_id: branchId,
+              branch_id: orderData.Branch_Products[0].branch_id,
               isReferral: false,
               isExpired: false,
             },
@@ -1293,6 +1375,7 @@ module.exports = {
       console.error(error);
       return res.status(500).send({
         message: "Internal Server Error",
+        error:error.message
       });
     }
   },
