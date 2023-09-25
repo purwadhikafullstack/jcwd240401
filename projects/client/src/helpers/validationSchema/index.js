@@ -15,7 +15,6 @@ const registerAdminSchema = yup.object().shape({
 })
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/
-// password must be at least 6 characters, 1 lowercase, 1 uppercase, 1 digit
 
 const setPasswordSchema = yup.object().shape({
     password: yup.string().min(8).matches(passwordRules, {message: "Password must be at least 8 characterts with 1 lowercase, 1 uppercase, and 1 number"}).required("Password is required"),

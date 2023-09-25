@@ -5,6 +5,9 @@ import { useDispatch } from "react-redux";
 import { keep } from "../store/reducer/authSlice";
 import { remove } from "../store/reducer/authSlice";
 import { keepLocation } from "../store/reducer/locationSlice";
+import { keepLoginAccount } from "../api/auth"
+import { getMainAddress } from "../api/profile"
+
 const PrivateUserWrapper = ({allowedRoles}) => {
     const token = localStorage.getItem("token");
     const location = useLocation();
@@ -15,15 +18,7 @@ const PrivateUserWrapper = ({allowedRoles}) => {
     let token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+        const response = await keepLoginAccount(token)
         if(response.status === 200){
           if (response.data.userId) {
           localStorage.setItem("token", response.data.refreshToken);
@@ -47,11 +42,7 @@ const PrivateUserWrapper = ({allowedRoles}) => {
   const getAddress = async () => {
     const token = localStorage.getItem("token")
     try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/main-address`, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        })
+        const response = await getMainAddress(token)
         if (response.data) {
           dispatch(keepLocation({ city: response.data.data?.City?.city_name, province: response.data.data?.City?.Province?.province_name, latitude: response.data.data?.latitude, longitude: response.data.data?.longitude }))
         }

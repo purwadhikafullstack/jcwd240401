@@ -479,6 +479,31 @@ module.exports = {
         }
       }
 
+      if (orderData.voucher_id) {
+        await db.User_Voucher.update(
+          { isUsed: false },
+          {
+            where: {
+              voucher_id: orderData.voucher_id,
+              user_id: userId,
+            },
+          },
+          { transaction }
+        );
+
+        const voucher = await db.Voucher.findByPk(orderData.voucher_id);
+        if (!voucher.isReferral) {
+          await db.Voucher.increment(
+            "usedLimit",
+            {
+              by: 1,
+              where: { id: orderData.voucher_id },
+            },
+            { transaction }
+          );
+        }
+      }
+
       if (!cancelReason || !imgFileName) {
         await transaction.rollback();
         return res.status(400).send({
@@ -1031,6 +1056,32 @@ module.exports = {
 
         await item.destroy({ transaction: transaction });
       }
+      // update used voucher
+      if (checkoutData.voucher_id) {
+        await db.User_Voucher.update(
+          { isUsed: true },
+          {
+            where: {
+              voucher_id: checkoutData.voucher_id,
+              user_id: userId,
+            },
+          },
+          { transaction }
+        );
+
+        //update available vouchers on branch
+        const voucher = await db.Voucher.findByPk(checkoutData.voucher_id);
+        if (!voucher.isReferral) {
+          await db.Voucher.decrement(
+            "usedLimit",
+            {
+              by: 1,
+              where: { id: checkoutData.voucher_id },
+            },
+            { transaction }
+          );
+        }
+      }
 
       await transaction.commit();
       return res.status(200).send({
@@ -1350,29 +1401,6 @@ module.exports = {
               isUsed: false,
             });
           }
-        }
-        // update used voucher
-        if (orderData.voucher_id) {
-          await db.User_Voucher.update(
-            { isUsed: true },
-            {
-              where: {
-                voucher_id: orderData.voucher_id,
-                user_id: userId,
-              },
-            },
-            { transaction }
-          );
-
-          //update available vouchers on branch
-          await db.Voucher.decrement(
-            "usedLimit",
-            {
-              by: 1,
-              where: { id: orderData.voucher_id },
-            },
-            { transaction }
-          );
         }
       } else {
         await transaction.rollback();

@@ -6,6 +6,7 @@ import InputField from '../../../InputField';
 import { createBranchProductSchema } from '../../../../helpers/validationSchema';
 import AlertHelper from '../../../AlertHelper';
 import { createBranchProduct } from '../../../../api/branchProduct';
+import { getUnaddedProducts } from '../../../../api/product';
 
 export default function CreateBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -16,7 +17,7 @@ export default function CreateBranchProduct() {
     const token = localStorage.getItem("token")
     const getUnaddedProduct = async () => {
         try {
-            const response = await getUnaddedProduct(token)
+            const response = await getUnaddedProducts(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {

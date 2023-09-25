@@ -1056,16 +1056,28 @@ module.exports = {
   },
   // get voucher list (A)
   async getAllVoucher(req, res) {
-    const branch_id = 1;
     const pagination = {
       page: Number(req.query.page) || 1,
       perPage: 12,
       createDate: req.query.sortVoucher || "DESC",
       voucher_type_id: req.query.filterVoucherType,
     };
-    const where = { branch_id };
-    const order = [];
+
     try {
+      const user = await db.User.findOne({
+        where: {
+          id: req.user.id,
+        },
+        include: {
+          model: db.Branch,
+        },
+      });
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+      const branch_id = user.Branch.id
+      const where = { branch_id };
+      const order = [];
       if (pagination.createDate) {
         if (pagination.createDate.toUpperCase() === "DESC") {
           order.push(["createdAt", "DESC"]);

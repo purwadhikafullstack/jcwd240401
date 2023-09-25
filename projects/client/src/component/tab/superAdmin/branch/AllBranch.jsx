@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import { Pagination } from "flowbite-react";
 import { useNavigate } from 'react-router-dom'
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
+import { getAllBranches } from '../../../../api/branch'
+
 
 export default function AllBranch() {
     const [branchData, setBranchData] = useState([])
@@ -17,12 +18,7 @@ export default function AllBranch() {
 
     const getAllBranch = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch?page=${params.get("page") || 1}&search=${params.get("search") || ""}&sortOrder=${params.get("sort") || ""}`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
+            const response = await getAllBranches(token, params.get("page") || 1, params.get("search") || "", params.get("sort") || "")
             if(response.data){
                 setBranchData(response.data.data?.rows)
                 setTotalData(response.data.data?.count)
@@ -98,7 +94,7 @@ export default function AllBranch() {
                 />            
             </div>
             <div className="w-full text-left">Total: <span className="font-bold text-maingreen">{`${totalData}`}</span> branch locations</div>
-            <div className='w-72 overflow-x-auto lg:w-full'>
+            <div className='overflow-x-auto w-full'>
             <table className="border-collapse w-full text-xs sm:text-base">
                 <thead className="border-b-2 border-maingreen text-maingreen uppercase">
                     <tr>

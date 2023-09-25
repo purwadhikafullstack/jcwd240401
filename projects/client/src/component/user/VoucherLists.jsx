@@ -5,7 +5,7 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { BiSolidDiscount } from "react-icons/bi";
 import { FaRupiahSign } from "react-icons/fa6";
 
-const VoucherList = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
+const VoucherLists = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
   const label = (type) => {
     switch (type) {
       case 1:
@@ -22,13 +22,12 @@ const VoucherList = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
         break;
     }
   };
-  console.log(vouchers.Voucher.id, selectedVoucher.id, "inininini");
   return (
     <div
       key={vouchers.id}
       className={`border p-4 rounded-lg cursor-pointer ${
         selectedVoucher.id === vouchers.Voucher.id
-          ? "border-maingreen"
+          ? "border-maingreen bg-greensuccesssurface"
           : "border-gray-300"
       } ${!vouchers.isEligible ? "opacity-60 pointer-events-none" : ""}`}
       onClick={() => {
@@ -40,7 +39,7 @@ const VoucherList = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
         }
       }}
     >
-      <div className="flex">
+      <div className="flex w-64">
         <div className="flex justify-center items-center">
           {label(vouchers.Voucher.voucher_type_id)}
         </div>
@@ -64,4 +63,4 @@ const VoucherList = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
   );
 };
 
-export default VoucherList;
+export default VoucherLists;

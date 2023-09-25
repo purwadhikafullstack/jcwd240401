@@ -2,26 +2,24 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 
-import CustomDropDowm from "../../../CustomDropdown";
+import CustomDropdownURLSearch from "../../../CustomDropdownURLSearch";
 
 export default function StockReport() {
   const [dataStockHistory, setDataStockHistory] = useState([]);
   const [dataAllBranchProduct, setDataAllBranchProduct] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filter, setFilter] = useState({
-    sort: "",
-    status: "",
-    branch_product_id: "",
-    startDate: "",
-    endDate: "",
-  });
+  const [filter, setFilter] = useState(new URLSearchParams());
+  const params = new URLSearchParams(window.location.search);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
   const fetchDataStockHistory = async () => {
-    const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${currentPage}&sortDate=${filter.sort}&filterStatus=${filter.status}&filterBranchProduct=${filter.branch_product_id}&startDate=${filter.startDate}&endDate=${filter.endDate}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history?page=${params.get("page") || 1}&sortDate=${params.get("sort") || ""}&filterStatus=${params.get("status") || ""}&filterBranchProduct=${params.get("branch_product_id") || ""}&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data) {
@@ -38,7 +36,6 @@ export default function StockReport() {
     }
   };
   const fetchAllBranchProduct = async () => {
-    const token = localStorage.getItem("token");
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/no-pagination-branch-products`,
@@ -66,11 +63,6 @@ export default function StockReport() {
     fetchDataStockHistory();
     fetchAllBranchProduct();
   }, [currentPage, filter]);
-
-  const onPageChange = (page) => {
-    setDataStockHistory([]);
-    setCurrentPage(page);
-  };
 
   const renderSwitch = (param, data) => {
     switch (param) {
@@ -114,42 +106,51 @@ export default function StockReport() {
   };
 
   const options = [
-    { label: "Sort By create date", value: "" },
-    { label: "create date: oldest", value: "ASC" },
-    { label: "create date: newest", value: "DESC" },
+    { label: "Default", value: "" },
+    { label: "Created Oldest", value: "ASC" },
+    { label: "Created Latest", value: "DESC" },
   ];
 
   const options2 = [
-    { label: "Filter by status", value: "" },
-    { label: "restock by admin", value: "restock by admin" },
-    { label: "reduced by admin", value: "reduced by admin" },
-    { label: "canceled by admin", value: "canceled by admin" },
-    { label: "canceled by user", value: "canceled by user" },
-    { label: "purchased by user", value: "purchased by user" },
+    { label: "All Status", value: "" },
+    { label: "Restock by Admin", value: "restock by admin" },
+    { label: "Recuded by Admin", value: "reduced by admin" },
+    { label: "Canceled by Admin", value: "canceled by admin" },
+    { label: "Canceled by User", value: "canceled by user" },
+    { label: "Purchased by User", value: "purchased by user" },
   ];
 
-  const handleChangeDropdown = (obj, name) => {
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      [name]: obj.value,
-    }));
-  };
-  const handleFilterChange = (e) => {
-    setFilter({
-      ...filter,
-      [e.target.id]: e.target.value,
-    });
-  };
+  const onPageChange = (page) => {
+    setDataStockHistory([]);
+    setCurrentPage(page);
+    const newFilter = new URLSearchParams(filter.toString());
+    newFilter.set("page", page.toString());
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page.toString());
+    navigate({ search: params.toString() });
+}
+
+const handleFilterChange = (paramName, paramValue) => {
+    const newFilter = new URLSearchParams(filter.toString());
+    newFilter.set("page", "1");
+    if (paramValue === "") {
+        newFilter.delete(paramName);
+    } else {
+        newFilter.set(paramName, paramValue);
+    }
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set(paramName, paramValue);
+    params.set("page", "1");
+    navigate({ search: params.toString() });
+};
 
   return (
     <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
-          <CustomDropDowm
-            options={dataAllBranchProduct}
-            onChange={(e) => handleChangeDropdown(e, "branch_product_id")}
-            placeholder={"Filter by product"}
-          />
+          <CustomDropdownURLSearch id="branch_product_id" options={dataAllBranchProduct} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Product"} />
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div>
@@ -160,8 +161,8 @@ export default function StockReport() {
               id="startDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={filter.startDate}
-              onChange={handleFilterChange}
+              value={params.get("startDate") || ""}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
           <div>
@@ -172,22 +173,14 @@ export default function StockReport() {
               id="endDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={filter.endDate}
-              onChange={handleFilterChange}
+              value={params.get("endDate") || ""}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropDowm
-            options={options}
-            onChange={(e) => handleChangeDropdown(e, "sort")}
-            placeholder={"Sort by create date"}
-          />
-          <CustomDropDowm
-            options={options2}
-            onChange={(e) => handleChangeDropdown(e, "status")}
-            placeholder={"filter by status"}
-          />
+          <CustomDropdownURLSearch id="sort" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Created Date"} />
+          <CustomDropdownURLSearch id="status" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"FIlter by Status"} />
         </div>
         <div className="overflow-x-auto w-full">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -216,7 +209,7 @@ export default function StockReport() {
               ) : (
                 <tr>
                   <td colSpan="7" className="py-4 text-center  text-base">
-                    no discounts found
+                    no data found
                   </td>
                 </tr>
               )}

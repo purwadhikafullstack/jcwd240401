@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { BsCart3, BsFillCheckCircleFill, BsXCircleFill } from "react-icons/bs";
 import { FaUserAlt } from "react-icons/fa";
 import { AiFillDollarCircle } from "react-icons/ai";
@@ -13,14 +14,14 @@ import DashBoardList from "../../../admin/DashBoardList";
 export default function SalesReport() {
   const token = localStorage.getItem("token");
   const [salesReportData, setSalesReportData] = useState({});
-  const [filter, setFilter] = useState({
-    startDate: "",
-    endDate: "",
-  });
+  const [filter, setFilter] = useState(new URLSearchParams());
+  const params = new URLSearchParams(window.location.search);
+  const navigate = useNavigate();
+
   const fetchSalesData = async () => {
     try {
       const salesData = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/sales-report?startDate=${filter.startDate}&endDate=${filter.endDate}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admins/sales-report?startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (salesData.status === 200) {
@@ -31,16 +32,23 @@ export default function SalesReport() {
     }
   };
 
-  const handleFilterChange = (e) => {
-    setFilter({
-      ...filter,
-      [e.target.id]: e.target.value,
-    });
+  const handleFilterChange = (paramName, paramValue) => {
+    const newFilter = new URLSearchParams(filter.toString());
+    if (paramValue === "") {
+        newFilter.delete(paramName);
+    } else {
+        newFilter.set(paramName, paramValue);
+    }
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set(paramName, paramValue);
+    navigate({ search: params.toString() });
   };
 
   useEffect(() => {
     fetchSalesData();
   }, [filter]);
+  
   return (
     <div>
       <div className="mx-auto py-2 w-full lg:w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
@@ -52,8 +60,8 @@ export default function SalesReport() {
             id="startDate"
             type="date"
             className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-            value={filter.startDate}
-            onChange={handleFilterChange}
+            value={params.get("startDate") || ""}
+            onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
           />
         </div>
         <div>
@@ -64,8 +72,8 @@ export default function SalesReport() {
             id="endDate"
             type="date"
             className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-            value={filter.endDate}
-            onChange={handleFilterChange}
+            value={params.get("endDate") || ""}
+            onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
           />
         </div>
       </div>

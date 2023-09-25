@@ -767,6 +767,7 @@ module.exports = {
       const branchProductData = await db.Branch_Product.findAndCountAll({
         where: {
           branch_id: nearestBranchId,
+          isRemoved: 0
         },
         include: [
           {

@@ -1,14 +1,14 @@
 import React, {useState} from 'react'
 import { Link } from 'react-router-dom'
 import {useFormik} from 'formik'
-import axios from 'axios'
 import background from '../assets/BackgroundLeaves.jpg'
 import InputField from '../component/InputField'
 import Modal from '../component/Modal'
 import groceereLogo from '../assets/logo_Groceer-e.svg'
-import forgotPassword from '../assets/Forgot password.png'
+import forgotPasswordImage from '../assets/Forgot password.png'
 import { forgotPasswordSchema } from '../helpers/validationSchema'
 import AlertHelper from '../component/AlertHelper'
+import { forgotPassword } from '../api/auth'
 
 export default function Login() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -19,9 +19,7 @@ export default function Login() {
         try{
             actions.setSubmitting(true)
             setIsLoading(true)
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/forgot-password`, values, {
-                headers: {"Content-Type" : "application/json"}
-            })
+            const response = await forgotPassword(values)
             if (response.status === 200){
                 actions.resetForm()
                 actions.setSubmitting(false)
@@ -50,18 +48,18 @@ export default function Login() {
     return (
         <>
         <div className="absolute w-full min-h-screen bg-cover bg-center flex justify-center items-center" style={{backgroundImage: `url(${background})`, backgroundSize: 'cover'}}>
-        <div className="sw-72 lg:w-2/3 lg:grid lg:grid-cols-2">
+        <div className="lg:w-2/3 lg:grid lg:grid-cols-2">
             <div className="hidden lg:flex lg:flex-col lg:gap-2 lg:justify-start lg:items-start lg:w-full">
                 <img src={groceereLogo} alt="logo" />
                 <div className='font-inter font-bold'>Your go-to grocery shop</div>
                 <div className='text-3xl text-maingreen font-inter font-bold mt-10'>Forgot Password</div>
-                <img src={forgotPassword} alt="set password illustration" className='w-80 h-80'/>
+                <img src={forgotPasswordImage} alt="set password illustration" className='w-80 h-80'/>
             </div>
             <div className="flex justify-center flex-col gap-2 items-center">
                 <div className="mb-10 lg:hidden flex flex-col justify-center items-center">
                     <img src={groceereLogo} alt="logo" className='mb-6'/>
                     <div className='text-2xl text-maingreen font-inter font-bold'>Forgot Password</div>
-                    <img src={forgotPassword} alt="logo" className="w-52 h-52"/>
+                    <img src={forgotPasswordImage} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
                     <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>

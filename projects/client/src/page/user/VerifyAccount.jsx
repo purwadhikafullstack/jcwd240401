@@ -1,12 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import axios from 'axios'
 import {useParams} from 'react-router-dom'
 import unverified from '../../assets/Profile Interface.png'
 import background from '../../assets/BackgroundLeaves.jpg'
 import verified from '../../assets/Verified.png'
 import Button from '../../component/Button'
 import AlertPopUp from '../../component/AlertPopUp'
-
+import { checkUserVerification, verifyAccount } from '../../api/auth'
 
 export default function NotFound() {
     const [image, setImage] = useState(false)
@@ -16,21 +15,30 @@ export default function NotFound() {
     const [isVerify, setIsVerify] = useState(false)
     const {verificationToken} = useParams()
 
-    useEffect(() => {
+    const checkVerify = async() => {
         try{
-            axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/users/profile?token=${verificationToken}`).then((response) => setIsVerify(response.data.data?.isVerify))
-            if(isVerify){
-                setDisabled(true)
-                setImage(true)
+            const response = await checkUserVerification(verificationToken)
+            if(response.data) {
+                setIsVerify(response.data.data?.isVerify)
             }
-        }catch(error){
-            console.log(error)
+        } catch(error){
+            if(error.response){
+                console.log(error.response.message)
+            }
+        }
+    }
+
+    useEffect(() => {
+        checkVerify()
+        if(isVerify){
+            setDisabled(true)
+            setImage(true)
         }
     }, [isVerify, verificationToken])
 
     const verify = async() => {
         try{
-            const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/auth/users/verify?token=${verificationToken}`)
+            const response = await verifyAccount(verificationToken)
             if(response.status === 200) {
                 setImage(true)
                 setErrorMessage("")

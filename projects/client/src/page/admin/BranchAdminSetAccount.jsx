@@ -58,7 +58,7 @@ export default function BranchAdminSetAccount() {
   return (
     <>
     <div className="absolute w-full min-h-screen bg-cover bg-center flex justify-center items-center" style={{backgroundImage: `url(${backgroundLogin})`, backgroundSize: 'cover'}}>
-        <div className="sw-72 lg:w-2/3 lg:grid lg:grid-cols-2">
+        <div className="lg:w-2/3 lg:grid lg:grid-cols-2">
             <div className="hidden lg:flex lg:flex-col lg:gap-2 lg:justify-start lg:items-start lg:w-full">
                 <img src={groceereLogo} alt="logo" />
                 <div className='font-inter font-bold'>Your go-to grocery shop</div>

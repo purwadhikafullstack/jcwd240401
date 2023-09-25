@@ -13,6 +13,7 @@ import { updateCart } from "../../store/reducer/cartSlice";
 import Modal from "../../component/Modal";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 import UnavailableCartItem from "./UnavailableCartItem";
+import UnauthenticatedContent from "./UnauthenticatedContent";
 
 export default function UserCartContent() {
   const [totalPrice, setTotalPrice] = useState(0);
@@ -28,6 +29,7 @@ export default function UserCartContent() {
 
   const cartItems = useSelector((state) => state.cart.cart);
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
+  const profile = useSelector((state) => state.auth.profile);
 
   const fetchUnavailableCart = async () => {
     try {
@@ -155,135 +157,147 @@ export default function UserCartContent() {
   };
 
   return (
-    <div>
-      <div>
-        <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
-          Cart
-        </div>
-        {showAlert ? (
-          <AlertPopUp
-            condition={errorMessage ? "fail" : "success"}
-            content={errorMessage ? errorMessage : successMessage}
-            setter={handleHideAlert}
-          />
-        ) : null}
-        <div className="flex justify-end mx-6 lg:px-20">
-          {selectedItems.length === 0 ? (
-            <div className="flex justify-end mx-6 lg:px-20 text-white">_</div>
-          ) : selectedItems.length > 0 ? (
-            <Modal
-              modalTitle="Delete Cart"
-              buttonCondition="trash"
-              content="are you sure you want to remove this from your cart?"
-              buttonLabelOne="Cancel"
-              buttonLabelTwo="Yes"
-              onClickButton={handleDelete}
-            />
-          ) : (
-            <button disabled>
-              <BsTrash size={25} color="grey" />
-            </button>
-          )}
-        </div>
-      </div>
-      <div>
-        {cartItems.length !== 0 && (
+    <div className="py-2 sm:py-4 px-2 flex flex-col w-full sm:max-w-6xl mx-auto gap-4 lg:justify-center font-inter">
+      {token && profile.role === "3" ? (
+        <>
           <div>
-            {cartItems.map((data) => (
-              <CartItem
-                key={data.id}
-                quantity={data.quantity}
-                name={data.Branch_Product.Product.name}
-                weight={data.Branch_Product.Product.weight}
-                UOM={data.Branch_Product.Product.unitOfMeasurement}
-                productImg={data.Branch_Product.Product.imgProduct}
-                discountId={data.Branch_Product.discount_id}
-                discountType={data.Branch_Product.Discount?.discount_type_id}
-                isExpired={data.Branch_Product.Discount?.isExpired}
-                basePrice={data.Branch_Product.Product.basePrice}
-                discountAmount={data.Branch_Product.Discount?.amount}
-                productStock={data.Branch_Product.quantity}
-                cartId={data.id}
-                productId={data.Branch_Product.id}
-                onSelect={handleItemSelect} // Pass the onSelect function to CartItem
-                selected={selectedItems.includes(data.id)} // Check if item is selected
-              />
-            ))}
-            <div className=" flex flex-row  lg:justify-end lg:mx-16 sm:justify-between">
-              <span className="font-semibold text-xl text-maingreen mx-10 ">
-                Total
-              </span>
-              <span className="text-reddanger text-xl font-bold ">
-                {rupiah(totalPrice)}
-              </span>
+            <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
+              Cart
             </div>
-            <div className="flex sm:justify-center lg:justify-end mx-16 mt-2">
-              <div className="w-72">
-                <Button
-                  label="Checkout"
-                  condition="positive"
-                  isDisabled={selectedItems.length === 0}
-                  onClick={() => {
-                    navigate("/user/checkout");
-                  }}
+            {showAlert ? (
+              <AlertPopUp
+                condition={errorMessage ? "fail" : "success"}
+                content={errorMessage ? errorMessage : successMessage}
+                setter={handleHideAlert}
+              />
+            ) : null}
+            <div className="flex justify-end mx-6 lg:px-20">
+              {selectedItems.length === 0 ? (
+                <div className="flex justify-end mx-6 lg:px-20 text-white">
+                  _
+                </div>
+              ) : selectedItems.length > 0 ? (
+                <Modal
+                  modalTitle="Delete Cart"
+                  buttonCondition="trash"
+                  content="are you sure you want to remove this from your cart?"
+                  buttonLabelOne="Cancel"
+                  buttonLabelTwo="Yes"
+                  onClickButton={handleDelete}
                 />
-              </div>
+              ) : (
+                <button disabled>
+                  <BsTrash size={25} color="grey" />
+                </button>
+              )}
             </div>
           </div>
-        )}
-        {unavailableCart.length > 0 && (
-          <>
-            <div className="flex mx-2 py-2 content-center gap-4 border-b mb-4 sm:mx-4 lg:mx-8 xl:mx-16">
-              <div className="grid">
-                <CgUnavailable size={25} />
+          <div>
+            {cartItems.length !== 0 && (
+              <div>
+                {cartItems.map((data) => (
+                  <CartItem
+                    key={data.id}
+                    quantity={data.quantity}
+                    name={data.Branch_Product.Product.name}
+                    weight={data.Branch_Product.Product.weight}
+                    UOM={data.Branch_Product.Product.unitOfMeasurement}
+                    productImg={data.Branch_Product.Product.imgProduct}
+                    discountId={data.Branch_Product.discount_id}
+                    discountType={
+                      data.Branch_Product.Discount?.discount_type_id
+                    }
+                    isExpired={data.Branch_Product.Discount?.isExpired}
+                    basePrice={data.Branch_Product.Product.basePrice}
+                    discountAmount={data.Branch_Product.Discount?.amount}
+                    productStock={data.Branch_Product.quantity}
+                    cartId={data.id}
+                    productId={data.Branch_Product.id}
+                    onSelect={handleItemSelect}
+                    selected={selectedItems.includes(data.id)}
+                  />
+                ))}
+                <div className=" flex flex-row  lg:justify-end lg:mx-16 sm:justify-between">
+                  <span className="font-semibold text-xl text-maingreen mx-10 ">
+                    Total
+                  </span>
+                  <span className="text-reddanger text-xl font-bold ">
+                    {rupiah(totalPrice)}
+                  </span>
+                </div>
+                <div className="flex sm:justify-center lg:justify-end mx-16 mt-2">
+                  <div className="w-72">
+                    <Button
+                      label="Checkout"
+                      condition="positive"
+                      isDisabled={selectedItems.length === 0}
+                      onClick={() => {
+                        navigate("/user/checkout");
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="font-medium">
-                {" "}
-                Invalid Items{" "}
-                <span className="text-maindarkgreen font-medium">
-                  ({unavailableCart.length})
-                </span>
-              </div>
-            </div>
-            {unavailableCart.map((data) => (
-              <UnavailableCartItem
-                key={data.id}
-                quantity={data.quantity}
-                name={data.Branch_Product.Product.name}
-                weight={data.Branch_Product.Product.weight}
-                UOM={data.Branch_Product.Product.unitOfMeasurement}
-                productImg={data.Branch_Product.Product.imgProduct}
-                discountId={data.Branch_Product.discount_id}
-                discountType={data.Branch_Product.Discount?.discount_type_id}
-                isExpired={data.Branch_Product.Discount?.isExpired}
-                basePrice={data.Branch_Product.Product.basePrice}
-                discountAmount={data.Branch_Product.Discount?.amount}
-                productStock={data.Branch_Product.quantity}
-                cartId={data.id}
-                setterDelete={setHasFetchedUnavailableCart}
-                stateDelete={hasFetchedUnavailableCart}
-              />
-            ))}
-          </>
-        )}
+            )}
+            {unavailableCart.length > 0 && (
+              <>
+                <div className="flex mx-2 py-2 content-center gap-4 border-b mb-4 sm:mx-4 lg:mx-8 xl:mx-16">
+                  <div className="grid">
+                    <CgUnavailable size={25} />
+                  </div>
+                  <div className="font-medium">
+                    {" "}
+                    Invalid Items{" "}
+                    <span className="text-maindarkgreen font-medium">
+                      ({unavailableCart.length})
+                    </span>
+                  </div>
+                </div>
+                {unavailableCart.map((data) => (
+                  <UnavailableCartItem
+                    key={data.id}
+                    quantity={data.quantity}
+                    name={data.Branch_Product.Product.name}
+                    weight={data.Branch_Product.Product.weight}
+                    UOM={data.Branch_Product.Product.unitOfMeasurement}
+                    productImg={data.Branch_Product.Product.imgProduct}
+                    discountId={data.Branch_Product.discount_id}
+                    discountType={
+                      data.Branch_Product.Discount?.discount_type_id
+                    }
+                    isExpired={data.Branch_Product.Discount?.isExpired}
+                    basePrice={data.Branch_Product.Product.basePrice}
+                    discountAmount={data.Branch_Product.Discount?.amount}
+                    productStock={data.Branch_Product.quantity}
+                    cartId={data.id}
+                    setterDelete={setHasFetchedUnavailableCart}
+                    stateDelete={hasFetchedUnavailableCart}
+                  />
+                ))}
+              </>
+            )}
 
-        {cartItems.length === 0 && unavailableCart.length === 0 && (
-          <div className="flex flex-col items-center justify-center">
-            <img src={cartImg} alt="Empty Cart" />
-            <span className="font-bold text-3xl p-2">
-              Oops! It looks like your cart is empty. Time to fill it up with
-              your favorite items!
-            </span>
-            <div className="w-60 p-2">
-              <Button
-                label="Shop Now"
-                condition="positive"
-                onClick={() => navigate("/")}
-              />
-            </div>
+            {cartItems.length === 0 && unavailableCart.length === 0 && (
+              <div className="flex flex-col items-center justify-center">
+                <img src={cartImg} alt="Empty Cart" />
+                <span className="font-bold text-3xl p-2 text-center">
+                  Oops! It looks like your cart is empty. Time to fill it up
+                  with your favorite items!
+                </span>
+                <div className="w-60 p-2">
+                  <Button
+                    label="Shop Now"
+                    condition="positive"
+                    onClick={() => navigate("/")}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <UnauthenticatedContent />
+      )}
     </div>
   );
 }

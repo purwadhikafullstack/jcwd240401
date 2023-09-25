@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
 import dayjs from 'dayjs';
 import { LuEdit } from 'react-icons/lu';
 import { Pagination } from 'flowbite-react';
@@ -9,6 +8,7 @@ import SearchInputBar from '../../../SearchInputBar';
 import {Link, useNavigate} from 'react-router-dom'
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import { orderStatusLabelColor } from '../../../../helpers/labelColor';
+import { getBranchOrders } from '../../../../api/transaction'
 
 export default function OrderList() {
     const [orderData, setOrderData] = useState([])
@@ -22,11 +22,7 @@ export default function OrderList() {
 
     const orders = async() => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch-orders?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterStatus=${params.get("status") || ""}&sortDate=${params.get("sort") || ""}&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`, {
-                headers: {
-                    'Authorization' : `Bearer ${token}`
-                }
-            })
+            const response = await getBranchOrders(token, params.get("page") || 1, params.get("search") || "", params.get("status") || "", params.get("sort") || "", params.get("startDate") || "", params.get("endDate") || "")
             if (response.data){
                 setOrderData(response.data.data?.rows)
                 setTotalPages(Math.ceil(response.data.pagination?.totalData / response.data.pagination?.perPage));

@@ -73,6 +73,10 @@ export default function UserAddressCreateContent() {
                 setStatus({ success: false, msg: "An address with similar details already exists" });
                 setErrorMessage(`An address with similar details already exists`)
             }
+            if (response.data.message == "You already have the maximum number of addresses (5)") {
+                setStatus({ success: false, msg: "You already have the maximum number of addresses (5)" });
+                setErrorMessage(`You already have the maximum number of addresses (5)`)
+            }
             if (response.data.error) {
                 const errMsg = response.data.error;
                 console.log(errMsg)

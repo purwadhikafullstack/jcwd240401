@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
 import { Pagination } from 'flowbite-react';
 import ModalOrder from '../../../ModalOrder';
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
 import { useNavigate } from 'react-router-dom';
 import OrderListTable from '../../../admin/SuperAdminOrderListComponent/OrderListTable';
+import { getAllOrders } from '../../../../api/transaction'
+import { getAllBranchesNoPagination } from '../../../../api/branch'
 
 export default function OrderList() {
     const [orderData, setOrderData] = useState([])
@@ -20,11 +21,7 @@ export default function OrderList() {
 
     const orders = async() => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/orders?page=${params.get("page") || 1}&branchId=${params.get("branchId") || ""}&search=${params.get("search") || ""}&filterStatus=${params.get("status") || ""}&sortDate=${params.get("sort") || ""}&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`, {
-                headers: {
-                    'Authorization' : `Bearer ${token}`
-                }
-            })
+            const response = await getAllOrders(token, params.get("page") || 1, params.get("branchId") || "", params.get("search") || "", params.get("status") || "", params.get("sort") || "", params.get("startDate") || "", params.get("endDate") || "")
             if (response.data){
                 setOrderData(response.data.data?.rows)
                 setTotalPages(Math.ceil(response.data.pagination?.totalData / response.data.pagination?.perPage));
@@ -39,9 +36,7 @@ export default function OrderList() {
         }
     }
     const allBranch = async() => {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-all-branch`, {
-            headers: {'Authorization' : `Bearer ${token}`}
-        })
+        const response = await getAllBranchesNoPagination(token)
         if(response.data){
             const data = response.data.data?.rows;
             if (data) {
@@ -161,7 +156,7 @@ export default function OrderList() {
           />
         </div>
         <div className="w-full text-left my-2">Showing Orders From Branch: <span className="font-bold text-maingreen">{branchLabel}</span></div>
-        <div className="w-72 overflow-x-auto lg:w-full">
+        <div className="overflow-x-auto w-full">
           <OrderListTable orderData={orderData} setSelectedOrder={setSelectedOrder}/>
         </div>
         {selectedOrder && (

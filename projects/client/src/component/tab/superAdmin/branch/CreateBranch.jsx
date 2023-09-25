@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react'
 import {useFormik} from 'formik'
-import axios from 'axios'
 import { registerAdminSchema } from '../../../../helpers/validationSchema'
 import InputField from '../../../InputField'
 import Modal from '../../../Modal'
 import AlertHelper from '../../../AlertHelper'
+import { getAllProvinces, getAllCities } from '../../../../api/location'
+import { createBranch } from '../../../../api/auth'
 
 export default function CreateBranch() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -18,7 +19,7 @@ export default function CreateBranch() {
 
     const getProvince = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-province`)
+            const response = await getAllProvinces()
             if(response.data){
                 setProvinceData(response.data?.data)
             }
@@ -31,7 +32,7 @@ export default function CreateBranch() {
 
     const getCity = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-city?province=${selectedProvince}`)
+            const response = await getAllCities(selectedProvince)
             if(response.data){
                 setCityData(response.data?.data)
             }
@@ -56,11 +57,7 @@ export default function CreateBranch() {
         try{
             actions.setSubmitting(true)
             setIsLoading(true)
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/admins/register`, values, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
+            const response = await createBranch(token, values)
             if (response.status === 200){
                 actions.resetForm()
                 actions.setSubmitting(false)

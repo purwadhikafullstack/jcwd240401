@@ -74,3 +74,8 @@ export function modifyBranchProductDetails(
     }
   );
 }
+
+
+export function oneBranchProductForUser(branchId, name, weight, unitOfMeasurement) {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products/${branchId}/${encodeURIComponent(name)}/${weight}/${unitOfMeasurement}`);
+}

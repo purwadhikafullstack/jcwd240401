@@ -70,14 +70,13 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route element={<PublicWrapper />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<UserRegister />} />
           <Route
             path="/verify-account/:verificationToken"
             element={<VerifyAccount />}
           />
+        <Route element={<PublicWrapper />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<UserRegister />} />
           <Route
             path="/set-password/:verificationToken"
             element={<BranchAdminSetAccount />}
@@ -130,6 +129,7 @@ function App() {
         </Route>
 
         <Route element={<PrivateUserWrapper allowedRoles={[3]} />}>
+          <Route path="/" element={<Home />} />
           <Route path="/user/cart" element={<Cart />} />
           <Route path="/user/checkout" element={<Checkout />} />
           <Route path="/user/payment/:id" element={<Payment />} />

@@ -14,6 +14,7 @@ import { loginSchema } from "../helpers/validationSchema";
 import { keep } from "../store/reducer/authSlice";
 import { updateCart } from "../store/reducer/cartSlice";
 import AlertHelper from "../component/AlertHelper";
+import { login } from "../api/auth"
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,13 +30,7 @@ export default function Login() {
     actions.setSubmitting(true)
     setIsLoading(true)
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
-        values,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await login(values)
       if (response.status === 200) {
         actions.resetForm();
         actions.setSubmitting(false)
@@ -101,7 +96,7 @@ export default function Login() {
           backgroundSize: "cover",
         }}
       >
-        <div className="sw-72 lg:w-2/3 lg:grid lg:grid-cols-2">
+        <div className="lg:w-2/3 lg:grid lg:grid-cols-2">
           <div className="hidden lg:flex lg:flex-col lg:gap-2 lg:justify-start lg:items-start lg:w-full">
             <Link to="/"><img src={groceereLogo} alt="logo" /></Link>
             <div className="font-inter font-bold">Your go-to grocery shop</div>

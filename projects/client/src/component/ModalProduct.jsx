@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"
+import { getProductById } from "../api/product";
 
 export default function ModalProduct({ productId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
@@ -7,9 +7,7 @@ export default function ModalProduct({ productId, onClose }) {
 
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/products/${productId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await getProductById(token, productId)
             if (response.data) {
                 setSelectedProduct(response.data.data)
             }

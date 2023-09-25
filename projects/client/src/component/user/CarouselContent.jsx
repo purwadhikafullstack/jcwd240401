@@ -5,13 +5,14 @@ import { Link } from 'react-router-dom'
 import rupiah from '../../helpers/rupiah'
 import marketPic from '../../assets/marketPic.png'
 import handleImageError from '../../helpers/handleImageError'
+import { getPromotedProducts } from '../../api/product'
 
 export default function CarouselContent({branchId}) {
   const [promotedProducts, setPromotedProducts] = useState([])
 
   const promotions = async() => {
     try{
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/promoted-products?branchId=${branchId}`)
+      const response = await getPromotedProducts(branchId)
       if(response.data){
         setPromotedProducts(response.data?.data)
       }
@@ -33,8 +34,8 @@ export default function CarouselContent({branchId}) {
     <Carousel>
       {promotedProducts.length !== 0 ? (
         promotedProducts.map((product, index) => (
-          <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative' key={index}>
-            <div className="w-full h-full flex flex-col lg:flex-row justify-center px-20 py-10 items-center relative">
+          <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative overflow-y-hidden' key={index}>
+            <div className="w-full h-full flex flex-col lg:flex-row justify-center px-20 py-10 items-center relative overflow-y-hidden">
               <div className='min-w-full h-full absolute flex justify-center items-center overflow-y-hidden'>
                 <img src={product.Product?.imgProduct} alt="Product Image" className='min-w-full min-h-full absolute object-cover' onError={handleImageError}/>
               </div>

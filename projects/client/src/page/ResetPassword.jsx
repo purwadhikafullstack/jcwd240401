@@ -1,6 +1,5 @@
 import React, {useState} from 'react'
 import { useFormik } from 'formik'
-import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
 import background from '../assets/BackgroundLeaves.jpg'
@@ -10,6 +9,7 @@ import InputField from '../component/InputField'
 import Button from '../component/Button'
 import { setPasswordSchema } from '../helpers/validationSchema'
 import AlertHelper from '../component/AlertHelper'
+import { resetAccountPassword } from '../api/auth'
 
 
 export default function ResetPassword() {
@@ -23,9 +23,7 @@ export default function ResetPassword() {
         try{
             actions.setSubmitting(true)
             setIsLoading(true)
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/users/reset-password?token=${resetPasswordToken}`, values, {
-                headers: {"Content-Type" : "application/json"}
-            })
+            const response = await resetAccountPassword(resetPasswordToken, values)
             if (response.status === 200){
                 actions.resetForm()
                 actions.setSubmitting(false)
@@ -58,7 +56,7 @@ export default function ResetPassword() {
 
   return (
     <div className="absolute w-full min-h-screen bg-cover bg-center flex justify-center items-center" style={{backgroundImage: `url(${background})`, backgroundSize: 'cover'}}>
-        <div className="sw-72 lg:w-2/3 lg:grid lg:grid-cols-2">
+        <div className="lg:w-2/3 lg:grid lg:grid-cols-2">
             <div className="hidden lg:flex lg:flex-col lg:gap-2 lg:justify-start lg:items-start lg:w-full">
                 <img src={groceereLogo} alt="logo" />
                 <div className='font-inter font-bold'>Your go-to grocery shop</div>

@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Label from "./Label";
 import rupiah from "../helpers/rupiah";
+import { getBranchProductById } from "../api/branchProduct";
 
 export default function ModalBranchProduct({ branchProductId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
     const token = localStorage.getItem("token")
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${branchProductId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await getBranchProductById(token, branchProductId)
             if (response.data) {
                 setSelectedProduct(response.data.data)
             }

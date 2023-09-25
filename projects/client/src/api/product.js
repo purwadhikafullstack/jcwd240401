@@ -65,3 +65,11 @@ export function modifyProduct(token, id, formData) {
     }
   );
 }
+
+export function getPromotedProducts(branchId) {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/promoted-products?branchId=${branchId}`)
+}
+
+export function productsForUser(latitude, longitude, paramPage, paramSearch, paramCategory, paramSortName, paramSortPrice) {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${paramPage}&search=${paramSearch}&filterCategory=${paramCategory}&sortName=${paramSortName}&sortPrice=${paramSortPrice}`)
+}

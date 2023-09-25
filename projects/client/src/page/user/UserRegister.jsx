@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import {useFormik} from 'formik'
-import axios from 'axios'
 import background from '../../assets/BackgroundLeaves.jpg'
 import InputField from '../../component/InputField'
 import Modal from '../../component/Modal'
@@ -10,6 +9,8 @@ import registerPic from '../../assets/marketPic.png'
 import { registerUserSchema } from '../../helpers/validationSchema'
 import { HiEye, HiEyeOff } from 'react-icons/hi'
 import AlertHelper from '../../component/AlertHelper'
+import { getAllProvinces, getAllCities } from '../../api/location'
+import { registerUser } from '../../api/auth'
 
 export default function UserRegister() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -23,7 +24,7 @@ export default function UserRegister() {
 
     const getProvince = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-province`)
+            const response = await getAllProvinces()
             if(response.data){
                 setProvinceData(response.data?.data)
             }
@@ -36,7 +37,7 @@ export default function UserRegister() {
 
     const getCity = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/all-city?province=${selectedProvince}`)
+            const response = await getAllCities(selectedProvince)
             if(response.data){
                 setCityData(response.data?.data)
             }
@@ -61,9 +62,7 @@ export default function UserRegister() {
         try{
             actions.setSubmitting(true)
             setIsLoading(true)
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/users/register`, values, {
-                headers: {"Content-Type" : "application/json"}
-            })
+            const response = await registerUser(values)
             if (response.status === 200){
                 actions.resetForm()
                 actions.setSubmitting(false)

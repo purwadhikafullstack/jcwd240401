@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { Pagination } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { HiOutlineLocationMarker } from 'react-icons/hi'
+
 import { keepLocation } from '../../store/reducer/locationSlice'
 import ProductCard from '../../component/user/ProductCard'
 import CarouselContent from '../../component/user/CarouselContent'
 import SearchInputBar from '../../component/SearchInputBar'
 import CustomDropdownURLSearch from '../../component/CustomDropdownURLSearch'
+import { productsForUser } from '../../api/product'
+import { categoryForUserByBranchId } from '../../api/category'
 
 export default function HomeContent({ cityAddress, provinceAddress, latitude, longitude }) {
     const [categories, setCategories] = useState([])
@@ -25,7 +27,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
 
     const getProducts = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&sortName=${params.get("sortName") || ""}&sortPrice=${params.get("sortPrice") || ""}`)
+            const response = await productsForUser(latitude, longitude, params.get("page") || 1, params.get("search") || "", params.get("category_id") || "", params.get("sortName") || "", params.get("sortPrice") || "") 
             if (response.data) {
                 setProductData(response.data)
                 setBranchId(response.data.branchData.id)
@@ -47,7 +49,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
 
     const getCategory = async (id) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branchs/${id}/categories`);
+            const response = await categoryForUserByBranchId(id)
             if (response) {
                 const data = response.data.data;
                 if (data) {
@@ -138,7 +140,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
                 <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
                 <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Price"} />
             </div>
-            <div className='w-11/12 gap-2 sm:w-9/12 lg:w-full grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
+            <div className='w-11/12 gap-2 sm:w-9/12 lg:w-full grid grid-cols-2 lg:grid-cols-4 sm:gap-1 mb-10 justify-center'>
                 {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (
                     <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} key={index}><div className='flex justify-center mb-2 sm:mb-0'>
                         <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} />

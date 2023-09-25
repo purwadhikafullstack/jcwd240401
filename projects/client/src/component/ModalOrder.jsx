@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
 import dayjs from 'dayjs'
 import rupiah from '../helpers/rupiah'
 import Label from './Label'
 import handleImageError from '../helpers/handleImageError'
+import { orderByIdForAdmin } from '../api/transaction'
 
 export default function ModalOrder({orderId, onClose}) {
     const [selectedOrder, setSelectedOrder] = useState([])
@@ -11,9 +11,7 @@ export default function ModalOrder({orderId, onClose}) {
 
     const order = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/order?orderId=${orderId}`, {
-                headers: {'Authorization' : `Bearer ${token}`}
-            })
+            const response = await orderByIdForAdmin(token, orderId)
             if(response.data){
                 setSelectedOrder(response.data.data)
             } else {

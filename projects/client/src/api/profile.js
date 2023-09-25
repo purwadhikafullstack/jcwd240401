@@ -73,3 +73,11 @@ export function modifyAddress(token, id, data) {
     }
   );
 }
+
+export function getMainAddress(token) {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/main-address`, {
+    headers: {
+        "Authorization": `Bearer ${token}`
+    }
+  })
+}

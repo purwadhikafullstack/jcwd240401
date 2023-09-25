@@ -8,8 +8,9 @@ import rupiah from "../../helpers/rupiah";
 import CustomDropdown from "../CustomDropdown";
 import Modal from "../Modal";
 import { updateCart } from "../../store/reducer/cartSlice";
-import VoucherList from "./voucherList";
+import VoucherLists from "./VoucherLists";
 import AlertPopUp from "../AlertPopUp";
+import Button from "../Button";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -31,7 +32,7 @@ export default function UserCheckoutContent() {
   const fetchUserVouchers = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/vouchers/${grandTotal}`,
+        `${process.env.REACT_APP_API_BASE_URL}/users/vouchers/${subTotal}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -108,9 +109,7 @@ export default function UserCheckoutContent() {
             const discountAmount = discount.amount;
             total += (basePrice - discountAmount) * quantity;
           } else if (discount.discount_type_id === 1) {
-            // Adjust the calculation for "buy one get one" discount
             const discountAmount = discount.amount;
-            // Calculate the total price as if it's only one item, not two
             total += basePrice;
           }
         } else {
@@ -187,7 +186,7 @@ export default function UserCheckoutContent() {
   }, []);
   useEffect(() => {
     fetchUserVouchers();
-  }, [grandTotal]);
+  }, [grandTotal,subTotal]);
   useEffect(() => {
     fetchCartItems();
   }, [selectedItems]);
@@ -269,23 +268,18 @@ export default function UserCheckoutContent() {
         totalPrice: grandTotal,
         cartItems: cart,
       };
-
-      // Check if a voucher is selected
       if (selectedVoucher.id !== "") {
         requestBody.voucher_id = selectedVoucher.id;
       }
-
       if (!courier || !deliveryFee) {
         setErrorMessage("please select a courier and shipping method");
         handleShowAlert("open");
       }
-
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/users/checkout`,
         requestBody,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (response.status === 200) {
         const orderId = response.data.data.id;
         navigate(`/user/payment/${orderId}`);
@@ -305,12 +299,10 @@ export default function UserCheckoutContent() {
       console.log(error.message);
     }
   };
-
   const destination = userAddress?.city_id;
   const origin = checkoutItems[0]?.Branch_Product?.Branch?.city_id;
-  console.log(selectedVoucher, "ini selected");
   return (
-    <div className="flex flex-col items-center">
+    <div className="sm:py-4 px-2 flex flex-col w-full sm:max-w-7xl mx-auto gap-4 lg:justify-center font-inter">
       {showAlert && (
         <AlertPopUp
           condition={errorMessage && "fail"}
@@ -318,10 +310,11 @@ export default function UserCheckoutContent() {
           setter={() => handleShowAlert(false)}
         />
       )}
-      <div className="sm:w-full lg:w-4/6">
-        <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
-          Checkout
-        </div>
+      <div className="w-full sm:w-full lg:w-4/6 mx-auto">
+          <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
+              <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
+              <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Checkout</div>
+          </div>
         <div className="text-maingreen font-semibold">My Selected Address</div>
         <div>{`${userAddress?.streetName}, ${userAddress?.City?.city_name}`}</div>
 
@@ -349,9 +342,9 @@ export default function UserCheckoutContent() {
           <label htmlFor="name" className="">
             Voucher
           </label>
-          <div className="flex flex-col gap-4">
+          <div className="flex gap-4 overflow-x-auto sm:w-full">
             {vouchersList.length !== 0?vouchersList.map((voucher) => (
-              <VoucherList
+              <VoucherLists
                 vouchers={voucher}
                 selectedVoucher={selectedVoucher}
                 handleVoucherClick={handleVoucherClick}

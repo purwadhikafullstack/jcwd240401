@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { Pagination } from "flowbite-react";
-import { LuEdit } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
-import SearchBar from "../SearchBar";
-import CustomDropdown from "../CustomDropdown";
-import Label from "../Label";
+import { useSelector } from "react-redux";
 
+import { useNavigate } from "react-router-dom";
+import Label from "../Label";
+import CustomDropdownURLSearch from "../CustomDropdownURLSearch";
+import SearchInputBar from "../SearchInputBar";
+import UnauthenticatedContent from "./UnauthenticatedContent";
 
 export default function UserOrderContent() {
   const navigate = useNavigate();
@@ -15,19 +16,15 @@ export default function UserOrderContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [filter, setFilter] = useState({
-    search: "",
-    status: "",
-    sort: "",
-    startDate: "",
-    endDate: "",
-  });
+  const [filter, setFilter] = useState(new URLSearchParams());
+  const params = new URLSearchParams(window.location.search);
   const token = localStorage.getItem("token");
+  const profile = useSelector((state) => state.auth.profile);
 
   const orders = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/orders?page=${currentPage}&search=${filter.search}&filterStatus=${filter.status}&sortDate=${filter.sort}&startDate=${filter.startDate}&endDate=${filter.endDate}`,
+        `${process.env.REACT_APP_API_BASE_URL}/users/orders?page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterStatus=${params.get("status") || ""}&sortDate=${params.get("sortDate") || ""}&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,13 +54,13 @@ export default function UserOrderContent() {
   }, [currentPage, filter]);
 
   const options = [
-    { label: "Sort by order date", value: "" },
-    { label: "order date: oldest", value: "ASC" },
-    { label: "order date: newest", value: "DESC" },
+    { label: "Default", value: "" },
+    { label: "Created Oldest", value: "ASC" },
+    { label: "Created Latest", value: "DESC" },
   ];
 
   const options2 = [
-    { label: "Filter by status", value: "" },
+    { label: "All Status", value: "" },
     { label: "Waiting for payment", value: "Waiting for payment" },
     {
       label: "Waiting for payment confirmation",
@@ -74,22 +71,30 @@ export default function UserOrderContent() {
     { label: "Canceled", value: "Canceled" },
   ];
 
-  const handleChangeDropdown = (obj, name) => {
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      [name]: obj.value,
-    }));
-  };
-  const handleFilterChange = (e) => {
-    setFilter({
-      ...filter,
-      [e.target.id]: e.target.value,
-    });
-  };
-
   const onPageChange = (page) => {
     setOrderData([]);
     setCurrentPage(page);
+    const newFilter = new URLSearchParams(filter.toString());
+    newFilter.set("page", page.toString());
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page.toString());
+    navigate({ search: params.toString() });
+  }
+
+  const handleFilterChange = (paramName, paramValue) => {
+    const newFilter = new URLSearchParams(filter.toString());
+    newFilter.set("page", "1");
+    if (paramValue === "") {
+        newFilter.delete(paramName);
+    } else {
+        newFilter.set(paramName, paramValue);
+    }
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set(paramName, paramValue);
+    params.set("page", "1");
+    navigate({ search: params.toString() });
   };
 
   const handleClick = (id) => {
@@ -123,16 +128,12 @@ export default function UserOrderContent() {
   };
 
   return (
-    <div className="w-5/6 mx-auto">
+    <div className="py-2 sm:py-4 px-2 flex flex-col w-full sm:max-w-3xl mx-auto gap-4 lg:justify-center font-inter">
+      {token && profile.role === "3" ? (
+<div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
-          <SearchBar
-            id={"search"}
-            value={filter.search}
-            type="text"
-            onChange={handleFilterChange}
-            placeholder="Search by Invoice Code"
-          />
+        <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Search by Invoice Code" />
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div>
@@ -143,8 +144,8 @@ export default function UserOrderContent() {
               id="startDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={filter.startDate}
-              onChange={handleFilterChange}
+              value={params.get("startDate") || ""}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
           <div>
@@ -155,24 +156,16 @@ export default function UserOrderContent() {
               id="endDate"
               type="date"
               className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={filter.endDate}
-              onChange={handleFilterChange}
+              value={params.get("endDate") || ""}
+              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
             />
           </div>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropdown
-            options={options}
-            onChange={(e) => handleChangeDropdown(e, "sort")}
-            placeholder={"Sort by order date"}
-          />
-          <CustomDropdown
-            options={options2}
-            onChange={(e) => handleChangeDropdown(e, "status")}
-            placeholder={"Filter by status"}
-          />
+          <CustomDropdownURLSearch id="sortDate" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Order Date"} />
+          <CustomDropdownURLSearch id="status" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Status"} />
         </div>
-        <div className="w-72 overflow-x-auto lg:w-full">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-center font-inter">
             <thead className="text-maingreen uppercase border-b-2 border-maingreen ">
               <tr>
@@ -242,6 +235,10 @@ export default function UserOrderContent() {
           />
         </div>
       </div>
+    </div>
+      ) : (
+        <UnauthenticatedContent />
+      )}
     </div>
   );
 }

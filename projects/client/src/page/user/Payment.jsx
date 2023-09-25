@@ -9,6 +9,7 @@ import CheckoutItem from "../../component/user/CheckoutItem";
 import ModalCancelOrder from "../../component/ModalCancelOrder";
 import AlertPopUp from "../../component/AlertPopUp";
 import Label from "../../component/Label";
+import Button from "../../component/Button";
 
 export default function Payment() {
   const { id } = useParams();
@@ -254,12 +255,17 @@ export default function Payment() {
             />
           ) : null}
           <div className="w-full lg:w-4/6">
-            <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
-              Invoice
+            <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
+              <div className="grid justify-center content-center">
+                <Button condition={"back"} onClick={() => navigate("/user/orders")} />
+              </div>
+              <div className="text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6">
+                Invoice - <span className="text-reddanger">{orderData.data.invoiceCode}</span>
+              </div>
             </div>
-            <div className="text-xl lg:text-2xl font-semibold text-reddanger text-center pb-2">
+            {/* <div className="text-xl lg:text-2xl font-semibold text-reddanger text-center pb-2">
               {orderData.data.invoiceCode}
-            </div>
+            </div> */}
             {orderStatus === "Waiting for payment" && (
               <div className="text-reddanger text-xl font-bold ">
                 Time remaining: {Math.floor(timer / 60)}:
@@ -308,7 +314,7 @@ export default function Payment() {
             </div>
             {selectedVoucher === "" ? (
               ""
-            ) : selectedVoucher === null ? (
+            ) : selectedVoucher === null || selectedVoucher === 0 ? (
               <div className="flex justify-between">
                 <span className="font-semibold text-xl text-maingreen">
                   Voucher
@@ -333,7 +339,7 @@ export default function Payment() {
                   Delivery fee
                 </span>
                 <span className="text-reddanger text-xl font-bold ">
-                  {selectedVoucher === null ? (
+                  {selectedVoucher === null || selectedVoucher === 0 ? (
                     <s>{rupiah(deliveryFee)}</s>
                   ) : (
                     rupiah(deliveryFee)

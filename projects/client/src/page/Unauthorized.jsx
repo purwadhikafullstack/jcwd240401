@@ -20,7 +20,7 @@ export default function Unauthorized() {
     <>
     <div className="absolute w-full min-h-screen bg-cover bg-center flex flex-col justify-center items-center" style={{backgroundImage: `url(${background})`, backgroundSize: 'cover'}}>
         <div className="w-80"><img src={unauthorized} alt="Error 401 Unauthorized" /></div>
-        <div className="text-xl text-maingreen font-inter font-bold">You are unauthorized to access this page</div>
+        <div className="text-xl text-maingreen font-inter text-center font-bold">You are unauthorized to access this page</div>
         <div className="w-72 mt-6">
             <Button label={"Go To Home"} condition={"positive"} onClick={goToHome} />
         </div>

@@ -547,15 +547,15 @@ module.exports = {
 
             await transaction.commit()
 
-            if(referralCode){
-                const userReferral = await db.User.findOne({
-                    where: {
-                        referralCode: referralCode
-                    }
-                })
-                userReferral.referralCode = null
-                await userReferral.save()
-            }
+            // if(referralCode){
+            //     const userReferral = await db.User.findOne({
+            //         where: {
+            //             referralCode: referralCode
+            //         }
+            //     })
+            //     userReferral.referralCode = null
+            //     await userReferral.save()
+            // }
 
             return res.status(200).send({
                 message: "You have registered to Groceer-e! Please check your email to verify your account",
