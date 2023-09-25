@@ -2,21 +2,48 @@ require("dotenv/config");
 const express = require("express");
 const cors = require("cors");
 const { join } = require("path");
+const router = require("./routes");
+require("../src/helpers/scheduler/expiredDiscount");
+require("../src/helpers/scheduler/expiredVoucher");
+require("../src/helpers/scheduler/cancelOrder")
 
 const PORT = process.env.PORT || 8000;
 const app = express();
 app.use(
-  cors({
-    origin: [
-      process.env.WHITELISTED_DOMAIN &&
-        process.env.WHITELISTED_DOMAIN.split(","),
-    ],
-  })
+  cors()
+  //   {
+  //   origin: [
+  //     process.env.WHITELISTED_DOMAIN &&
+  //       process.env.WHITELISTED_DOMAIN.split(","),
+  //   ],
+  // }
 );
 
 app.use(express.json());
 
 //#region API ROUTES
+
+// multer
+app.use(
+  "/src/Public/product",
+  express.static(join(__dirname, "Public", "product"))
+);
+app.use(
+  "/src/Public/profile",
+  express.static(join(__dirname, "Public", "profile"))
+);
+app.use(
+  "/src/Public/refund",
+  express.static(join(__dirname, "Public", "refund"))
+);
+app.use(
+  "/src/Public/category",
+  express.static(join(__dirname, "Public", "category"))
+);
+app.use(
+  "/src/Public/payment",
+  express.static(join(__dirname, "Public", "payment"))
+);
 
 // ===========================
 // NOTE : Add your routes here
@@ -30,6 +57,10 @@ app.get("/api/greetings", (req, res, next) => {
     message: "Hello, Student !",
   });
 });
+
+app.use("/api/auth", router.auth);
+app.use("/api/admins", router.admin);
+app.use("/api/users", router.user);
 
 // ===========================
 
