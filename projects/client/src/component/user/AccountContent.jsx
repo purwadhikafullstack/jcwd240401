@@ -10,6 +10,8 @@ import { remove } from "../../store/reducer/authSlice";
 import { clearLocation } from "../../store/reducer/locationSlice";
 import { clearCart, clearSelectedCartItems } from "../../store/reducer/cartSlice";
 import handleImageError from '../../helpers/handleImageError'
+import { getProfileByToken } from "../../api/profile";
+
 
 
 export default function AccountContent() {
@@ -36,7 +38,7 @@ export default function AccountContent() {
 
   const getProfile = async () => {
     try {
-      const response = await getProfile(token)
+      const response = await getProfileByToken(token)
       if (response.data) {
         const data = response.data.data;
         if (data) {

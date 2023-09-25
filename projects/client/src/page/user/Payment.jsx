@@ -308,7 +308,7 @@ export default function Payment() {
             </div>
             {selectedVoucher === "" ? (
               ""
-            ) : selectedVoucher === 0 ? (
+            ) : selectedVoucher === null ? (
               <div className="flex justify-between">
                 <span className="font-semibold text-xl text-maingreen">
                   Voucher
@@ -333,7 +333,7 @@ export default function Payment() {
                   Delivery fee
                 </span>
                 <span className="text-reddanger text-xl font-bold ">
-                  {selectedVoucher === 0 ? (
+                  {selectedVoucher === null ? (
                     <s>{rupiah(deliveryFee)}</s>
                   ) : (
                     rupiah(deliveryFee)
