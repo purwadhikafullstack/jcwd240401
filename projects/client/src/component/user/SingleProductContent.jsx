@@ -43,7 +43,7 @@ export default function SingleProductContent() {
 
     useEffect(() => {
         getOneBranchProduct();
-        window.scrollTo({top:0, behavior: "smooth"})
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }, [successMessage, errorMessage]);
 
     useEffect(() => {
@@ -136,7 +136,7 @@ export default function SingleProductContent() {
                     <div className="">
                         <div className="hidden sm:flex justify-between">
                             <div className="grid justify-center content-center">
-                                <div className="h-full w-full bg-white opacity-50"><Button condition={"back"} onClick={() => navigate(-1)}/></div>
+                                <div className="h-full w-full bg-white opacity-50"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                             </div>
                             <div className="flex mx-auto">
                                 <div className="text-xl font-bold px-2">{branchProductData?.Product?.name}</div>
@@ -145,7 +145,7 @@ export default function SingleProductContent() {
                         </div>
                     </div>
                     <div className="fixed top-5 sm:top-10 md:top-20 z-50 flex self-center justify-center w-96 mx-2">
-                        <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+                        <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
                     </div>
                     <div className="sm:grid sm:grid-cols-2 sm:gap-4 sm:mt-9">
                         <div>
@@ -172,7 +172,7 @@ export default function SingleProductContent() {
                     </div>
                 </div>
             ) : (
-                <div className="text-maingreen text-center mx-auto px-5"> Loading...</div>
+                <div className="text-maingreen text-center mx-auto px-5">Loading...</div>
             )}
         </>
     );

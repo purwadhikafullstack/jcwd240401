@@ -77,7 +77,7 @@ export default function CreateCategory() {
 
   return (
     <div className="w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter">
-      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
       <Formik enableReinitialize
         initialValues={{ name: "", file: null }}
         validationSchema={createCategorySchema}
@@ -124,7 +124,7 @@ export default function CreateCategory() {
               </div>
             </div>
             <div className="mt-20">
-              <Modal isDisabled={!props.dirty || !(props.values.name && props.values.file)} modalTitle={"Create New Category"} toggleName={"Create Category"} content={"By creating this category, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+              <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !(props.values.name && props.values.file)} modalTitle={"Create New Category"} toggleName={"Create Category"} content={"By creating this category, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
             </div>
           </Form>
         )}

@@ -7,7 +7,6 @@ import { modifyProductSchema } from '../../../helpers/validationSchema';
 import handleImageError from '../../../helpers/handleImageError';
 
 export default function ModifyProductForm({ onSubmit, preview, imagePreview, allCategory, uOMOptions, productDetails }) {
-
     return (
         <div className='lg:p-4 grid content-center'>
             <Formik enableReinitialize initialValues={{ name: productDetails.name, description: productDetails.description, category_id: productDetails.category_id, weight: productDetails.weight, unitOfMeasurement: productDetails.unitOfMeasurement, basePrice: productDetails.basePrice, storageInstruction: productDetails.storageInstruction, storagePeriod: productDetails.storagePeriod, file: null, }} validationSchema={modifyProductSchema} onSubmit={onSubmit}>
@@ -94,7 +93,7 @@ export default function ModifyProductForm({ onSubmit, preview, imagePreview, all
                             </div>
                         </div>
                         <div className="my-8 lg:col-span-2 lg:px-20">
-                            <Modal isDisabled={!props.dirty} modalTitle={"Modify Product"} toggleName={"Modify Product"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                            <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty} modalTitle={"Modify Product"} toggleName={"Modify Product"} content={"Editing this product will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                         </div>
                     </Form>
                 )}

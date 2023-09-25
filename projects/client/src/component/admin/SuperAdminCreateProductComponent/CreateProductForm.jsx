@@ -89,7 +89,7 @@ export default function CreateProductForm({ onSubmit, preview, imagePreview, all
                         </div>
                     </div>
                     <div className="mt-8">
-                        <Modal isDisabled={!props.dirty || !props.isValid} modalTitle={"Create New Product"} toggleName={"Create Product"} content={"By creating this product, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                        <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !props.isValid} modalTitle={"Create New Product"} toggleName={"Create Product"} content={"By creating this product, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                     </div>
                 </Form>
             )}

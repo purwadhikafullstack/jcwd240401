@@ -109,7 +109,7 @@ export default function SuperAdminModifyProduct() {
                 setErrorMessage("Product not found")
             }
             if (response?.status === 500) {
-                setErrorMessage("Create product failed: Server error")
+                setErrorMessage("Modify product failed: Server error")
             }
             resetForm()
         } finally {
@@ -140,7 +140,7 @@ export default function SuperAdminModifyProduct() {
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Product</div>
             </div>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
             <div className='grid'>
                 <ModifyProductForm onSubmit={handleSubmit} preview={preview} imagePreview={imagePreview} allCategory={allCategory} uOMOptions={uOMOptions} productDetails={productDetails}/>
             </div>

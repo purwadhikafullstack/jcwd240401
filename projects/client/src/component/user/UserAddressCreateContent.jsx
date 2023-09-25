@@ -108,7 +108,7 @@ export default function UserAddressCreateContent() {
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6'>Add New Address</div>
             </div>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <Formik initialValues={{ receiver: "", contact: "", streetName: "", province: "", city: "", addressLabel: "Home", isMain: false }} validationSchema={createAddressSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form className='mx-4 pb-6 sm:py-6'>

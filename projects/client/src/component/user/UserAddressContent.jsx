@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { HiPlus } from "react-icons/hi"
 import { LuEdit } from "react-icons/lu";
 import { useDispatch } from "react-redux";
-import {HiOutlineBuildingOffice2, HiOutlineHome} from "react-icons/hi2"
+import { HiOutlineBuildingOffice2, HiOutlineHome } from "react-icons/hi2"
 
 import Modal from '../Modal';
 import Label from "../Label";
@@ -40,12 +40,12 @@ export default function UserAddressContent() {
     const handleAction = async (id, action) => {
         try {
             const response = await removeOrSetMainAddress(token, action, id)
-            if(action === "main") {
+            if (action === "main") {
                 await axios.delete(
                     `${process.env.REACT_APP_API_BASE_URL}/users/empty-cart`,
                     { headers: { Authorization: `Bearer ${token}` } }
-                  );
-                  dispatch(clearCart());
+                );
+                dispatch(clearCart());
             }
             if (response.status === 200) {
                 setSuccessMessage(response?.data?.message)
@@ -73,21 +73,21 @@ export default function UserAddressContent() {
     useEffect(() => {
         getAddress()
     }, [token])
-    
+
     return (
         <div className='sm:py-4 px-2 flex flex-col font-inter w-full sm:max-w-3xl mx-auto'>
             <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate("/user/account")} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Address</div>
             </div>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             {allAddress.length !== 0 ? (
                 allAddress.map((data) => (
                     <div key={data.id} className="grid grid-cols-1 gap-2 mt-2">
                         <div className="flex border-b border-lightgrey px-2 py-4">
                             <div className="basis-5/6 lg:basis-3/4">
                                 <div className="font-medium">{data.receiver} <span className="">| {data.contact}</span></div>
-                                <div className="text-sm text-darkgrey flex content-center items-center gap-1">{data.addressLabel === "Home" ? <HiOutlineHome size={15} className="text-maingreen"/> : <HiOutlineBuildingOffice2 size={15} className="text-maingreen"/>} {data.streetName}</div>
+                                <div className="text-sm text-darkgrey flex content-center items-center gap-1">{data.addressLabel === "Home" ? <HiOutlineHome size={15} className="text-maingreen" /> : <HiOutlineBuildingOffice2 size={15} className="text-maingreen" />} {data.streetName}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.city_name}</div>
                                 <div className="text-darkgrey text-sm">{data?.City?.Province?.province_name}</div>
                                 {data.isMain ? (<div className="w-fit"><Label text="Main Address" labelColor="green" /></div>) : (<div><Modal toggleName="Set As Main" modalTitle="Set to Main Address" buttonCondition="setMain" content="This address will be set as main and product(s) in your cart will be reset. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleAction(data.id, "main")} /></div>)}
@@ -105,15 +105,15 @@ export default function UserAddressContent() {
                 ))
             ) : (<div className="text-center mx-auto"> No Address Found</div>)}
             {allAddress.length === 5 ? (
-            <div className="grid justify-center py-2 mt-2 text-sm text-center md:text-base font-medium">
-                You have reached the maximum address limit (5). Please delete to create new address.
-            </div>
+                <div className="grid justify-center py-2 mt-2 text-sm text-center md:text-base font-medium">
+                    You have reached the maximum address limit (5). Please delete to create new address.
+                </div>
             )
-             : (
-            <Link to="/user/account/my-address/create"> <div className="grid justify-center py-2 mt-2">
-                <div className="flex gap-2 text-sm items-center"><div className="bg-maingreen rounded-lg w-6 h-6 grid justify-center content-center"><HiPlus size={16} className="text-white" /></div>Add new address</div>
-            </div></Link>
-             )}
+                : (
+                    <Link to="/user/account/my-address/create"> <div className="grid justify-center py-2 mt-2">
+                        <div className="flex gap-2 text-sm items-center"><div className="bg-maingreen rounded-lg w-6 h-6 grid justify-center content-center"><HiPlus size={16} className="text-white" /></div>Add new address</div>
+                    </div></Link>
+                )}
         </div>
     )
 }

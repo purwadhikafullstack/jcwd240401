@@ -76,7 +76,7 @@ export default function CreateBranchProduct() {
 
     return (
         <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <Formik initialValues={{ product_id: "", origin: "", quantity: "" }} validationSchema={createBranchProductSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form>
@@ -113,7 +113,7 @@ export default function CreateBranchProduct() {
                                     </div>
                                 </div>
                                 <div className="mt-8">
-                                    <Modal isDisabled={!props.dirty || !props.isValid} modalTitle={"Create New Branch Product"} toggleName={"Create Branch Product"} content={"By creating this branch product, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} buttonTypeToggle={"button"} />
+                                    <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !props.isValid} modalTitle={"Create New Branch Product"} toggleName={"Create Branch Product"} content={"By creating this branch product, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                                 </div>
                             </>
                         )}

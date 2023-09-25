@@ -95,7 +95,7 @@ export default function AllCategory() {
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <div className='flex flex-col sm:flex-row gap-4 w-10/12 mx-auto my-6'>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search category by name..." />
                 <CustomDropdownURLSearch id="sortName" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
@@ -122,7 +122,7 @@ export default function AllCategory() {
                                         />
                                     </td>
                                     <td className="py-2 px-4 text-center" style={{ width: '75%' }}>{item.name}</td>
-                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`category/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 px-4 text-center" style={{ width: '75%' }}><div className='px-4 text-reddanger grid justify-center gap-2'><Link to={`category/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal buttonTypeToggle={"button"} modalTitle="Delete Category" buttonCondition="trash" content="Deleting this category will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
                             {allCategory.length === 0 && (

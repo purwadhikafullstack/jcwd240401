@@ -25,8 +25,8 @@ export default function AllProduct() {
     const [allCategory, setAllCategory] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const token = localStorage.getItem("token")
-    const nameOptions = [{ label: "Default", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
-    const priceOptions = [{ label: "Default", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
+    const nameOptions = [{ label: "None", value: "" }, { label: "Name: A-Z", value: "ASC" }, { label: "Name: Z-A", value: "DESC" }]
+    const priceOptions = [{ label: "None", value: "" }, { label: "Price: Low-High", value: "ASC" }, { label: "Price: High-Low", value: "DESC" }]
 
     const getCategory = async () => {
         try {

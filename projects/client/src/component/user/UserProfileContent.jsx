@@ -113,7 +113,7 @@ export default function UserProfileContent() {
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>My Profile</div>
                 </div>
-                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage}/>
+                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setErrorMessage={setErrorMessage} setSuccessMessage={setSuccessMessage} />
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                     <div className='grid justify-center content-center'>
                         <div className='relative'>
