@@ -9,31 +9,34 @@ const VoucherList = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
   const label = (type) => {
     switch (type) {
       case 1:
-        return <LiaShippingFastSolid size={30} className="text-maingreen"/>;
+        return <LiaShippingFastSolid size={30} className="text-maingreen" />;
         break;
       case 2:
-        return <BiSolidDiscount size={30} className="text-maingreen"/>;
+        return <BiSolidDiscount size={30} className="text-maingreen" />;
         break;
       case 3:
-        return <FaRupiahSign size={30} className="text-maingreen"/>;
+        return <FaRupiahSign size={30} className="text-maingreen" />;
         break;
       default:
         return "";
         break;
     }
   };
-
+  console.log(vouchers.Voucher.id, selectedVoucher.id, "inininini");
   return (
     <div
       key={vouchers.id}
       className={`border p-4 rounded-lg cursor-pointer ${
-        selectedVoucher.id === vouchers.id
+        selectedVoucher.id === vouchers.Voucher.id
           ? "border-maingreen"
           : "border-gray-300"
       } ${!vouchers.isEligible ? "opacity-60 pointer-events-none" : ""}`}
       onClick={() => {
         if (vouchers.isEligible) {
-          handleVoucherClick(vouchers.voucher_id, vouchers.Voucher.maxDiscount);
+          handleVoucherClick(
+            vouchers?.voucher_id,
+            vouchers?.Voucher?.maxDiscount
+          );
         }
       }}
     >
@@ -43,11 +46,17 @@ const VoucherList = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
         </div>
         <div className="ml-4">
           <h4>{vouchers.Voucher.Voucher_Type.type}</h4>
-          <p>Min Transaction: {rupiah(vouchers.Voucher.minTransaction)}</p>
-          <p>
-            Exp. date:{" "}
-            {new Date(vouchers.Voucher.expiredDate).toLocaleDateString()}
-          </p>
+          {vouchers.Voucher.expiredDate !== null ? (
+            <div>
+              <p>Min Transaction: {rupiah(vouchers.Voucher.minTransaction)}</p>
+              <p>
+                Exp. date:{" "}
+                {new Date(vouchers.Voucher.expiredDate).toLocaleDateString()}
+              </p>
+            </div>
+          ) : (
+            <p>Referral</p>
+          )}
           {!vouchers.isEligible && <p className="text-red-500">Not Eligible</p>}
         </div>
       </div>

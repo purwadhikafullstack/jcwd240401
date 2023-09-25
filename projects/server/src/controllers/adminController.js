@@ -828,6 +828,7 @@ module.exports = {
                 voucher_type_id,
                 minTransaction,
                 usedLimit,
+                
               },
             });
 

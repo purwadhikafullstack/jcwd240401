@@ -18,11 +18,6 @@ const handleCatchError = async (res, transaction, error) => {
 };
 
 module.exports = {
-  // admin
-
-  // admin get all order
-  // admin change order status
-  // admin cancel order
   async allOrdersByBranch(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -38,28 +33,28 @@ module.exports = {
       const order = [];
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         where["orderDate"] = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         where["orderDate"] = {
           [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+        endDateUTC.setUTCHours(0, 0, 0, 0);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         where["orderDate"] = {
-          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
       if (pagination.search) {
@@ -144,28 +139,28 @@ module.exports = {
       const order = [];
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         where["orderDate"] = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         where["orderDate"] = {
           [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+        endDateUTC.setUTCHours(0, 0, 0, 0);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         where["orderDate"] = {
-          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
       if (pagination.search) {
@@ -508,10 +503,6 @@ module.exports = {
       });
     }
   },
-
-  // user
-
-  // user add to cart
   async addToCart(req, res) {
     const productId = req.params.id;
     const quantity = Number(req.body.quantity);
@@ -526,7 +517,6 @@ module.exports = {
         return res.status(401).send({ message: "User not found" });
       }
 
-      // Check if the product exists
       const product = await db.Branch_Product.findByPk(productId);
       if (!product) {
         return res.status(404).send({ message: "Product not found" });
@@ -549,7 +539,7 @@ module.exports = {
       });
     }
   },
-  // user remove from cart
+
   async removeFromCart(req, res) {
     const productId = req.params.id;
 
@@ -606,6 +596,32 @@ module.exports = {
       res.status(500).send({ error: "Internal Server Error" });
     }
   },
+  async deleteCartById(req, res) {
+    const { id } = req.params;
+    const transaction = await db.sequelize.transaction();
+    try {
+      const user = await db.User.findByPk(req.user.id);
+      if (!user) {
+        await transaction.rollback();
+        return res.status(401).send({ message: "User not found" });
+      }
+      await db.Cart.destroy({
+        where: {
+          id: id,
+        },
+        transaction,
+      });
+      await transaction.commit();
+      return res.status(200).send({
+        message: "Successfully delete cart item",
+      });
+    } catch (error) {
+      await transaction.rollback();
+      res
+        .status(500)
+        .send({ error: "Internal Server Error", error: error.message });
+    }
+  },
   //empty cart
   async emptyCart(req, res) {
     const transaction = await db.sequelize.transaction();
@@ -649,6 +665,88 @@ module.exports = {
         include: [
           {
             model: db.Branch_Product,
+            where: { isRemoved: false, quantity: { [db.Sequelize.Op.gt]: 0 } },
+            attributes: [
+              "id",
+              "product_id",
+              "origin",
+              "discount_id",
+              "quantity",
+              "branch_id",
+            ],
+            include: [
+              {
+                model: db.Discount,
+                attributes: ["discount_type_id", "amount", "isExpired"],
+                include: [
+                  {
+                    model: db.Discount_Type,
+                    attributes: ["type"],
+                  },
+                ],
+              },
+              {
+                model: db.Branch,
+                attributes: ["city_id"],
+                include: [
+                  {
+                    model: db.City,
+                    attributes: ["city_name"],
+                  },
+                ],
+              },
+              {
+                model: db.Product,
+                attributes: [
+                  "name",
+                  "description",
+                  "weight",
+                  "unitOfMeasurement",
+                  "basePrice",
+                  "imgProduct",
+                  "storageInstruction",
+                  "storagePeriod",
+                  "category_id",
+                ],
+                include: [
+                  {
+                    model: db.Category,
+                    attributes: ["name"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      res.status(201).send({
+        message: "Cart retrieved successfully",
+        data: cart,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  },
+  // user get unavailable cart
+  async getUnavailableCart(req, res) {
+    try {
+      const user = await db.User.findByPk(req.user.id);
+      if (!user) {
+        return res.status(401).send({ message: "User not found" });
+      }
+
+      const cart = await db.Cart.findAll({
+        where: { user_id: user.id },
+        attributes: ["id", "branch_product_id", "quantity"],
+        include: [
+          {
+            model: db.Branch_Product,
+            where: { quantity: { [db.Sequelize.Op.eq]: 0 } },
             attributes: [
               "id",
               "product_id",
@@ -960,7 +1058,7 @@ module.exports = {
         include: [
           {
             model: db.Voucher,
-            where: { isExpired: false, usedLimit: { [db.Sequelize.Op.gt]: 0 } },
+            where: { isExpired: false },
             include: [
               {
                 model: db.Voucher_Type,
@@ -1236,7 +1334,7 @@ module.exports = {
         if (orderData.totalPrice >= 200000) {
           const vouchers = await db.Voucher.findAll({
             where: {
-              branch_id: branchId,
+              branch_id: orderData.Branch_Products[0].branch_id,
               isReferral: false,
               isExpired: false,
             },
@@ -1293,6 +1391,7 @@ module.exports = {
       console.error(error);
       return res.status(500).send({
         message: "Internal Server Error",
+        error: error.message,
       });
     }
   },
