@@ -32,8 +32,8 @@ export default function CarouselContent({branchId}) {
   return (
     <Carousel>
       {promotedProducts.length !== 0 ? (
-        promotedProducts.map((product) => (
-          <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative'>
+        promotedProducts.map((product, index) => (
+          <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative' key={index}>
             <div className="w-full h-full flex flex-col lg:flex-row justify-center px-20 py-10 items-center relative">
               <div className='min-w-full h-full absolute flex justify-center items-center overflow-y-hidden'>
                 <img src={product.Product?.imgProduct} alt="Product Image" className='min-w-full min-h-full absolute object-cover' onError={handleImageError}/>

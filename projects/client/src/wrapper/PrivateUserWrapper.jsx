@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useDispatch } from "react-redux";
 import { keep } from "../store/reducer/authSlice";
 import { remove } from "../store/reducer/authSlice";
+import { keepLocation } from "../store/reducer/locationSlice";
 const PrivateUserWrapper = ({allowedRoles}) => {
     const token = localStorage.getItem("token");
     const location = useLocation();
@@ -43,6 +44,25 @@ const PrivateUserWrapper = ({allowedRoles}) => {
     }
   };
 
+  const getAddress = async () => {
+    const token = localStorage.getItem("token")
+    try {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/main-address`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        if (response.data) {
+          dispatch(keepLocation({ city: response.data.data?.City?.city_name, province: response.data.data?.City?.Province?.province_name, latitude: response.data.data?.latitude, longitude: response.data.data?.longitude }))
+        }
+    } catch (error) {
+        console.error(error)
+        if (error.response) {
+            console.error(error.response.message)
+        }
+    }
+}
+
   if (!token) {
     if(location.pathname.includes("my-address") || location.pathname.includes("my-profile")){
       return <Navigate to="/user/account" />
@@ -51,6 +71,7 @@ const PrivateUserWrapper = ({allowedRoles}) => {
     }
   } else {
     keepLogin()
+    getAddress()
   }
 
   try {
