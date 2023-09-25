@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
+import jwtDecode from 'jwt-decode'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { keepLocation } from '../../store/reducer/locationSlice'
+import { keep, remove } from '../../store/reducer/authSlice'
 import LayoutUser from '../../component/user/LayoutUser'
 import HomeContent from '../../component/user/HomeContent'
 
@@ -14,6 +17,8 @@ export default function Home() {
     const dispatch = useDispatch()
     const profile = useSelector((state) => state.auth.profile)
     const token = localStorage.getItem("token")
+    const navigate = useNavigate()
+    const location = useLocation()
 
     const coordinateToPlacename = async () => {
         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/location?latitude=${latitude}&longitude=${longitude}`)
@@ -22,7 +27,7 @@ export default function Home() {
                 setCityAddress(response.data.data?.city_district)
                 setProvinceAddress("DKI Jakarta")
             } else {
-                setCityAddress(response.data.data?.city)
+                setCityAddress(response.data.data?.city || response.data?.data?.county)
                 setProvinceAddress(response.data.data?.state)
             }
         }
@@ -58,7 +63,7 @@ export default function Home() {
         }
     }
     useEffect(() => {
-        if (!token || !profile || profile.role !== "3") {
+        if (!token && profile.role !== "3") {
             if ("geolocation" in navigator) {
                 askForLocationPermission();
             } else {
@@ -88,6 +93,39 @@ export default function Home() {
         }
     }
 
+    const keepLogin = async () => {
+        let token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const response = await axios.get(
+              `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+    
+            if(response.status === 200){
+              if (response.data.userId) {
+              localStorage.setItem("token", response.data.refreshToken);
+              const decoded = jwtDecode(token);
+              dispatch(keep(decoded));
+            }
+          }
+          } catch (error) {
+            if(error.response.status === 401) {
+              dispatch(remove())
+              localStorage.removeItem("token")
+              console.log(error)
+              navigate("/login", { state: {from: location} })
+            } else {
+              console.log(error)
+            }
+          }
+        }
+      };
+
     useEffect(() => {
         if(!token || profile.role !== "3"){
             coordinateToPlacename()
@@ -96,6 +134,12 @@ export default function Home() {
         }
         dispatch(keepLocation({city: cityAddress, province: provinceAddress, latitude: latitude, longitude: longitude}))
     }, [token, latitude, longitude, cityAddress, provinceAddress])
+
+    useEffect(() => {
+        if(token){
+            keepLogin()
+        }
+    }, [token])
 
     return (
         <LayoutUser>
