@@ -1,15 +1,11 @@
 const db = require("../models");
 const axios = require("axios");
 const refCode = require("referral-codes");
-const {
- setFromFileNameToDBValuePayment,
-} = require("../helpers/fileConverter");
-const dayjs = require("dayjs");
+const { setFromFileNameToDBValuePayment } = require("../helpers/fileConverter");
 const { setFromFileNameToDBValueRefund } = require("../helpers/fileConverter");
-const handlebars = require("handlebars")
-const fs = require("fs")
-const transporter = require("../helpers/transporter")
-
+const handlebars = require("handlebars");
+const fs = require("fs");
+const transporter = require("../helpers/transporter");
 
 const handleCatchError = async (res, transaction, error) => {
   if (transaction) {
@@ -126,6 +122,7 @@ module.exports = {
       });
     }
   },
+
   async allOrders(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -221,6 +218,7 @@ module.exports = {
       });
     }
   },
+
   async orderById(req, res) {
     const orderId = req.query.orderId;
     try {
@@ -275,6 +273,7 @@ module.exports = {
       });
     }
   },
+
   async changeStatus(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -282,9 +281,11 @@ module.exports = {
     try {
       const orderData = await db.Order.findOne({
         where: orderId,
-        include: [{
-          model: db.User,
-        }]
+        include: [
+          {
+            model: db.User,
+          },
+        ],
       });
 
       if (!orderData) {
@@ -306,17 +307,23 @@ module.exports = {
 
             orderData.orderStatus = "Waiting for payment";
             await orderData.save({ transaction });
-            
-            const template = fs.readFileSync("./src/helpers/template/rejectedpayment.html", "utf-8")
-            const templateCompile = handlebars.compile(template)
-            const rejectedPaymentEmail = templateCompile({name: orderData.User.name, invoiceCode: orderData.invoiceCode})
-            
+
+            const template = fs.readFileSync(
+              "./src/helpers/template/rejectedpayment.html",
+              "utf-8"
+            );
+            const templateCompile = handlebars.compile(template);
+            const rejectedPaymentEmail = templateCompile({
+              name: orderData.User.name,
+              invoiceCode: orderData.invoiceCode,
+            });
+
             await transporter.sendMail({
-                from: "Groceer-e",
-                to: orderData.User.email,
-                subject: "Update Your Payment",
-                html: rejectedPaymentEmail
-            })
+              from: "Groceer-e",
+              to: orderData.User.email,
+              subject: "Update Your Payment",
+              html: rejectedPaymentEmail,
+            });
 
             await transaction.commit();
             return res.status(200).send({
@@ -357,17 +364,23 @@ module.exports = {
 
             orderData.orderStatus = "Processing";
             await orderData.save({ transaction });
-            
-            const template = fs.readFileSync("./src/helpers/template/confirmedpayment.html", "utf-8")
-            const templateCompile = handlebars.compile(template)
-            const confirmedPaymentEmail = templateCompile({name: orderData.User.name, invoiceCode: orderData.invoiceCode})
-            
+
+            const template = fs.readFileSync(
+              "./src/helpers/template/confirmedpayment.html",
+              "utf-8"
+            );
+            const templateCompile = handlebars.compile(template);
+            const confirmedPaymentEmail = templateCompile({
+              name: orderData.User.name,
+              invoiceCode: orderData.invoiceCode,
+            });
+
             await transporter.sendMail({
-                from: "Groceer-e",
-                to: orderData.User.email,
-                subject: "Your Order is Being Processed",
-                html: confirmedPaymentEmail
-            })
+              from: "Groceer-e",
+              to: orderData.User.email,
+              subject: "Your Order is Being Processed",
+              html: confirmedPaymentEmail,
+            });
 
             await transaction.commit();
             return res.status(200).send({
@@ -434,6 +447,7 @@ module.exports = {
       });
     }
   },
+
   async cancelOrderByAdmin(req, res) {
     const orderId = Number(req.params.id);
     const { cancelReason } = req.body;
@@ -453,9 +467,10 @@ module.exports = {
                 model: db.Product,
               },
             ],
-          },{
-            model: db.User
-          }
+          },
+          {
+            model: db.User,
+          },
         ],
       });
 
@@ -550,17 +565,24 @@ module.exports = {
       orderData.orderStatus = "Canceled";
       await orderData.save({ transaction });
 
-      const template = fs.readFileSync("./src/helpers/template/canceledorder.html", "utf-8")
-            const templateCompile = handlebars.compile(template)
-            const canceledOrderEmail = templateCompile({name: orderData.User.name, invoiceCode: orderData.invoiceCode, cancelReason: cancelReason})
-            
-            await transporter.sendMail({
-                from: "Groceer-e",
-                to: orderData.User.email,
-                subject: "Your Order is Canceled",
-                html: canceledOrderEmail
-            })
-        
+      const template = fs.readFileSync(
+        "./src/helpers/template/canceledorder.html",
+        "utf-8"
+      );
+      const templateCompile = handlebars.compile(template);
+      const canceledOrderEmail = templateCompile({
+        name: orderData.User.name,
+        invoiceCode: orderData.invoiceCode,
+        cancelReason: cancelReason,
+      });
+
+      await transporter.sendMail({
+        from: "Groceer-e",
+        to: orderData.User.email,
+        subject: "Your Order is Canceled",
+        html: canceledOrderEmail,
+      });
+
       await transaction.commit();
       return res.status(200).send({
         message: "Order successfully canceled",
@@ -573,6 +595,7 @@ module.exports = {
       });
     }
   },
+
   async addToCart(req, res) {
     const productId = req.params.id;
     const quantity = Number(req.body.quantity);
@@ -633,6 +656,7 @@ module.exports = {
       });
     }
   },
+
   async deleteCart(req, res) {
     const { cartList } = req.body;
     const transaction = await db.sequelize.transaction();
@@ -664,6 +688,7 @@ module.exports = {
       res.status(500).send({ error: "Internal Server Error" });
     }
   },
+
   async deleteCartById(req, res) {
     const { id } = req.params;
     const transaction = await db.sequelize.transaction();
@@ -690,6 +715,7 @@ module.exports = {
         .send({ error: "Internal Server Error", error: error.message });
     }
   },
+
   async emptyCart(req, res) {
     const transaction = await db.sequelize.transaction();
     try {
@@ -718,6 +744,7 @@ module.exports = {
       res.status(500).send({ error: "Internal Server Error" });
     }
   },
+
   async getCart(req, res) {
     try {
       const user = await db.User.findByPk(req.user.id);
@@ -798,6 +825,7 @@ module.exports = {
       });
     }
   },
+
   async getUnavailableCart(req, res) {
     try {
       const user = await db.User.findByPk(req.user.id);
@@ -878,6 +906,7 @@ module.exports = {
       });
     }
   },
+
   async getCost(req, res) {
     const { origin, destination, weight, courier } = req.body;
     const body = {
@@ -892,7 +921,7 @@ module.exports = {
         body,
         {
           headers: {
-            key: "14f19958df605a9797c11f3eb17bffb9",
+            key: `${process.env.RAJAONGKIR_API_KEY}`,
             "content-type": "application/x-www-form-urlencoded",
           },
         }
@@ -905,10 +934,11 @@ module.exports = {
     } catch (err) {
       return res.status(500).send({
         message: "fatal error on server",
-        error: err.message,
+        error: err,
       });
     }
   },
+
   async checkout(req, res) {
     const userId = req.user.id;
     const transaction = await db.sequelize.transaction();
@@ -1002,7 +1032,7 @@ module.exports = {
           shippingMethod,
           shippingCost,
           shippingDate: fullDate,
-          voucher_id: voucher_id || null, 
+          voucher_id: voucher_id || null,
           createdAt: fullDate.toLocaleString("en-US", {
             timeZone: "Asia/Jakarta",
           }),
@@ -1013,12 +1043,10 @@ module.exports = {
         { transaction: transaction }
       );
 
-  
       for (const item of selectedItem) {
         let price;
 
         if (!item.Branch_Product?.Discount?.isExpired) {
-          
           if (item.Branch_Product?.Discount?.discount_type_id === 1) {
             price = item.Branch_Product?.Product?.basePrice;
           } else if (item.Branch_Product?.Discount?.discount_type_id === 2) {
@@ -1029,13 +1057,12 @@ module.exports = {
                 100) *
               item.quantity;
           } else if (item.Branch_Product?.Discount?.discount_type_id === 3) {
-        
             const nominalAmount = item.Branch_Product.Discount.amount;
             price =
               (item.Branch_Product.Product.basePrice - nominalAmount) *
               item.quantity;
           } else {
-            price = item.Branch_Product.Product.basePrice * item.quantity; 
+            price = item.Branch_Product.Product.basePrice * item.quantity;
           }
 
           const orderList = await db.Order_Item.create(
@@ -1049,30 +1076,28 @@ module.exports = {
             { transaction: transaction }
           );
         } else {
-          
           const orderList = await db.Order_Item.create(
             {
               order_id: checkoutData?.id,
               branch_product_id: item.branch_product_id,
-              discount_id: null, 
+              discount_id: null,
               quantity: item.quantity,
-              price: item.Branch_Product.Product.basePrice * item.quantity, 
+              price: item.Branch_Product.Product.basePrice * item.quantity,
             },
             { transaction: transaction }
           );
         }
-        
+
         await db.Stock_History.create(
           {
             branch_product_id: item.branch_product_id,
             totalQuantity: item.Branch_Product.quantity,
-            quantity: item.quantity, 
+            quantity: item.quantity,
             status: "purchased by user",
           },
           { transaction }
         );
 
-        
         await db.Branch_Product.update(
           { quantity: db.sequelize.literal(`quantity - ${item.quantity}`) },
           {
@@ -1118,7 +1143,7 @@ module.exports = {
       });
     } catch (error) {
       await transaction.rollback();
-      console.error(error); 
+      console.error(error);
       return res.status(500).send({
         message: "Internal server error",
         error: error.message,
@@ -1266,6 +1291,7 @@ module.exports = {
       handleCatchError(res, transaction, error);
     }
   },
+
   async cancelOrder(req, res) {
     const userId = req.user.id;
     const orderId = req.params.id;
@@ -1326,7 +1352,7 @@ module.exports = {
             await db.Stock_History.create(
               {
                 branch_product_id,
-                totalQuantity: currentStockQuantity + quantity, 
+                totalQuantity: currentStockQuantity + quantity,
                 quantity: orderItem.Order_Item.quantity,
                 status: "canceled by user",
               },
