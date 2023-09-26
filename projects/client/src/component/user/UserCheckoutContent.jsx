@@ -111,7 +111,7 @@ export default function UserCheckoutContent() {
     }
   };
 
-  const subTotal = calculateSubTotalPrice(checkoutItems);
+  const subTotal = calculateSubTotalPrice(checkoutItems,"cart");
   const totalWeight = calculateTotalWeight(checkoutItems);
   useEffect(() => {
     fetchUserAddress();

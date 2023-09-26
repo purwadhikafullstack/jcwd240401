@@ -96,3 +96,37 @@ export function userCheckout(token, requestBody) {
     { headers: { Authorization: `Bearer ${token}` } }
   );
 }
+
+export function getUserOrders(token, id) {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/order/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function cancelOrderUser(token, body, id) {
+  return axios.patch(
+    `${process.env.REACT_APP_API_BASE_URL}/users/orders/${id}`,
+    body,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}
+
+export function userPayment(token, formData, id) {
+  return axios.patch(
+    `${process.env.REACT_APP_API_BASE_URL}/users/payment/${id}`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+}
+
+export function userConfirmOrder(token, id) {
+  return axios.patch(
+    `${process.env.REACT_APP_API_BASE_URL}/users/confirm-order/${id}`,
+    null,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}

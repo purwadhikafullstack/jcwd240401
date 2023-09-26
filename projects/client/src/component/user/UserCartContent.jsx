@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import { BsTrash } from "react-icons/bs";
-import { CgUnavailable } from "react-icons/cg";
 import CartItem from "../../component/user/CartItem";
-import cartImg from "../../assets/cart.png";
 import { useNavigate } from "react-router-dom";
 import Button from "../../component/Button";
 import rupiah from "../../helpers/rupiah";
@@ -20,6 +17,8 @@ import {
   getUnavailableCart,
   handleDeleteCart,
 } from "../../api/transaction";
+import EmptyCart from "./cartComponent/EmptyCart";
+import UnavailableCartTitle from "./cartComponent/UnavailableCartTitle";
 
 export default function UserCartContent() {
   const [totalPrice, setTotalPrice] = useState(0);
@@ -49,7 +48,7 @@ export default function UserCartContent() {
   };
 
   const totalPriceCalculation = (selectedCartItems) => {
-    const total = calculateTotalPrice(selectedCartItems);
+    const total = calculateTotalPrice(selectedCartItems, "cart");
     setTotalPrice(total);
   };
 
@@ -102,7 +101,7 @@ export default function UserCartContent() {
     const selectedCartItems = cartItems.filter((item) =>
       selectedItems.includes(item.id)
     );
-    calculateTotalPrice(selectedCartItems);
+    calculateTotalPrice(selectedCartItems, "cart");
   }, [cartItems, selectedItems]);
 
   useEffect(() => {
@@ -198,18 +197,7 @@ export default function UserCartContent() {
             )}
             {unavailableCart.length > 0 && (
               <>
-                <div className="flex mx-2 py-2 content-center gap-4 border-b mb-4 sm:mx-4 lg:mx-8 xl:mx-16">
-                  <div className="grid">
-                    <CgUnavailable size={25} />
-                  </div>
-                  <div className="font-medium">
-                    {" "}
-                    Invalid Items{" "}
-                    <span className="text-maindarkgreen font-medium">
-                      ({unavailableCart.length})
-                    </span>
-                  </div>
-                </div>
+                <UnavailableCartTitle unavailableCart={unavailableCart} />
                 {unavailableCart.map((data) => (
                   <UnavailableCartItem
                     key={data.id}
@@ -235,20 +223,7 @@ export default function UserCartContent() {
             )}
 
             {cartItems.length === 0 && unavailableCart.length === 0 && (
-              <div className="flex flex-col items-center justify-center">
-                <img src={cartImg} alt="Empty Cart" />
-                <span className="font-bold text-3xl p-2 text-center">
-                  Oops! It looks like your cart is empty. Time to fill it up
-                  with your favorite items!
-                </span>
-                <div className="w-60 p-2">
-                  <Button
-                    label="Shop Now"
-                    condition="positive"
-                    onClick={() => navigate("/")}
-                  />
-                </div>
-              </div>
+              <EmptyCart />
             )}
           </div>
         </>
