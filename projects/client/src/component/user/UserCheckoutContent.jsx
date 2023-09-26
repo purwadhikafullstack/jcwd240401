@@ -11,6 +11,11 @@ import { updateCart } from "../../store/reducer/cartSlice";
 import VoucherLists from "./VoucherLists";
 import AlertPopUp from "../AlertPopUp";
 import Button from "../Button";
+import { getUserVouchers } from "../../api/promotion";
+import { getCart, getShippingCost, userCheckout } from "../../api/transaction";
+import { getMainAddress } from "../../api/profile";
+import { calculateTotalPrice as calculateSubTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
+import { calculateTotalWeight } from "../../helpers/transaction/calculateTotalWeight";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -24,20 +29,13 @@ export default function UserCheckoutContent() {
   const [grandTotal, setGrandTotal] = useState("");
   const [vouchersList, setVouchersList] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState({ id: "", value: "" });
-  const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const token = localStorage.getItem("token");
 
   const fetchUserVouchers = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/vouchers/${subTotal}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      console.log(response.data.data,"ini response voucher")
-
+      const response = await getUserVouchers(token, subTotal);
       if (response.data.data.length === 0) {
         setVouchersList(response.data.data);
       } else {
@@ -51,24 +49,12 @@ export default function UserCheckoutContent() {
     }
   };
 
-
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // Filter the response data to include only the selected cart items
+      const response = await getCart(token);
       const selectedCartItems = response.data.data.filter((item) =>
         selectedItems.includes(item.id)
       );
-
-      // Update the state with the selected cart items' details
       setCheckoutItems(selectedCartItems);
     } catch (error) {
       console.error("Error fetching cart items:", error);
@@ -77,10 +63,7 @@ export default function UserCheckoutContent() {
 
   const fetchUserAddress = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/main-address`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await getMainAddress(token);
       if (response.data.data) {
         setUserAddress(response.data.data);
       }
@@ -89,77 +72,27 @@ export default function UserCheckoutContent() {
     }
   };
 
-  const calculateSubTotalPrice = (responseData) => {
-    let total = 0;
-
-    if (responseData.length > 0) {
-      // Calculate only if items are selected
-      for (const item of responseData) {
-        const basePrice = item.Branch_Product.Product.basePrice;
-        const quantity = item.quantity;
-        const discount = item.Branch_Product?.Discount;
-        const expired = item.Branch_Product?.Discount?.isExpired;
-
-        if (discount && !expired) {
-          if (discount.discount_type_id === 2) {
-            const discountAmount = discount.amount;
-            total += ((basePrice * (100 - discountAmount)) / 100) * quantity;
-          } else if (discount.discount_type_id === 3) {
-            const discountAmount = discount.amount;
-            total += (basePrice - discountAmount) * quantity;
-          } else if (discount.discount_type_id === 1) {
-            const discountAmount = discount.amount;
-            total += basePrice;
-          }
-        } else {
-          total += basePrice * quantity;
-        }
-      }
-    }
-
-    return total;
-  };
-  const calculateTotalWeight = (responseData) => {
-    let total = 0;
-    if (responseData.length > 0) {
-      for (const item of responseData) {
-        const itemWeight = item.Branch_Product?.Product?.weight;
-        const itemQuantity = item.quantity;
-        total += itemWeight * itemQuantity;
-      }
-    }
-    return total;
-  };
   const calculateTotalPrice = () => {
     if (selectedVoucher.value === "") {
       setGrandTotal(Number(subTotal) + Number(deliveryFee));
-      console.log("gaada voucher");
     } else {
       if (selectedVoucher.value === 0) {
         setGrandTotal(Number(subTotal));
-        console.log("gratis ongkir");
       } else if (selectedVoucher.value !== 0) {
         setGrandTotal(
           Number(subTotal) + Number(deliveryFee) - Number(selectedVoucher.value)
         );
-        console.log("pake voucher");
       }
     }
   };
-
   const fetchRajaOngkir = async () => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/users/shipping-cost`,
-        {
-          origin: origin,
-          destination: destination,
-          weight: totalWeight,
-          courier: courier,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await getShippingCost(
+        token,
+        origin,
+        destination,
+        totalWeight,
+        courier
       );
       if (response?.data?.data?.results[0]?.costs) {
         let data = response?.data?.data?.results[0]?.costs;
@@ -185,7 +118,7 @@ export default function UserCheckoutContent() {
   }, []);
   useEffect(() => {
     fetchUserVouchers();
-  }, [grandTotal,subTotal]);
+  }, [grandTotal, subTotal]);
   useEffect(() => {
     fetchCartItems();
   }, [selectedItems]);
@@ -202,7 +135,6 @@ export default function UserCheckoutContent() {
 
   useEffect(() => {
     calculateTotalPrice();
-    console.log(subTotal, deliveryFee, selectedVoucher, "ini ngitung");
   }, [deliveryFee, selectedVoucher]);
 
   const courrierList = [
@@ -211,7 +143,6 @@ export default function UserCheckoutContent() {
     { label: "POS Indonesia", value: "pos" },
     { label: "TIKI", value: "tiki" },
   ];
-  console.log(grandTotal, "ini total ");
 
   const handleChangeDropdown = (obj, action) => {
     if (action === "courier") {
@@ -234,7 +165,7 @@ export default function UserCheckoutContent() {
       setSelectedVoucher({ id: "", value: "" });
     } else {
       if (value === null) {
-        setSelectedVoucher({ id, value:0 });
+        setSelectedVoucher({ id, value: 0 });
       } else {
         setSelectedVoucher({ id, value });
       }
@@ -269,22 +200,11 @@ export default function UserCheckoutContent() {
         setErrorMessage("please select a courier and shipping method");
         handleShowAlert("open");
       }
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/users/checkout`,
-        requestBody,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await userCheckout(token, requestBody);
       if (response.status === 200) {
         const orderId = response.data.data.id;
         navigate(`/user/payment/${orderId}`);
-        const cart = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const cart = await getCart(token);
         dispatch(updateCart(cart.data.data));
         dispatch(setSelectedCartItems([]));
         localStorage.removeItem("selectedCartItems");
@@ -305,10 +225,14 @@ export default function UserCheckoutContent() {
         />
       )}
       <div className="w-full sm:w-full lg:w-4/6 mx-auto">
-          <div className='flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10'>
-              <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
-              <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Checkout</div>
+        <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
+          <div className="grid justify-center content-center">
+            <Button condition={"back"} onClick={() => navigate(-1)} />
           </div>
+          <div className="text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6">
+            Checkout
+          </div>
+        </div>
         <div className="text-maingreen font-semibold">My Selected Address</div>
         <div>{`${userAddress?.streetName}, ${userAddress?.City?.city_name}`}</div>
 
@@ -337,13 +261,15 @@ export default function UserCheckoutContent() {
             Voucher
           </label>
           <div className="flex gap-4 overflow-x-auto sm:w-full">
-            {vouchersList.length !== 0?vouchersList.map((voucher) => (
-              <VoucherLists
-                vouchers={voucher}
-                selectedVoucher={selectedVoucher}
-                handleVoucherClick={handleVoucherClick}
-              />
-            )):"no  voucher available"}
+            {vouchersList.length !== 0
+              ? vouchersList.map((voucher) => (
+                  <VoucherLists
+                    vouchers={voucher}
+                    selectedVoucher={selectedVoucher}
+                    handleVoucherClick={handleVoucherClick}
+                  />
+                ))
+              : "no  voucher available"}
           </div>
         </div>
         <div className="text-maingreen font-semibold">My Order Summary</div>

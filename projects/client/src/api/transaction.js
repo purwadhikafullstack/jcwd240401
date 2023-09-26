@@ -67,3 +67,32 @@ export function getCart(token) {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export function getShippingCost(
+  token,
+  origin,
+  destination,
+  totalWeight,
+  courier
+) {
+  return axios.post(
+    `${process.env.REACT_APP_API_BASE_URL}/users/shipping-cost`,
+    {
+      origin: origin,
+      destination: destination,
+      weight: totalWeight,
+      courier: courier,
+    },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+}
+
+export function userCheckout(token, requestBody) {
+  return axios.post(
+    `${process.env.REACT_APP_API_BASE_URL}/users/checkout`,
+    requestBody,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}
