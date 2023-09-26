@@ -54,7 +54,6 @@ export default function UserCheckoutContent() {
 
   const fetchCartItems = async () => {
     try {
-      // Make a GET request to retrieve all cart items
       const response = await axios.get(
         `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
         {
@@ -231,17 +230,12 @@ export default function UserCheckoutContent() {
     }
   };
   const handleVoucherClick = (id, value) => {
-    console.log("abc")
     if (selectedVoucher.id === id) {
-      // If the clicked voucher is already selected, deselect it
-      console.log("A")
       setSelectedVoucher({ id: "", value: "" });
     } else {
       if (value === null) {
-        console.log("b")
         setSelectedVoucher({ id, value:0 });
       } else {
-        console.log("c")
         setSelectedVoucher({ id, value });
       }
     }

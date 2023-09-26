@@ -14,6 +14,12 @@ import Modal from "../../component/Modal";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 import UnavailableCartItem from "./UnavailableCartItem";
 import UnauthenticatedContent from "./UnauthenticatedContent";
+import { calculateTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
+import {
+  getCart,
+  getUnavailableCart,
+  handleDeleteCart,
+} from "../../api/transaction";
 
 export default function UserCartContent() {
   const [totalPrice, setTotalPrice] = useState(0);
@@ -33,10 +39,7 @@ export default function UserCartContent() {
 
   const fetchUnavailableCart = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/unavailable-cart`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await getUnavailableCart(token);
       if (response.data.data) {
         setUnavailableCart(response.data.data);
       }
@@ -44,83 +47,41 @@ export default function UserCartContent() {
       console.log(error);
     }
   };
-  console.log(unavailableCart);
-  const calculateTotalPrice = (selectedCartItems) => {
-    let total = 0;
 
-    if (selectedCartItems.length > 0) {
-      // Calculate only if items are selected
-      for (const item of selectedCartItems) {
-        const basePrice = item.Branch_Product.Product.basePrice;
-        const quantity = item.quantity;
-        const discount = item.Branch_Product?.Discount;
-        const expired = item.Branch_Product?.Discount?.isExpired;
-
-        if (discount && !expired) {
-          if (discount.discount_type_id === 2) {
-            const discountAmount = discount.amount;
-            total += ((basePrice * (100 - discountAmount)) / 100) * quantity;
-          } else if (discount.discount_type_id === 3) {
-            const discountAmount = discount.amount;
-            total += (basePrice - discountAmount) * quantity;
-          } else if (discount.discount_type_id === 1) {
-            // Adjust the calculation for "buy one get one" discount
-            const discountAmount = discount.amount;
-            // Calculate the total price as if it's only one item, not two
-            total += basePrice;
-          }
-        } else {
-          total += basePrice * quantity;
-        }
-      }
-    }
-
+  const totalPriceCalculation = (selectedCartItems) => {
+    const total = calculateTotalPrice(selectedCartItems);
     setTotalPrice(total);
   };
 
   useEffect(() => {
-    // Filter cart items based on selectedItems
-    const selectedCartItems = cartItems.filter((item) =>
-      selectedItems.includes(item.id)
-    );
-
-    calculateTotalPrice(cartItems);
+    if (selectedItems.length > 0) {
+      const selectedCartItems = cartItems.filter((item) =>
+        selectedItems.includes(item.id)
+      );
+      totalPriceCalculation(selectedCartItems);
+    } else {
+      setTotalPrice(0);
+    }
   }, [cartItems, selectedItems]);
 
-  // Function to handle item selection
   const handleItemSelect = (cartId) => {
-    // Create a new array with the updated selected items
     const updatedSelectedItems = [...selectedItems];
     if (updatedSelectedItems.includes(cartId)) {
-      // If already selected, remove it
       const index = updatedSelectedItems.indexOf(cartId);
       updatedSelectedItems.splice(index, 1);
     } else {
-      // If not selected, add it
       updatedSelectedItems.push(cartId);
     }
-
-    // Dispatch the action to update selectedItems in the Redux store
     dispatch(setSelectedCartItems(updatedSelectedItems));
-    // Save updatedSelectedItems to localStorage
     localStorage.setItem(
       "selectedCartItems",
       JSON.stringify(updatedSelectedItems)
     );
   };
   const handleDelete = async () => {
-    const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/users/carts`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { cartList: selectedItems },
-      });
-      const cartResponse = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await handleDeleteCart(token, selectedItems);
+      const cartResponse = await getCart(token);
 
       dispatch(updateCart(cartResponse.data.data));
       dispatch(setSelectedCartItems([]));
@@ -137,14 +98,10 @@ export default function UserCartContent() {
     }
   };
 
-  // Use useEffect to re-render totalPrice every time it changes
   useEffect(() => {
-    // Filter cart items based on selectedItems
     const selectedCartItems = cartItems.filter((item) =>
       selectedItems.includes(item.id)
     );
-
-    // Calculate total price only if there are selected items
     calculateTotalPrice(selectedCartItems);
   }, [cartItems, selectedItems]);
 
