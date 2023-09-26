@@ -1699,23 +1699,23 @@ module.exports = {
             model: db.Branch_Product,
             where: { branch_id: pagination.branch_id },
           },
-          { model: db.User, distinct: true }, // Include User model with distinct set to true
+          { model: db.User, distinct: true }, 
         ],
-        order: [["createdAt", "DESC"]], // Order the results by createdAt in descending order
+        order: [["createdAt", "DESC"]], 
       });
 
-      // Calculate total prices per day for "Order completed" orders only
+      
       const totalPriceByDay = [];
-      let totalAllTransactions = 0; // Initialize the total price for all transactions
-      const uniqueUsers = new Set(); // Initialize a Set to store unique user IDs
-      let totalCompletedOrders = 0; // Initialize the total number of completed orders
-      let totalCancelledOrders = 0; // Initialize the total number of cancelled orders
+      let totalAllTransactions = 0; 
+      const uniqueUsers = new Set(); 
+      let totalCompletedOrders = 0; 
+      let totalCancelledOrders = 0; 
 
-      const lastFiveTransactions = []; // Initialize an array to store the last 5 transactions
+      const lastFiveTransactions = []; 
 
-      const productSales = {}; // Initialize an object to track product sales
+      const productSales = {}; 
 
-      const courierUsage = {}; // Initialize an object to track courier usage
+      const courierUsage = {}; 
 
       orderData.rows.forEach((order) => {
         if (order.orderStatus === "Order completed") {
@@ -1734,15 +1734,12 @@ module.exports = {
             });
           }
 
-          // Add the order's total price to the total for all transactions
           totalAllTransactions += order.totalPrice;
 
-          // Add the user's ID to the Set to count unique users
           uniqueUsers.add(order.User.id);
 
-          totalCompletedOrders += 1; // Increment totalCompletedOrders for each completed order
+          totalCompletedOrders += 1; 
 
-          // Add order details to the lastFiveTransactions array
           if (lastFiveTransactions.length < 5) {
             lastFiveTransactions.push({
               id: order.id,
@@ -1753,7 +1750,6 @@ module.exports = {
             });
           }
 
-          // Update product sales
           order.Branch_Products.forEach((branchProduct) => {
             const productId = branchProduct.product_id;
 
@@ -1764,8 +1760,8 @@ module.exports = {
             productSales[productId] += branchProduct.quantity;
           });
 
-          // Update courier usage
-          const courier = order.shippingMethod; // Assuming courier information is in the shippingMethod column
+          
+          const courier = order.shippingMethod; 
 
           if (!courierUsage[courier]) {
             courierUsage[courier] = 0;
@@ -1773,11 +1769,10 @@ module.exports = {
 
           courierUsage[courier] += 1;
         } else if (order.orderStatus === "Canceled") {
-          totalCancelledOrders += 1; // Increment totalCancelledOrders for each cancelled order
+          totalCancelledOrders += 1; 
         }
       });
 
-      // Sort products by sales in descending order and get the top 5
       const top5Products = await Promise.all(
         Object.keys(productSales).map(async (productId) => {
           const product = await db.Product.findOne({
@@ -1789,8 +1784,8 @@ module.exports = {
           return {
             productId,
             productImg: product.imgProduct,
-            productName: product.name, // Include product name
-            totalStock: product.stock, // Include total stock
+            productName: product.name, 
+            totalStock: product.stock, 
             sales: productSales[productId],
           };
         })
@@ -1800,7 +1795,7 @@ module.exports = {
         .sort((a, b) => b.sales - a.sales)
         .slice(0, 5);
 
-      // Calculate courier usage in percentage
+      
       const courierUsagePercentage = [];
       const totalCompletedOrdersCount = totalCompletedOrders;
 
@@ -1815,15 +1810,14 @@ module.exports = {
         message: "sales report data retreived",
         data: {
           count: orderData.count,
-          // rows: orderData.rows,
           areaChart: totalPriceByDay,
-          pieChart: courierUsagePercentage, // Include courier usage in percentage
-          totalTransaction: totalAllTransactions, // Include the total price for "Order completed" transactions
-          totalUsers: uniqueUsers.size, // Include the total number of unique users
-          totalCompletedOrders, // Include the total number of completed orders
-          totalCancelledOrders, // Include the total number of cancelled orders
-          lastTransactions: lastFiveTransactions, // Include the last 5 transactions
-          topProducts, // Include the top 5 products based on sales
+          pieChart: courierUsagePercentage, 
+          totalTransaction: totalAllTransactions, 
+          totalUsers: uniqueUsers.size, 
+          totalCompletedOrders, 
+          totalCancelledOrders, 
+          lastTransactions: lastFiveTransactions, 
+          topProducts, 
         },
       });
     } catch (error) {
@@ -1873,8 +1867,4 @@ module.exports = {
   },
 };
 
-// stock history (A)
-// create discount (A)
-// get discount list (A)
-// create voucher (A)
-// get voucher list (A)
+

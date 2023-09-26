@@ -38,7 +38,4 @@ module.exports = {
     }
 }
 
-// coordinate to placename
-// placename to coordinate
-// distance calculation
-// shipping cost
+

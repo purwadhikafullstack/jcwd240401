@@ -36,7 +36,7 @@ export default function CarouselContent({branchId}) {
           <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative overflow-y-hidden' key={index}>
             <div className="w-full h-full flex flex-col lg:flex-row justify-center px-20 py-10 items-center relative overflow-y-hidden">
               <div className='min-w-full h-full absolute flex justify-center items-center overflow-y-hidden'>
-                <img src={product.Product?.imgProduct} alt="Product Image" className='min-w-full min-h-full absolute object-cover' onError={handleImageError}/>
+                <img src={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} alt="Product Image" className='min-w-full min-h-full absolute object-cover' onError={handleImageError}/>
               </div>
               <div className='w-full h-full flex flex-col lg:flex-row justify-end'>
                 <div className='w-full lg:w-1/2 rounded-md lg:h-full flex flex-col justify-center p-4 font-inter relative z-10' style={{backgroundColor: "rgb(255,255,255,0.9)"}}>

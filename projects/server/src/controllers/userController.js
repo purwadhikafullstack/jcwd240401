@@ -648,28 +648,28 @@ module.exports = {
       const order = [];
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0); 
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+        endDateUTC.setUTCHours(23, 59, 59, 999); 
 
         where["orderDate"] = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0); 
 
         where["orderDate"] = {
           [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+        endDateUTC.setUTCHours(0, 0, 0, 0); 
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); 
 
         where["orderDate"] = {
-          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+          [db.Sequelize.Op.lt]: endDateUTC, 
         };
       }
       if (pagination.search) {
@@ -723,7 +723,3 @@ module.exports = {
   },
 };
 
-// get profile (all account)
-
-// modify password
-// modify img profile

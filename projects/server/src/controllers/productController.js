@@ -20,7 +20,7 @@ const handleCatchError = async (res, transaction, error) => {
   });
 };
 module.exports = {
-  // create category
+  
   async createCategory(req, res) {
     const { name } = req.body;
     const imgFileName = req.file ? req.file.filename : null;
@@ -46,7 +46,7 @@ module.exports = {
       handleCatchError(res, transaction, error);
     }
   },
-  // get all category
+  
   async allCategory(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -163,7 +163,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
-  // get category per id
+  
   async oneCategoryById(req, res) {
     try {
       const category = await db.Category.findOne({
@@ -191,7 +191,7 @@ module.exports = {
       });
     }
   },
-  // modify and remove category
+  
   async modifyOrRemoveCategory(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -286,7 +286,7 @@ module.exports = {
       });
     }
   },
-  // create product
+  
   async createProduct(req, res) {
     const {
       name,
@@ -354,7 +354,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
-  // modify and remove product
+  
   async modifyOrRemoveProduct(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -511,7 +511,7 @@ module.exports = {
       });
     }
   },
-  // get product
+  
   async allProduct(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -590,7 +590,7 @@ module.exports = {
       });
     }
   },
-  // get product per id
+  
   async oneProductById(req, res) {
     try {
       const product = await db.Product.findOne({
@@ -623,7 +623,7 @@ module.exports = {
       });
     }
   },
-  // get all product exclude branch product per branch
+  
   async allUnaddedProducts(req, res) {
     try {
       const user = await db.User.findOne({
