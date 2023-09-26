@@ -6,7 +6,7 @@ export default function EmptyCart() {
   return (
     <div className="flex flex-col items-center justify-center">
       <img src={cartImg} alt="Empty Cart" />
-      <span className="font-bold text-3xl p-2 text-center ">
+      <span className="text-center font-bold w-5/6 mx-auto my-4 sm:w-96 lg:w-[500px] lg:text-2xl">
         Oops! It looks like your cart is empty. Time to fill it up with your
         favorite items!
       </span>

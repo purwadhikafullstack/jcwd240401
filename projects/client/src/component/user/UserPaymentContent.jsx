@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { Formik, Form } from "formik";
-import * as yup from "yup";
 import rupiah from "../../helpers/rupiah";
 import Modal from "../../component/Modal";
-import CheckoutItem from "../../component/user/CheckoutItem";
-import ModalCancelOrder from "../../component/ModalCancelOrder";
 import AlertPopUp from "../../component/AlertPopUp";
-import Label from "../../component/Label";
-import Button from "../../component/Button";
-import { cancelOrderUser, getUserOrders, userConfirmOrder, userPayment } from "../../api/transaction";
+import {
+  cancelOrderUser,
+  getUserOrders,
+  userConfirmOrder,
+  userPayment,
+} from "../../api/transaction";
 import { calculateTotalPrice as calculateSubTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
+import PaymentForm from "./paymentComponent/UserPaymentForm";
+import PaymentTitle from "./paymentComponent/PaymentTitle";
+import OrderStatusPayment from "./paymentComponent/OrderStatusPayment";
+import OrderList from "./paymentComponent/OrderList";
+import FreeShipping from "./checkoutComponent/FreeShipping";
+import TimeRemaining from "./paymentComponent/TimeRemaining";
+import SubTotal from "./checkoutComponent/SubTotal";
+import GrandTotal from "./checkoutComponent/GrandTotal";
 
 export default function UserPaymentContent() {
   const { id } = useParams();
@@ -113,7 +119,7 @@ export default function UserPaymentContent() {
 
   const handleConfirm = async () => {
     try {
-      const response = await userConfirmOrder(token,id)
+      const response = await userConfirmOrder(token, id);
       if (response.status === 200) {
         navigate("/user/orders");
       }
@@ -121,36 +127,6 @@ export default function UserPaymentContent() {
       console.log(error);
     }
   };
-
-  const labelColor = (text) => {
-    switch (text) {
-      case "Waiting for payment":
-        return "gray";
-        break;
-      case "Waiting for payment confirmation":
-        return "purple";
-        break;
-      case "Processing":
-        return "yellow";
-        break;
-      case "Delivering":
-        return "blue";
-        break;
-      case "Order completed":
-        return "green";
-        break;
-      case "Canceled":
-        return "red";
-        break;
-      default:
-        return "";
-        break;
-    }
-  };
-
-  const paymentSchema = yup.object().shape({
-    file: yup.mixed().required("Category image is required"),
-  });
 
   useEffect(() => {
     if (id) {
@@ -205,76 +181,18 @@ export default function UserPaymentContent() {
           ) : null}
           <div className="w-full lg:w-4/6">
             <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
-              <div className="grid justify-center content-center">
-                <Button
-                  condition={"back"}
-                  onClick={() => navigate("/user/orders")}
-                />
-              </div>
-              <div className="text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6">
-                Invoice -{" "}
-                <span className="text-reddanger">
-                  {orderData.data.invoiceCode}
-                </span>
-              </div>
+              <PaymentTitle orderData={orderData} />
             </div>
             {orderStatus === "Waiting for payment" && (
-              <div className="text-reddanger text-xl font-bold ">
-                Time remaining: {Math.floor(timer / 60)}:
-                {(timer % 60).toString().padStart(2, "0")}
-              </div>
+              <TimeRemaining timer={timer} />
             )}
-            <div className="flex flex-row">
-              <span className="text-maingreen font-semibold pt-1">
-                Order Status:
-              </span>
-              <span className="mx-2">
-                <Label
-                  text={orderStatus}
-                  labelColor={labelColor(orderStatus)}
-                />
-              </span>
-            </div>
-
-            <div className="text-maingreen font-semibold">My Order Summary</div>
-            {orderData.data.Branch_Products.map((product) => (
-              <CheckoutItem
-                key={product?.id}
-                quantity={product.Order_Item?.quantity}
-                name={product.Product.name}
-                weight={product.Product.weight}
-                UOM={product.Product.unitOfMeasurement}
-                productImg={product.Product.imgProduct}
-                discountId={product.Discount?.id}
-                discountType={product.Discount?.discount_type_id}
-                isExpired={product.Discount?.isExpired}
-                basePrice={product.Product?.basePrice}
-                discountAmount={product.Discount?.amount}
-                productStock={product.quantity}
-                cartId={product?.id}
-                productId={product?.id}
-              />
-            ))}
-
-            <div className="flex justify-between">
-              <span className="font-semibold text-xl text-maingreen">
-                Sub total
-              </span>
-              <span className="text-reddanger text-xl font-bold ">
-                {rupiah(subTotal)}
-              </span>
-            </div>
+            <OrderStatusPayment orderStatus={orderStatus} />
+            <OrderList orderData={orderData} />
+            <SubTotal subTotal={subTotal} />
             {selectedVoucher === "" ? (
               ""
             ) : selectedVoucher === null || selectedVoucher === 0 ? (
-              <div className="flex justify-between">
-                <span className="font-semibold text-xl text-maingreen">
-                  Voucher
-                </span>
-                <span className="text-reddanger text-xl font-bold ">
-                  gratis ongkir
-                </span>
-              </div>
+              <FreeShipping />
             ) : (
               <div className="flex justify-between">
                 <span className="font-semibold text-xl text-maingreen">
@@ -299,79 +217,17 @@ export default function UserPaymentContent() {
                 </span>
               </div>
             )}
-            <div className="flex justify-between ">
-              <span className="font-semibold text-xl text-maingreen">
-                Total
-              </span>
-              <span className="text-reddanger text-xl font-bold ">
-                {rupiah(grandTotal)}
-              </span>
-            </div>
+            <GrandTotal grandTotal={grandTotal} />
             {orderStatus === "Waiting for payment" && (
               <div>
                 <div className="border-t-2 border-x-lightgrey mt-6">
                   please update your payment below to proceed your order
                 </div>
-                <Formik
-                  enableReinitialize
-                  initialValues={{ file: null }}
-                  validationSchema={paymentSchema}
-                  onSubmit={handleSubmit}
-                >
-                  {(props) => (
-                    <Form>
-                      <div className="flex flex-col gap-2 py-4 mb-4">
-                        <label htmlFor="file" className="">
-                          payment proof Image
-                          <span className="text-sm font-normal">
-                            (.jpg, .jpeg, .png)
-                          </span>
-                          <span className="text-reddanger font-normal">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            className="border border-gray-300 text-xs w-full focus:border-darkgreen focus:ring-0"
-                            type="file"
-                            id="file"
-                            name="file"
-                            onChange={(e) => {
-                              props.setFieldValue(
-                                "file",
-                                e.currentTarget.files[0]
-                              );
-                            }}
-                            required
-                          />
-                          {props.errors.file && props.touched.file && (
-                            <div className="text-sm text-reddanger absolute top-12">
-                              {" "}
-                              {props.errors.file}{" "}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-row">
-                        <ModalCancelOrder
-                          onSubmit={(e) => handleCancel(e, id)}
-                        />
-                        <Modal
-                          isDisabled={!props.dirty || !props.values.file}
-                          modalTitle={"Update payment"}
-                          toggleName={"Update payment"}
-                          content={
-                            "By uploading this image, you're lanjuut. Are you sure?"
-                          }
-                          buttonCondition={"positive"}
-                          buttonLabelOne={"Cancel"}
-                          buttonLabelTwo={"Yes"}
-                          buttonTypeOne={"button"}
-                          buttonTypeTwo={"submit"}
-                          onClickButton={props.handleSubmit}
-                        />
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
+                <PaymentForm
+                  handleSubmit={handleSubmit}
+                  id={id}
+                  handleCancel={handleCancel}
+                />
               </div>
             )}
             {orderStatus === "Delivering" && (

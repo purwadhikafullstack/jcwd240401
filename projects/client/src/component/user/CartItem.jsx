@@ -4,21 +4,10 @@ import rupiah from "../../helpers/rupiah";
 import { updateCart } from "../../store/reducer/cartSlice";
 import Button from "../Button";
 import Label from "../Label";
+import { addToCart, getCart } from "../../api/transaction";
 
 const CartItem = ({
-  quantity,
-  name,
-  weight,
-  UOM,
-  productImg,
-  discountId,
-  discountType,
-  isExpired,
-  basePrice,
-  discountAmount,
-  cartId,
-  productStock,
-  productId,
+  data,
   onSelect, // Add onSelect prop
   selected, // Add selected prop
 }) => {
@@ -34,19 +23,8 @@ const CartItem = ({
     try {
       if (currentQuantity <= stock) {
         const updatedQuantity = currentQuantity + 1;
-        const response = await axios.post(
-          `http://localhost:8000/api/users/carts/${productId}`,
-          { quantity: updatedQuantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const cartResponse = await axios.get(
-          "http://localhost:8000/api/users/carts",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
+        const response = await addToCart(token, productId, updatedQuantity);
+        const cartResponse = await getCart(token);
         dispatch(updateCart(cartResponse.data.data));
       }
     } catch (error) {
@@ -58,19 +36,8 @@ const CartItem = ({
     try {
       if (currentQuantity >= 0) {
         const updatedQuantity = currentQuantity - 1;
-        const response = await axios.post(
-          `http://localhost:8000/api/users/carts/${productId}`,
-          { quantity: updatedQuantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const cartResponse = await axios.get(
-          "http://localhost:8000/api/users/carts",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
+        const response = await addToCart(token, productId, updatedQuantity);
+        const cartResponse = await getCart(token);
         dispatch(updateCart(cartResponse.data.data));
       }
     } catch (error) {
@@ -79,12 +46,12 @@ const CartItem = ({
   };
 
   return (
-    <div key={cartId} className="mx-auto my-1 px-2 sm:px-4 lg:px-8 xl:px-16">
+    <div key={data.id} className="mx-auto my-1 px-2 sm:px-4 lg:px-8 xl:px-16">
       <div className="flex bg-white border-b-2 border-x-lightgrey overflow-hidden items-center justify-start">
         <input
           type="checkbox"
           checked={selected} // Bind the selected state to the checkbox
-          onChange={() => onSelect(cartId)} // Call the onSelect function when checkbox is clicked
+          onChange={() => onSelect(data.id)} // Call the onSelect function when checkbox is clicked
           className={`rounded-md border-maingreen border-2 p-2 m-2 ${
             selected ? " text-maingreen" : ""
           }`}
@@ -95,7 +62,7 @@ const CartItem = ({
               alt="Placeholder Photo"
               className="absolute left-0 top-0 w-full h-full object-cover object-center transition duration-50"
               loading="lazy"
-              src={`http://localhost:8000${productImg}`}
+              src={`${process.env.REACT_APP_BASE_URL}${data.Branch_Product.Product.imgProduct}`}
               onError={handleImageError}
             />
           </div>
@@ -103,51 +70,62 @@ const CartItem = ({
         <div className="grid grid-cols-3 sm:grid-cols-4 items-center w-full gap-2">
           <div className="sm:col-span-3 col-span-2 grid">
             <div className="flex flex-col font-semibold text-sm sm:text-base mx-2 sm:mx-4 justify-center content-center">
-              {name}
+              {data.Branch_Product.Product.name}
               <div className="text-sm font-normal">
-                {weight}
-                {UOM} / pack
+                {data.Branch_Product.Product.weight}
+                {data.Branch_Product.Product.unitOfMeasurement} / pack
               </div>
             </div>
             <div className="flex mx-2 sm:mx-4 justify-between w-full relative content-center">
               <div className="flex flex-col px-2 sm:px-0 justify-center text-center">
-                {discountId && isExpired === false ? (
+                {data.Branch_Product.discount_id &&
+                data.Branch_Product.Discount?.isExpired === false ? (
                   <>
-                    {discountType === 1 ? (
+                    {data.Branch_Product.Discount?.discount_type_id === 1 ? (
                       <div className="text-reddanger font-bold">
-                        {rupiah(basePrice)}
+                        {rupiah(data.Branch_Product.Product.basePrice)}
                       </div>
-                    ) : discountType === 2 ? (
+                    ) : data.Branch_Product.Discount?.discount_type_id === 2 ? (
                       <>
                         <div className="flex justify-start text-reddanger font-bold">
                           {rupiah(
-                            basePrice - (basePrice * discountAmount) / 100
+                            data.Branch_Product.Product.basePrice -
+                              (data.Branch_Product.Product.basePrice *
+                                data.Branch_Product.Discount?.amount) /
+                                100
                           )}
                         </div>
                         <div className="text-xs flex items-center gap-3">
                           <div>
                             <Label
                               labelColor={"red"}
-                              text={`${discountAmount} %`}
+                              text={`${data.Branch_Product.Discount?.amount} %`}
                             />
                           </div>
-                          <del>{rupiah(basePrice)}</del>
+                          <del>
+                            {rupiah(data.Branch_Product.Product.basePrice)}
+                          </del>
                         </div>
                       </>
-                    ) : discountType === 3 ? (
+                    ) : data.Branch_Product.Discount?.discount_type_id === 3 ? (
                       <>
                         <div className="text-reddanger font-bold">
-                          {rupiah(basePrice - discountAmount)}
+                          {rupiah(
+                            data.Branch_Product.Product.basePrice -
+                              data.Branch_Product.Discount?.amount
+                          )}
                         </div>
                         <div className="text-xs flex items-center gap-3">
-                          <del>{rupiah(basePrice)}</del>
+                          <del>
+                            {rupiah(data.Branch_Product.Product.basePrice)}
+                          </del>
                         </div>
                       </>
                     ) : null}
                   </>
                 ) : (
                   <div className="text-reddanger font-bold">
-                    {rupiah(basePrice)}
+                    {rupiah(data.Branch_Product.Product.basePrice)}
                   </div>
                 )}
               </div>
@@ -157,15 +135,33 @@ const CartItem = ({
             <Button
               condition={"minus"}
               size={"3xl"}
-              onClick={() => reduceQuantity(productId, quantity, productStock)}
-              isDisabled={discountType == 1 && isExpired == false}
+              onClick={() =>
+                reduceQuantity(
+                  data.Branch_Product.id,
+                  data.quantity,
+                  data.Branch_Product.quantity
+                )
+              }
+              isDisabled={
+                data.Branch_Product.Discount?.discount_type_id == 1 &&
+                data.Branch_Product.Discount?.isExpired == false
+              }
             />
-            <div className="h-fit mx-2 sm:mx-4">{quantity}</div>
+            <div className="h-fit mx-2 sm:mx-4">{data.quantity}</div>
             <Button
               condition={"plus"}
               size={"3xl"}
-              onClick={() => addQuantity(productId, quantity, productStock)}
-              isDisabled={discountType == 1 && isExpired == false}
+              onClick={() =>
+                addQuantity(
+                  data.Branch_Product.id,
+                  data.quantity,
+                  data.Branch_Product.quantity
+                )
+              }
+              isDisabled={
+                data.Branch_Product.Discount?.discount_type_id == 1 &&
+                data.Branch_Product.Discount?.isExpired == false
+              }
             />
           </div>
         </div>

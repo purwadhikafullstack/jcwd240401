@@ -35,7 +35,7 @@ const CheckoutItem = ({
               alt="Placeholder Photo"
               className="absolute left-0 top-0 w-full h-full object-cover object-center transition duration-50"
               loading="lazy"
-              src={`http://localhost:8000${productImg}`}
+              src={`${process.env.REACT_APP_BASE_URL}${productImg}`}
               onError={handleImageError}
             />
           </div>

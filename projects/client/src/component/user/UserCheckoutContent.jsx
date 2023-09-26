@@ -8,15 +8,19 @@ import Modal from "../Modal";
 import { updateCart } from "../../store/reducer/cartSlice";
 import VoucherLists from "./VoucherLists";
 import AlertPopUp from "../AlertPopUp";
-import { getUserVouchers } from "../../api/promotion";
-import { getCart, getShippingCost, userCheckout } from "../../api/transaction";
-import { getMainAddress } from "../../api/profile";
+import { getCart, userCheckout } from "../../api/transaction";
 import { calculateTotalPrice as calculateSubTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
 import { calculateTotalWeight } from "../../helpers/transaction/calculateTotalWeight";
 import CheckoutTitle from "./checkoutComponent/CheckoutTitle";
 import CheckoutList from "./checkoutComponent/CheckoutList";
 import SubTotal from "./checkoutComponent/SubTotal";
 import FreeShipping from "./checkoutComponent/FreeShipping";
+import { fetchUserVouchers } from "../../helpers/transaction/checkoutHelpers/fetchUserVouchers";
+import { fetchCartItems } from "../../helpers/transaction/checkoutHelpers/fetchCartItems";
+import { fetchUserAddress } from "../../helpers/transaction/checkoutHelpers/fetchUserAddress";
+import { fetchRajaOngkir } from "../../helpers/transaction/checkoutHelpers/fetchRajaOngkir";
+import { calculateCheckoutPrice as calculateTotalPrice } from "../../helpers/transaction/checkoutHelpers/calculateCheckoutPrice";
+import GrandTotal from "./checkoutComponent/GrandTotal";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -33,95 +37,17 @@ export default function UserCheckoutContent() {
   const [showAlert, setShowAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const token = localStorage.getItem("token");
-
-  const fetchUserVouchers = async () => {
-    try {
-      const response = await getUserVouchers(token, subTotal);
-      if (response.data.data.length === 0) {
-        setVouchersList(response.data.data);
-      } else {
-        const data = response?.data?.data;
-        if (data) {
-          setVouchersList(data);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const fetchCartItems = async () => {
-    try {
-      const response = await getCart(token);
-      const selectedCartItems = response.data.data.filter((item) =>
-        selectedItems.includes(item.id)
-      );
-      setCheckoutItems(selectedCartItems);
-    } catch (error) {
-      console.error("Error fetching cart items:", error);
-    }
-  };
-
-  const fetchUserAddress = async () => {
-    try {
-      const response = await getMainAddress(token);
-      if (response.data.data) {
-        setUserAddress(response.data.data);
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const calculateTotalPrice = () => {
-    if (selectedVoucher.value === "") {
-      setGrandTotal(Number(subTotal) + Number(deliveryFee));
-    } else {
-      if (selectedVoucher.value === 0) {
-        setGrandTotal(Number(subTotal));
-      } else if (selectedVoucher.value !== 0) {
-        setGrandTotal(
-          Number(subTotal) + Number(deliveryFee) - Number(selectedVoucher.value)
-        );
-      }
-    }
-  };
-  const fetchRajaOngkir = async () => {
-    try {
-      const response = await getShippingCost(
-        token,
-        origin,
-        destination,
-        totalWeight,
-        courier
-      );
-      if (response?.data?.data?.results[0]?.costs) {
-        let data = response?.data?.data?.results[0]?.costs;
-        if (data) {
-          let option = data?.map((d) => ({
-            label: `${d.service} - ${rupiah(d.cost[0]?.value)}  [${
-              d.cost[0]?.etd
-            } hari] `,
-            value: d.cost[0].value,
-          }));
-          setShipping(option);
-        }
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
   const subTotal = calculateSubTotalPrice(checkoutItems, "cart");
   const totalWeight = calculateTotalWeight(checkoutItems);
+
   useEffect(() => {
-    fetchUserAddress();
+    fetchUserAddress(token, setUserAddress);
   }, []);
   useEffect(() => {
-    fetchUserVouchers();
+    fetchUserVouchers(token, subTotal, setVouchersList);
   }, [grandTotal, subTotal]);
   useEffect(() => {
-    fetchCartItems();
+    fetchCartItems(token, selectedItems, setCheckoutItems);
   }, [selectedItems]);
   useEffect(() => {
     const savedSelectedItems = localStorage.getItem("selectedCartItems");
@@ -131,11 +57,23 @@ export default function UserCheckoutContent() {
   }, [dispatch]);
 
   useEffect(() => {
-    fetchRajaOngkir();
+    fetchRajaOngkir(
+      token,
+      origin,
+      destination,
+      totalWeight,
+      courier,
+      setShipping
+    );
   }, [courier]);
 
   useEffect(() => {
-    calculateTotalPrice();
+    const newGrandTotal = calculateTotalPrice(
+      selectedVoucher,
+      subTotal,
+      deliveryFee
+    );
+    setGrandTotal(newGrandTotal);
   }, [deliveryFee, selectedVoucher]);
 
   const courrierList = [
@@ -297,12 +235,7 @@ export default function UserCheckoutContent() {
             </span>
           </div>
         )}
-        <div className="flex justify-between ">
-          <span className="font-semibold text-xl text-maingreen">Total</span>
-          <span className="text-reddanger text-xl font-bold ">
-            {rupiah(grandTotal)}
-          </span>
-        </div>
+        <GrandTotal grandTotal={grandTotal} />
         <div className="mb-14 my-4 sm:mx-10 lg:mx-64">
           <Modal
             onClickButton={handleCheckout}

@@ -87,11 +87,11 @@ export default function SingleProductContent() {
             setErrorMessage("Your location is out of reach, cannot add to cart")
         } else if (quantity === 0 && isProductInCart) {
             axios
-                .delete(`http://localhost:8000/api/users/carts/${id}`, {
+                .delete(`${process.env.REACT_APP_API_BASE_URL}/users/carts/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
                 .then((response) => {
-                    axios.get("http://localhost:8000/api/users/carts", {
+                    axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/carts`, {
                         headers: { Authorization: `Bearer ${token}` },
                     })
                         .then((response) => {
@@ -107,12 +107,12 @@ export default function SingleProductContent() {
                 });
         } else if (quantity > 0 && quantity <= branchProductData.quantity) {
             axios.post(
-                `http://localhost:8000/api/users/carts/${id}`,
+                `${process.env.REACT_APP_API_BASE_URL}/users/carts/${id}`,
                 { quantity },
                 { headers: { Authorization: `Bearer ${token}` } }
             )
                 .then((response) => {
-                    axios.get("http://localhost:8000/api/users/carts", {
+                    axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/carts`, {
                         headers: { Authorization: `Bearer ${token}` },
                     })
                         .then((response) => {

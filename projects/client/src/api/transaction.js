@@ -130,3 +130,12 @@ export function userConfirmOrder(token, id) {
     { headers: { Authorization: `Bearer ${token}` } }
   );
 }
+
+export function addToCart(token, productId, updatedQuantity) {
+  return axios.post(
+    `${process.env.REACT_APP_API_BASE_URL}/users/carts/${productId}`,
+    { quantity: updatedQuantity },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}
+
