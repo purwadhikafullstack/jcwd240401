@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { updateCart } from "../../store/reducer/cartSlice";
 
+import { updateCart } from "../../store/reducer/cartSlice";
 import Button from "../Button";
 import SingleProductContentImage from "./productComponents/SingleProductContentImage";
 import SingleProductContentDetails from "./productComponents/SingleProductContentDetails";

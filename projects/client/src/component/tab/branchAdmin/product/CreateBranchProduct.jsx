@@ -36,8 +36,9 @@ export default function CreateBranchProduct() {
     }
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
+        const { product_id, origin, quantity } = values
         try {
-            const response = await createBranchProduct(token, values)
+            const response = await createBranchProduct(token, {product_id, origin, quantity})
             if (response.status === 201) {
                 resetForm()
                 setErrorMessage("")

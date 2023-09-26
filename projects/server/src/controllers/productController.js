@@ -685,7 +685,7 @@ module.exports = {
     };
     try {
       const where = {};
-      const order = [];
+      let order = [["quantity","DESC"]];
 
       where.isRemoved = 0;
 
@@ -698,6 +698,7 @@ module.exports = {
         where["$Product.category_id$"] = pagination.category;
       }
       if (pagination.name) {
+        order=[]
         if (pagination.name.toUpperCase() === "DESC") {
           order.push([{ model: db.Product, as: "Product" }, "name", "DESC"]);
         } else {
@@ -705,6 +706,7 @@ module.exports = {
         }
       }
       if (pagination.price) {
+        order=[]
         if (pagination.price.toUpperCase() === "DESC") {
           order.push([
             { model: db.Product, as: "Product" },

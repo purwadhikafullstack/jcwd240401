@@ -8,20 +8,8 @@ const handlebars = require("handlebars")
 const fs = require("fs")
 const geolib = require('geolib')
 const refCode = require('referral-codes')
-// login
-// keep login
 
-// admin
-// register admin
-// set account
-
-// user
-// register user
-// verify account
-// forget password
-// reset password
 const secretKey = process.env.JWT_SECRET_KEY
-const opencageKey = process.env.OPENCAGE_API_KEY
 
 const findNearestBranch = (userLocation, branchData) => {
     let nearestBranchId = 0;
@@ -112,7 +100,7 @@ module.exports = {
             if(userData) {
                 await transaction.rollback()
                 return res.status(400).send({
-                    message: "There's already an admin with this email"
+                    message: "This email has been taken"
                 })
             }
             const selectedProvince = await db.Province.findOne({

@@ -35,11 +35,10 @@ export function getBranchProductById(token, branchProductId) {
 
 export function createBranchProduct(token, values) {
   return axios.post(
-    `${process.env.REACT_APP_API_BASE_URL}/admins/product`,
+    `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products`,
     values,
     {
       headers: {
-        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`,
       },
     }

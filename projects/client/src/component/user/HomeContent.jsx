@@ -116,12 +116,12 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
     return (
         <div className="w-full flex flex-col items-center">
             <div className='relative mb-64 flex flex-col items-center w-full lg:flex lg:flex-col lg:static lg:my-10'>
-                <div className='hidden sm:flex sm:items-center sm:w-full sm:gap-2 font-inter text-sm mb-2 '>
+                <div className='hidden lg:flex lg:items-center lg:w-full lg:gap-2 font-inter text-sm mb-2 '>
                     <div className="">Showing products from <span className='text-maingreen font-medium'>{`${branchCity}, ${branchProvince}`}</span> branch</div>
                     {token ? info ? <HiX className='h-6 w-6 text-blue-500' onClick={()=> {setInfo(false)}}/> : <HiOutlineInformationCircle className='h-6 w-6 text-blue-500'onClick={() => setInfo(true)}/> : null }
                 </div>
                 {info ? (
-                    <div className='hidden sm:flex sm:items-center sm:justify-between sm:text-sm sm:w-full font-inter py-2 px-4 rounded-lg bg-blue-100 mb-2'>
+                    <div className='hidden lg:flex sm:items-center sm:justify-between sm:text-sm sm:w-full font-inter py-2 px-4 rounded-lg bg-blue-100 mb-2'>
                     <div>Products are shown from the nearest branch of your main address</div>
                     <Link to="/user/account/my-address" className="text-sm text-maingreen font-inter font-medium hover:font-bold">Change Address</Link>
                 </div>

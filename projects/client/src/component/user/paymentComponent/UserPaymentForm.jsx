@@ -24,9 +24,9 @@ const PaymentForm = ({ handleSubmit, id , handleCancel}) => {
         <Form>
           <div className="flex flex-col gap-2 py-4 mb-4">
             <label htmlFor="file" className="">
-              payment proof Image
-              <span className="text-sm font-normal">(.jpg, .jpeg, .png)</span>
-              <span className="text-reddanger font-normal">*</span>
+              Payment Proof
+              <span className="text-sm font-normal"> (.jpg, .jpeg, .png) </span>
+              <span className="text-reddanger font-normal text-xs">*required</span>
             </label>
             <div className="relative">
               <input

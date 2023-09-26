@@ -29,7 +29,7 @@ export default function CreateProductForm({ onSubmit, preview, imagePreview, all
                     <div className="flex flex-col gap-2 py-4 font-inter mb-4">
                         <label htmlFor="category_id" className="font-medium">Category <span className="text-reddanger">*</span></label>
                         <div className='relative'>
-                            <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0' name='category_id'>
+                            <Field as='select' className='w-full mt-1 bg-gray-100 rounded-md border border-gray-300 focus:border-maindarkgreen focus:ring-0 overflow-y-auto' name='category_id'>
                                 <option key="empty" value=''>--choose a category--</option>
                                 {allCategory.map((category) => (<option key={category.value} value={category.value}>{category.label}</option>))}
                             </Field>

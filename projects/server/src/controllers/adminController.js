@@ -108,8 +108,6 @@ module.exports = {
           .send({ message: "The product already exist in your branch" });
       }
 
-      const product = await db.Product.findByPk(product_id);
-
       const status = quantity <= 5 ? "restock" : "ready";
 
       const newBranchProduct = await db.Branch_Product.create(

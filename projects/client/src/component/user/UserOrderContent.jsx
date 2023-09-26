@@ -69,6 +69,7 @@ export default function UserOrderContent() {
     { label: "Processing", value: "Processing" },
     { label: "Delivering", value: "Delivering" },
     { label: "Canceled", value: "Canceled" },
+    {label:"Order completed", value:"Order completed"}
   ];
 
   const onPageChange = (page) => {

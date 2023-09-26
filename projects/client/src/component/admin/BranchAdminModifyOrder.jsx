@@ -142,7 +142,7 @@ export default function BranchAdminModifyOrder() {
             {orderData?.Branch_Products?.map((product) => (
               <div className='my-2 flex gap-2 font-inter'>
                 <div className='h-24 w-24 flex items-center'>
-                  <img src={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProgduct}`} alt="product image" onError={handleImageError}/>
+                  <img className='shadow-md rounded-md' src={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} alt="product image" onError={handleImageError}/>
                 </div>
                 <div>
                   <p className="text-black font-bold">{product.Product?.name}</p>
@@ -173,13 +173,13 @@ export default function BranchAdminModifyOrder() {
             <p>-</p>
             </div>
           ) : orderData?.orderStatus === "Waiting for payment confirmation" ? (
-          <div className="text-base text-darkgrey border-b-2 pb-2">
+          <div className="text-base text-darkgrey border-b-2 pb-2 ">
             Payment Proof
             <div className='flex gap-4 items-end'>
-              <div className="h-52 w-40">
-                <img src={`${process.env.REACT_APP_BASE_URL}${orderData?.imgRefund}`} alt="Refund Image" className='object-cover w-full h-full' onError={handleImageError}/>
+              <div className="h-52 w-40 my-2">
+                <img src={`${process.env.REACT_APP_BASE_URL}${orderData?.imgPayment}`} alt="Refund Image" className='object-cover w-full h-full shadow-md rounded-md' onError={handleImageError}/>
               </div>
-              <div className='flex gap-1'>
+              <div className='flex gap-1 mb-2'>
                 <Modal modalTitle={"Reject Payment"} toggleName={"Reject"} content={"Are you sure you want to reject this payment?"} buttonCondition={"negative"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={()=>{handleChangeStatus("Waiting for payment")}}/>
                 <Modal modalTitle={"Accept Payment"} toggleName={"Accept"} content={"Are you sure you want to accept this payment?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={()=>{handleChangeStatus("Processing")}}/>
               </div>
@@ -189,7 +189,7 @@ export default function BranchAdminModifyOrder() {
             <div className="text-base text-darkgrey border-b-2 pb-2">
             Payment Proof
             <div className="h-52 w-40">
-              <img src={`${process.env.REACT_APP_BASE_URL}${orderData?.imgRefund}`} alt="Refund Image" className='object-cover w-full h-full' onError={handleImageError}/>
+              <img src={`${process.env.REACT_APP_BASE_URL}${orderData?.imgPayment}`} alt="Refund Image" className='object-cover w-full h-full' onError={handleImageError}/>
             </div>
           </div>
           )}

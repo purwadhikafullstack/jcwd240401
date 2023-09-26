@@ -183,68 +183,70 @@ export default function UserPaymentContent() {
             <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
               <PaymentTitle orderData={orderData} />
             </div>
-            {orderStatus === "Waiting for payment" && (
-              <TimeRemaining timer={timer} />
-            )}
-            <OrderStatusPayment orderStatus={orderStatus} />
-            <OrderList orderData={orderData} />
-            <SubTotal subTotal={subTotal} />
-            {selectedVoucher === "" ? (
-              ""
-            ) : selectedVoucher === null || selectedVoucher === 0 ? (
-              <FreeShipping />
-            ) : (
-              <div className="flex justify-between">
-                <span className="font-semibold text-xl text-maingreen">
-                  Voucher
-                </span>
-                <span className="text-reddanger text-xl font-bold ">
-                  {rupiah(selectedVoucher)}
-                </span>
-              </div>
-            )}
-            {deliveryFee && (
-              <div className="flex justify-between border-b-2 border-x-lightgrey">
-                <span className="font-semibold text-xl text-maingreen">
-                  Delivery fee
-                </span>
-                <span className="text-reddanger text-xl font-bold ">
-                  {selectedVoucher === null || selectedVoucher === 0 ? (
-                    <s>{rupiah(deliveryFee)}</s>
-                  ) : (
-                    rupiah(deliveryFee)
-                  )}
-                </span>
-              </div>
-            )}
-            <GrandTotal grandTotal={grandTotal} />
-            {orderStatus === "Waiting for payment" && (
-              <div>
-                <div className="border-t-2 border-x-lightgrey mt-6">
-                  please update your payment below to proceed your order
+            <div className="mx-4">
+              {orderStatus === "Waiting for payment" && (
+                <TimeRemaining timer={timer} />
+              )}
+              <OrderStatusPayment orderStatus={orderStatus} />
+              <OrderList orderData={orderData} />
+              <SubTotal subTotal={subTotal} />
+              {selectedVoucher === "" ? (
+                ""
+              ) : selectedVoucher === null || selectedVoucher === 0 ? (
+                <FreeShipping />
+              ) : (
+                <div className="flex justify-between">
+                  <span className="font-semibold text-xl text-maingreen">
+                    Voucher
+                  </span>
+                  <span className="text-reddanger text-xl font-bold ">
+                    {rupiah(selectedVoucher)}
+                  </span>
                 </div>
-                <PaymentForm
-                  handleSubmit={handleSubmit}
-                  id={id}
-                  handleCancel={handleCancel}
-                />
-              </div>
-            )}
-            {orderStatus === "Delivering" && (
-              <div className="m-2 ">
-                <Modal
-                  modalTitle={"Confirm order"}
-                  toggleName={"Confirm order"}
-                  content={"are you sure you want to complete this order?"}
-                  buttonCondition={"positive"}
-                  buttonLabelOne={"Cancel"}
-                  buttonLabelTwo={"Yes"}
-                  buttonTypeOne={"button"}
-                  buttonTypeTwo={"submit"}
-                  onClickButton={handleConfirm}
-                />
-              </div>
-            )}
+              )}
+              {deliveryFee && (
+                <div className="flex justify-between border-b-2 border-x-lightgrey">
+                  <span className="font-semibold text-xl text-maingreen">
+                    Delivery fee
+                  </span>
+                  <span className="text-reddanger text-xl font-bold ">
+                    {selectedVoucher === null || selectedVoucher === 0 ? (
+                      <s>{rupiah(deliveryFee)}</s>
+                    ) : (
+                      rupiah(deliveryFee)
+                    )}
+                  </span>
+                </div>
+              )}
+              <GrandTotal grandTotal={grandTotal} />
+              {orderStatus === "Waiting for payment" && (
+                <div>
+                  <div className="border-t-2 border-x-lightgrey mt-6 pt-2 font-semibold text-base">
+                    Please update your payment below to proceed your order
+                  </div>
+                  <PaymentForm
+                    handleSubmit={handleSubmit}
+                    id={id}
+                    handleCancel={handleCancel}
+                  />
+                </div>
+              )}
+              {orderStatus === "Delivering" && (
+                <div className="m-2 ">
+                  <Modal
+                    modalTitle={"Confirm order"}
+                    toggleName={"Confirm order"}
+                    content={"are you sure you want to complete this order?"}
+                    buttonCondition={"positive"}
+                    buttonLabelOne={"Cancel"}
+                    buttonLabelTwo={"Yes"}
+                    buttonTypeOne={"button"}
+                    buttonTypeTwo={"submit"}
+                    onClickButton={handleConfirm}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ) : (
