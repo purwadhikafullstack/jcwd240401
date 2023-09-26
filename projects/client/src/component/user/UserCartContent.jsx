@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import { BsTrash } from "react-icons/bs";
-import { CgUnavailable } from "react-icons/cg";
 import CartItem from "../../component/user/CartItem";
-import cartImg from "../../assets/cart.png";
 import { useNavigate } from "react-router-dom";
 import Button from "../../component/Button";
 import rupiah from "../../helpers/rupiah";
@@ -14,6 +11,14 @@ import Modal from "../../component/Modal";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
 import UnavailableCartItem from "./UnavailableCartItem";
 import UnauthenticatedContent from "./UnauthenticatedContent";
+import { calculateTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
+import {
+  getCart,
+  getUnavailableCart,
+  handleDeleteCart,
+} from "../../api/transaction";
+import EmptyCart from "./cartComponent/EmptyCart";
+import UnavailableCartTitle from "./cartComponent/UnavailableCartTitle";
 
 export default function UserCartContent() {
   const [totalPrice, setTotalPrice] = useState(0);
@@ -33,10 +38,7 @@ export default function UserCartContent() {
 
   const fetchUnavailableCart = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/unavailable-cart`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await getUnavailableCart(token);
       if (response.data.data) {
         setUnavailableCart(response.data.data);
       }
@@ -44,83 +46,41 @@ export default function UserCartContent() {
       console.log(error);
     }
   };
-  console.log(unavailableCart);
-  const calculateTotalPrice = (selectedCartItems) => {
-    let total = 0;
 
-    if (selectedCartItems.length > 0) {
-      // Calculate only if items are selected
-      for (const item of selectedCartItems) {
-        const basePrice = item.Branch_Product.Product.basePrice;
-        const quantity = item.quantity;
-        const discount = item.Branch_Product?.Discount;
-        const expired = item.Branch_Product?.Discount?.isExpired;
-
-        if (discount && !expired) {
-          if (discount.discount_type_id === 2) {
-            const discountAmount = discount.amount;
-            total += ((basePrice * (100 - discountAmount)) / 100) * quantity;
-          } else if (discount.discount_type_id === 3) {
-            const discountAmount = discount.amount;
-            total += (basePrice - discountAmount) * quantity;
-          } else if (discount.discount_type_id === 1) {
-            // Adjust the calculation for "buy one get one" discount
-            const discountAmount = discount.amount;
-            // Calculate the total price as if it's only one item, not two
-            total += basePrice;
-          }
-        } else {
-          total += basePrice * quantity;
-        }
-      }
-    }
-
+  const totalPriceCalculation = (selectedCartItems) => {
+    const total = calculateTotalPrice(selectedCartItems, "cart");
     setTotalPrice(total);
   };
 
   useEffect(() => {
-    // Filter cart items based on selectedItems
-    const selectedCartItems = cartItems.filter((item) =>
-      selectedItems.includes(item.id)
-    );
-
-    calculateTotalPrice(cartItems);
+    if (selectedItems.length > 0) {
+      const selectedCartItems = cartItems.filter((item) =>
+        selectedItems.includes(item.id)
+      );
+      totalPriceCalculation(selectedCartItems);
+    } else {
+      setTotalPrice(0);
+    }
   }, [cartItems, selectedItems]);
 
-  // Function to handle item selection
   const handleItemSelect = (cartId) => {
-    // Create a new array with the updated selected items
     const updatedSelectedItems = [...selectedItems];
     if (updatedSelectedItems.includes(cartId)) {
-      // If already selected, remove it
       const index = updatedSelectedItems.indexOf(cartId);
       updatedSelectedItems.splice(index, 1);
     } else {
-      // If not selected, add it
       updatedSelectedItems.push(cartId);
     }
-
-    // Dispatch the action to update selectedItems in the Redux store
     dispatch(setSelectedCartItems(updatedSelectedItems));
-    // Save updatedSelectedItems to localStorage
     localStorage.setItem(
       "selectedCartItems",
       JSON.stringify(updatedSelectedItems)
     );
   };
   const handleDelete = async () => {
-    const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/users/carts`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { cartList: selectedItems },
-      });
-      const cartResponse = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/users/carts`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await handleDeleteCart(token, selectedItems);
+      const cartResponse = await getCart(token);
 
       dispatch(updateCart(cartResponse.data.data));
       dispatch(setSelectedCartItems([]));
@@ -137,15 +97,11 @@ export default function UserCartContent() {
     }
   };
 
-  // Use useEffect to re-render totalPrice every time it changes
   useEffect(() => {
-    // Filter cart items based on selectedItems
     const selectedCartItems = cartItems.filter((item) =>
       selectedItems.includes(item.id)
     );
-
-    // Calculate total price only if there are selected items
-    calculateTotalPrice(selectedCartItems);
+    calculateTotalPrice(selectedCartItems, "cart");
   }, [cartItems, selectedItems]);
 
   useEffect(() => {
@@ -197,22 +153,7 @@ export default function UserCartContent() {
               <div>
                 {cartItems.map((data) => (
                   <CartItem
-                    key={data.id}
-                    quantity={data.quantity}
-                    name={data.Branch_Product.Product.name}
-                    weight={data.Branch_Product.Product.weight}
-                    UOM={data.Branch_Product.Product.unitOfMeasurement}
-                    productImg={data.Branch_Product.Product.imgProduct}
-                    discountId={data.Branch_Product.discount_id}
-                    discountType={
-                      data.Branch_Product.Discount?.discount_type_id
-                    }
-                    isExpired={data.Branch_Product.Discount?.isExpired}
-                    basePrice={data.Branch_Product.Product.basePrice}
-                    discountAmount={data.Branch_Product.Discount?.amount}
-                    productStock={data.Branch_Product.quantity}
-                    cartId={data.id}
-                    productId={data.Branch_Product.id}
+                    data={data}
                     onSelect={handleItemSelect}
                     selected={selectedItems.includes(data.id)}
                   />
@@ -241,18 +182,7 @@ export default function UserCartContent() {
             )}
             {unavailableCart.length > 0 && (
               <>
-                <div className="flex mx-2 py-2 content-center gap-4 border-b mb-4 sm:mx-4 lg:mx-8 xl:mx-16">
-                  <div className="grid">
-                    <CgUnavailable size={25} />
-                  </div>
-                  <div className="font-medium">
-                    {" "}
-                    Invalid Items{" "}
-                    <span className="text-maindarkgreen font-medium">
-                      ({unavailableCart.length})
-                    </span>
-                  </div>
-                </div>
+                <UnavailableCartTitle unavailableCart={unavailableCart} />
                 {unavailableCart.map((data) => (
                   <UnavailableCartItem
                     key={data.id}
@@ -278,20 +208,7 @@ export default function UserCartContent() {
             )}
 
             {cartItems.length === 0 && unavailableCart.length === 0 && (
-              <div className="flex flex-col items-center justify-center">
-                <img src={cartImg} alt="Empty Cart" />
-                <span className="font-bold text-3xl p-2 text-center">
-                  Oops! It looks like your cart is empty. Time to fill it up
-                  with your favorite items!
-                </span>
-                <div className="w-60 p-2">
-                  <Button
-                    label="Shop Now"
-                    condition="positive"
-                    onClick={() => navigate("/")}
-                  />
-                </div>
-              </div>
+              <EmptyCart />
             )}
           </div>
         </>
