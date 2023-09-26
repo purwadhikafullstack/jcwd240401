@@ -12,8 +12,7 @@ export default function DiscountForm({
   dataBranchProduct,
   currentPage,
   totalPage,
-  onPageChange,
-  handleShowAlert,
+  onPageChange
 }) {
   return (
     <Formik
@@ -56,8 +55,7 @@ export default function DiscountForm({
               </div>
             </div>
           </div>
-          {props.values.discount_type_id == 2 ||
-          props.values.discount_type_id == 3 ? (
+          {props.values.discount_type_id == 2 || props.values.discount_type_id == 3 ? (
             <div>
               <label htmlFor="amount" className="font-inter">
                 Discount amount:
@@ -117,8 +115,8 @@ export default function DiscountForm({
                           data.product_id
                         )
                           ? props.values.products.filter(
-                              (id) => id !== data.product_id
-                            )
+                            (id) => id !== data.product_id
+                          )
                           : [...props.values.products, data.product_id];
                         props.setFieldValue("products", updatedProducts);
                       }}
@@ -147,17 +145,7 @@ export default function DiscountForm({
               />
             </div>
           </div>
-          <Modal
-            modalTitle={"Create Discount"}
-            toggleName={"Create Discount"}
-            content={`Are you sure to create this voucher?`}
-            buttonCondition={"positive"}
-            buttonLabelOne={"Cancel"}
-            buttonLabelTwo={"Yes"}
-            buttonTypeOne={"button"}
-            buttonTypeTwo={"submit"}
-            onClickButton={props.handleSubmit}
-          />
+          <Modal modalTitle={"Create Discount"} toggleName={"Create Discount"} content={`Are you sure to create this voucher?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
         </form>
       )}
     </Formik>

@@ -35,9 +35,9 @@ export default function SalesReport() {
   const handleFilterChange = (paramName, paramValue) => {
     const newFilter = new URLSearchParams(filter.toString());
     if (paramValue === "") {
-        newFilter.delete(paramName);
+      newFilter.delete(paramName);
     } else {
-        newFilter.set(paramName, paramValue);
+      newFilter.set(paramName, paramValue);
     }
     setFilter(newFilter);
     const params = new URLSearchParams(window.location.search);
@@ -48,7 +48,7 @@ export default function SalesReport() {
   useEffect(() => {
     fetchSalesData();
   }, [filter]);
-  
+
   return (
     <div>
       <div className="mx-auto py-2 w-full lg:w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">

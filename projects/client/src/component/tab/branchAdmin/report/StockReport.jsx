@@ -81,7 +81,6 @@ export default function StockReport() {
     }
   };
 
-  //table data
   const arrayData = [];
   const TableRow = () => {
     dataStockHistory?.forEach((data, index) => {
@@ -129,22 +128,22 @@ export default function StockReport() {
     const params = new URLSearchParams(window.location.search);
     params.set("page", page.toString());
     navigate({ search: params.toString() });
-}
+  }
 
-const handleFilterChange = (paramName, paramValue) => {
+  const handleFilterChange = (paramName, paramValue) => {
     const newFilter = new URLSearchParams(filter.toString());
     newFilter.set("page", "1");
     if (paramValue === "") {
-        newFilter.delete(paramName);
+      newFilter.delete(paramName);
     } else {
-        newFilter.set(paramName, paramValue);
+      newFilter.set(paramName, paramValue);
     }
     setFilter(newFilter);
     const params = new URLSearchParams(window.location.search);
     params.set(paramName, paramValue);
     params.set("page", "1");
     navigate({ search: params.toString() });
-};
+  };
 
   return (
     <div className="w-5/6 mx-auto">
@@ -154,28 +153,12 @@ const handleFilterChange = (paramName, paramValue) => {
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Start Date
-            </label>
-            <input
-              id="startDate"
-              type="date"
-              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={params.get("startDate") || ""}
-              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
-            />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+            <input id="startDate" type="date" className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0" value={params.get("startDate") || ""} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              End Date
-            </label>
-            <input
-              id="endDate"
-              type="date"
-              className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-              value={params.get("endDate") || ""}
-              onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
-            />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+            <input id="endDate" type="date" className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0" onChange={(e) => handleFilterChange(e.target.id, e.target.value)} />
           </div>
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
@@ -186,21 +169,11 @@ const handleFilterChange = (paramName, paramValue) => {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
               <tr>
-                <th scope="col" className="px-6 py-3">
-                  Product
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Total qty.
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Qty.
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  status
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Created date
-                </th>
+                <th scope="col" className="px-6 py-3"> Product </th>
+                <th scope="col" className="px-6 py-3"> Total qty. </th>
+                <th scope="col" className="px-6 py-3"> Qty. </th>
+                <th scope="col" className="px-6 py-3"> status </th>
+                <th scope="col" className="px-6 py-3"> Created date </th>
               </tr>
             </thead>
             <tbody>
@@ -208,25 +181,14 @@ const handleFilterChange = (paramName, paramValue) => {
                 <TableRow />
               ) : (
                 <tr>
-                  <td colSpan="7" className="py-4 text-center  text-base">
-                    no data found
-                  </td>
+                  <td colSpan="7" className="py-4 text-center  text-base">no data found</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center">
-          <Pagination
-            currentPage={currentPage}
-            onPageChange={onPageChange}
-            showIcons
-            layout="pagination"
-            totalPages={totalPages}
-            nextLabel="Next"
-            previousLabel="Back"
-            className="mx-auto"
-          />
+          <Pagination currentPage={currentPage} onPageChange={onPageChange} showIcons layout="pagination" totalPages={totalPages} nextLabel="Next" previousLabel="Back" className="mx-auto" />
         </div>
       </div>
     </div>

@@ -103,7 +103,7 @@ export default function ModalImageProfile({ onSubmit }) {
                                                     )}
                                                 </div>
                                                 <div className='mb-2 relative'>
-                                                <label htmlFor="file" className='font-medium'>Profile Image <span className="text-sm font-normal">(.jpg, .jpeg, .gif, .png) max. 1MB </span></label>
+                                                    <label htmlFor="file" className='font-medium'>Profile Image <span className="text-sm font-normal">(.jpg, .jpeg, .gif, .png) max. 1MB </span></label>
                                                     <input type="file" id="file" name="file" onChange={(e) => { props.setFieldValue('file', e.currentTarget.files[0]); preview(e) }} className='py-1 w-full' required />
                                                     {props.errors.file && props.touched.file && <div className="text-sm text-reddanger absolute top-12">{props.errors.file}</div>}
                                                 </div>

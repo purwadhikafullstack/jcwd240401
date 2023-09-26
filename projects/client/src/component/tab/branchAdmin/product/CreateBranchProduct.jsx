@@ -31,14 +31,14 @@ export default function CreateBranchProduct() {
                 }
             }
         } catch (error) {
-            console.log("ini error", error);
+            console.log(error.message);
         }
     }
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
         const { product_id, origin, quantity } = values
         try {
-            const response = await createBranchProduct(token, {product_id, origin, quantity})
+            const response = await createBranchProduct(token, { product_id, origin, quantity })
             if (response.status === 201) {
                 resetForm()
                 setErrorMessage("")

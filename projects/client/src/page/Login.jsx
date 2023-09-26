@@ -69,8 +69,8 @@ export default function Login() {
           error.response?.data?.message
         );
       }
-        actions.setSubmitting(false)
-        setIsLoading(false)
+      actions.setSubmitting(false)
+      setIsLoading(false)
     }
   };
   const { values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting } =
@@ -115,7 +115,7 @@ export default function Login() {
               </div>
             </div>
             <div className="w-72">
-              <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
+              <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             </div>
             <form
               onSubmit={handleSubmit}
@@ -145,7 +145,7 @@ export default function Login() {
                     className="relative"
                   />
                   <div className="absolute bottom-2 right-2 cursor-pointer">
-                    {showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword}/>) : (<HiEye
+                    {showPassword ? (<HiEyeOff className="w-6 h-6 text-darkgrey" onClick={togglePassword} />) : (<HiEye
                       className="w-6 h-6 text-darkgrey"
                       onClick={togglePassword}
                     />)}

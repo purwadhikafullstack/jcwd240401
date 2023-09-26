@@ -12,7 +12,7 @@ const AlertHelper = ({ errorMessage, successMessage, setErrorMessage, setSuccess
         setErrorMessage("")
         setSuccessMessage("")
       }, 4000);
-      
+
 
       return () => {
         clearTimeout(timeout);

@@ -5,10 +5,7 @@ import { HiOutlineUser } from "react-icons/hi";
 import { remove } from "../../store/reducer/authSlice";
 import Modal from "../Modal";
 import { clearLocation } from "../../store/reducer/locationSlice";
-import {
-  clearCart,
-  clearSelectedCartItems,
-} from "../../store/reducer/cartSlice";
+import { clearCart, clearSelectedCartItems } from "../../store/reducer/cartSlice";
 import handleImageError from "../../helpers/handleImageError";
 
 export default function DropdownForNavbar() {

@@ -1,6 +1,6 @@
 import rupiah from "../../../helpers/rupiah";
 
-export default function SubTotal({subTotal}) {
+export default function SubTotal({ subTotal }) {
   return (
     <>
       <div className="flex justify-between">

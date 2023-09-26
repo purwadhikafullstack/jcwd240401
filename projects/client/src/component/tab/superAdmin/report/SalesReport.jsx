@@ -46,12 +46,9 @@ export default function SalesReport() {
   const fetchSalesData = async () => {
     try {
       const salesData = await axios.get(
-        `${
-          process.env.REACT_APP_API_BASE_URL
-        }/admins/sa-sales-report?filterBranch=${
-          params.get("branch_id") || ""
-        }&startDate=${params.get("startDate") || ""}&endDate=${
-          params.get("endDate") || ""
+        `${process.env.REACT_APP_API_BASE_URL
+        }/admins/sa-sales-report?filterBranch=${params.get("branch_id") || ""
+        }&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""
         }`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -79,7 +76,7 @@ export default function SalesReport() {
   useEffect(() => {
     fetchDataAllBranch();
     fetchSalesData();
-    if(params.get("branch_id")) {
+    if (params.get("branch_id")) {
       setSelectedBranch(true)
     }
   }, [filter]);
@@ -102,10 +99,10 @@ export default function SalesReport() {
       </div>
       {!selectedBranch ? (
         <div>
-          <hr className="m-4"/>
-        <div className="font-inter text-center text-maingreen w-11/12 mx-auto">
-          Please select a branch to view sales report
-        </div>
+          <hr className="m-4" />
+          <div className="font-inter text-center text-maingreen w-11/12 mx-auto">
+            Please select a branch to view sales report
+          </div>
         </div>
       ) : (
         <div>

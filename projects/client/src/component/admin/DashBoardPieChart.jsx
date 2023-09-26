@@ -12,7 +12,7 @@ const DashBoardPieChart = ({ pieChartData }) => {
     const values = courierData.map((data) => data.percentage);
 
     const chartOptions = {
-      colors: ["#1C64F2", "#16BDCA", "#9061F9"], 
+      colors: ["#1C64F2", "#16BDCA", "#9061F9"],
       chart: {
         height: 300,
         type: "pie",

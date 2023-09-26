@@ -11,14 +11,13 @@ export default function CustomAccordion({
     <div className="w-5/6 mx-auto">
       <button
         type="button"
-        className={`text-sm sm:text-base h-10 flex items-center justify-between w-full font-inter tracking-wide py-5 px-2 text-left ${
-          activeTab === tabId
+        className={`text-sm sm:text-base h-10 flex items-center justify-between w-full font-inter tracking-wide py-5 px-2 text-left ${activeTab === tabId
             ? "font-bold text-maingreen dark:text-maingreen border-b border-darkmaingreen dark:border-maingreen"
             : "text-darkgrey border-b border-grey-300 dark:border-gray-700 dark:text-gray-400"
-        }`}
+          }`}
         onClick={() => onClick(tabId)}
       >
-        <span>{title}</span>  
+        <span>{title}</span>
         <svg
           className={`w-6 h-6 ${activeTab === tabId ? "rotate-180" : ""}`}
           fill="currentColor"

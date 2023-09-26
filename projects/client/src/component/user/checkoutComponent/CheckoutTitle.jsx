@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../Button";
 
 export default function CheckoutTitle() {
-    const navigate = useNavigate()
+  const navigate = useNavigate()
   return (
     <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
       <div className="grid justify-center content-center">

@@ -78,6 +78,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
+
   async addBranchProduct(req, res) {
     const { product_id, quantity, origin } = req.body;
     const transaction = await db.sequelize.transaction();
@@ -143,6 +144,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
+
   async modifyOrRemoveBranchProduct(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -236,6 +238,7 @@ module.exports = {
       });
     }
   },
+
   async plusOrMinusBranchProduct(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -248,7 +251,6 @@ module.exports = {
           isRemoved: false,
         },
       });
-      console.log("ini branch product", getBranchProduct);
       if (!getBranchProduct) {
         await transaction.rollback();
         return res.status(404).send({
@@ -345,6 +347,7 @@ module.exports = {
       });
     }
   },
+
   async allBranchProduct(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -383,7 +386,7 @@ module.exports = {
         where.status = pagination.status;
       }
       if (pagination.name) {
-        order = []
+        order = [];
         if (pagination.name.toUpperCase() === "DESC") {
           order.push(["Product", "name", "DESC"]);
         } else {
@@ -425,6 +428,7 @@ module.exports = {
       });
     }
   },
+
   async allBranchProductNoPagination(req, res) {
     try {
       const user = await db.User.findOne({
@@ -468,6 +472,7 @@ module.exports = {
       });
     }
   },
+
   async branchProductPerId(req, res) {
     try {
       const user = await db.User.findOne({
@@ -547,7 +552,6 @@ module.exports = {
           data: isExist,
         });
       }
-
 
       if (discount_type_id == 1) {
         const newDiscount = await db.Discount.create(
@@ -750,7 +754,6 @@ module.exports = {
     }
   },
 
-
   async createVoucher(req, res) {
     const transaction = await db.sequelize.transaction();
 
@@ -820,7 +823,6 @@ module.exports = {
                 voucher_type_id,
                 minTransaction,
                 usedLimit,
-                
               },
             });
 
@@ -1067,7 +1069,7 @@ module.exports = {
       if (!user) {
         return res.status(401).send({ message: "User not found" });
       }
-      const branch_id = user.Branch.id
+      const branch_id = user.Branch.id;
       const where = { branch_id };
       const order = [];
       if (pagination.createDate) {
@@ -1130,7 +1132,6 @@ module.exports = {
     }
   },
 
-
   async getStockHistory(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -1164,28 +1165,28 @@ module.exports = {
       const order = [];
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); 
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         where.createdAt = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         where.createdAt = {
           [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); 
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); 
+        endDateUTC.setUTCHours(0, 0, 0, 0);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         where.createdAt = {
-          [db.Sequelize.Op.lt]: endDateUTC, 
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
 
@@ -1235,7 +1236,6 @@ module.exports = {
         offset: (pagination.page - 1) * pagination.perPage,
         order,
       });
-      console.log(results);
       const totalCount = results.count;
       pagination.totalData = totalCount;
 
@@ -1280,28 +1280,28 @@ module.exports = {
       const order = [];
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); 
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         where.createdAt = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         where.createdAt = {
           [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); 
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); 
+        endDateUTC.setUTCHours(0, 0, 0, 0);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         where.createdAt = {
-          [db.Sequelize.Op.lt]: endDateUTC, 
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
 
@@ -1362,7 +1362,6 @@ module.exports = {
         offset: (pagination.page - 1) * pagination.perPage,
         order,
       });
-      console.log(results);
       const totalCount = results.count;
       pagination.totalData = totalCount;
 
@@ -1456,7 +1455,7 @@ module.exports = {
       });
     }
   },
-  
+
   async getBranchAdminSalesReport(req, res) {
     const pagination = {
       startDate: req.query.startDate || "",
@@ -1480,31 +1479,31 @@ module.exports = {
 
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); 
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         whereOrderData.orderDate = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const nextDayUTC = new Date(startDateUTC);
         nextDayUTC.setUTCDate(nextDayUTC.getUTCDate() + 1);
 
         whereOrderData.orderDate = {
-          [db.Sequelize.Op.gte]: nextDayUTC, 
+          [db.Sequelize.Op.gte]: nextDayUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); 
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); 
+        endDateUTC.setUTCHours(23, 59, 59, 999);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         whereOrderData.orderDate = {
-          [db.Sequelize.Op.lt]: endDateUTC, 
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
 
@@ -1512,23 +1511,22 @@ module.exports = {
         where: whereOrderData,
         include: [
           { model: db.Branch_Product, where: { branch_id: user.Branch.id } },
-          { model: db.User, distinct: true }, 
+          { model: db.User, distinct: true },
         ],
-        order: [["createdAt", "DESC"]], 
+        order: [["createdAt", "DESC"]],
       });
 
-     
       const totalPriceByDay = [];
-      let totalAllTransactions = 0; 
-      const uniqueUsers = new Set(); 
-      let totalCompletedOrders = 0; 
+      let totalAllTransactions = 0;
+      const uniqueUsers = new Set();
+      let totalCompletedOrders = 0;
       let totalCancelledOrders = 0;
 
-      const lastFiveTransactions = []; 
+      const lastFiveTransactions = [];
 
-      const productSales = {}; 
+      const productSales = {};
 
-      const courierUsage = {}; 
+      const courierUsage = {};
 
       orderData.rows.forEach((order) => {
         if (order.orderStatus === "Order completed") {
@@ -1551,7 +1549,7 @@ module.exports = {
 
           uniqueUsers.add(order.User.id);
 
-          totalCompletedOrders += 1; 
+          totalCompletedOrders += 1;
 
           if (lastFiveTransactions.length < 5) {
             lastFiveTransactions.push({
@@ -1573,7 +1571,7 @@ module.exports = {
             productSales[productId] += branchProduct.quantity;
           });
 
-          const courier = order.shippingMethod; 
+          const courier = order.shippingMethod;
 
           if (!courierUsage[courier]) {
             courierUsage[courier] = 0;
@@ -1581,11 +1579,10 @@ module.exports = {
 
           courierUsage[courier] += 1;
         } else if (order.orderStatus === "Canceled") {
-          totalCancelledOrders += 1; 
+          totalCancelledOrders += 1;
         }
       });
 
-      
       const top5Products = await Promise.all(
         Object.keys(productSales).map(async (productId) => {
           const product = await db.Product.findOne({
@@ -1597,8 +1594,8 @@ module.exports = {
           return {
             productId,
             productImg: product.imgProduct,
-            productName: product.name, 
-            totalStock: product.stock, 
+            productName: product.name,
+            totalStock: product.stock,
             sales: productSales[productId],
           };
         })
@@ -1622,15 +1619,15 @@ module.exports = {
         message: "sales report data retreived",
         data: {
           count: orderData.count,
-  
+
           areaChart: totalPriceByDay,
-          pieChart: courierUsagePercentage, 
-          totalTransaction: totalAllTransactions, 
-          totalUsers: uniqueUsers.size, 
-          totalCompletedOrders, 
-          totalCancelledOrders, 
-          lastTransactions: lastFiveTransactions, 
-          topProducts, 
+          pieChart: courierUsagePercentage,
+          totalTransaction: totalAllTransactions,
+          totalUsers: uniqueUsers.size,
+          totalCompletedOrders,
+          totalCancelledOrders,
+          lastTransactions: lastFiveTransactions,
+          topProducts,
         },
       });
     } catch (error) {
@@ -1664,31 +1661,31 @@ module.exports = {
 
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); 
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         whereOrderData.orderDate = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); 
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const nextDayUTC = new Date(startDateUTC);
-        nextDayUTC.setUTCDate(nextDayUTC.getUTCDate() + 1); 
+        nextDayUTC.setUTCDate(nextDayUTC.getUTCDate() + 1);
 
         whereOrderData.orderDate = {
-          [db.Sequelize.Op.gte]: nextDayUTC, 
+          [db.Sequelize.Op.gte]: nextDayUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); 
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); 
+        endDateUTC.setUTCHours(23, 59, 59, 999);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         whereOrderData.orderDate = {
-          [db.Sequelize.Op.lt]: endDateUTC, 
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
 
@@ -1699,23 +1696,22 @@ module.exports = {
             model: db.Branch_Product,
             where: { branch_id: pagination.branch_id },
           },
-          { model: db.User, distinct: true }, 
+          { model: db.User, distinct: true },
         ],
-        order: [["createdAt", "DESC"]], 
+        order: [["createdAt", "DESC"]],
       });
 
-      
       const totalPriceByDay = [];
-      let totalAllTransactions = 0; 
-      const uniqueUsers = new Set(); 
-      let totalCompletedOrders = 0; 
-      let totalCancelledOrders = 0; 
+      let totalAllTransactions = 0;
+      const uniqueUsers = new Set();
+      let totalCompletedOrders = 0;
+      let totalCancelledOrders = 0;
 
-      const lastFiveTransactions = []; 
+      const lastFiveTransactions = [];
 
-      const productSales = {}; 
+      const productSales = {};
 
-      const courierUsage = {}; 
+      const courierUsage = {};
 
       orderData.rows.forEach((order) => {
         if (order.orderStatus === "Order completed") {
@@ -1738,7 +1734,7 @@ module.exports = {
 
           uniqueUsers.add(order.User.id);
 
-          totalCompletedOrders += 1; 
+          totalCompletedOrders += 1;
 
           if (lastFiveTransactions.length < 5) {
             lastFiveTransactions.push({
@@ -1760,8 +1756,7 @@ module.exports = {
             productSales[productId] += branchProduct.quantity;
           });
 
-          
-          const courier = order.shippingMethod; 
+          const courier = order.shippingMethod;
 
           if (!courierUsage[courier]) {
             courierUsage[courier] = 0;
@@ -1769,7 +1764,7 @@ module.exports = {
 
           courierUsage[courier] += 1;
         } else if (order.orderStatus === "Canceled") {
-          totalCancelledOrders += 1; 
+          totalCancelledOrders += 1;
         }
       });
 
@@ -1784,8 +1779,8 @@ module.exports = {
           return {
             productId,
             productImg: product.imgProduct,
-            productName: product.name, 
-            totalStock: product.stock, 
+            productName: product.name,
+            totalStock: product.stock,
             sales: productSales[productId],
           };
         })
@@ -1795,7 +1790,6 @@ module.exports = {
         .sort((a, b) => b.sales - a.sales)
         .slice(0, 5);
 
-      
       const courierUsagePercentage = [];
       const totalCompletedOrdersCount = totalCompletedOrders;
 
@@ -1811,13 +1805,13 @@ module.exports = {
         data: {
           count: orderData.count,
           areaChart: totalPriceByDay,
-          pieChart: courierUsagePercentage, 
-          totalTransaction: totalAllTransactions, 
-          totalUsers: uniqueUsers.size, 
-          totalCompletedOrders, 
-          totalCancelledOrders, 
-          lastTransactions: lastFiveTransactions, 
-          topProducts, 
+          pieChart: courierUsagePercentage,
+          totalTransaction: totalAllTransactions,
+          totalUsers: uniqueUsers.size,
+          totalCompletedOrders,
+          totalCancelledOrders,
+          lastTransactions: lastFiveTransactions,
+          topProducts,
         },
       });
     } catch (error) {
@@ -1826,6 +1820,7 @@ module.exports = {
       });
     }
   },
+
   async branchInfo(req, res) {
     const userId = req.user.id;
     try {
@@ -1866,5 +1861,3 @@ module.exports = {
     }
   },
 };
-
-

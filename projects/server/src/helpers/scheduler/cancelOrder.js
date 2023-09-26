@@ -54,7 +54,7 @@ const job = schedule.scheduleJob(rule, async () => {
             await db.Stock_History.create(
               {
                 branch_product_id,
-                totalQuantity: currentStockQuantity + quantity, 
+                totalQuantity: currentStockQuantity + quantity,
                 quantity,
                 status: "canceled by user",
               },

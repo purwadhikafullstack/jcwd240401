@@ -1,7 +1,7 @@
 import Label from "../../Label";
 import { orderStatusLabelColor as labelColor } from "../../../helpers/labelColor";
 
-export default function OrderStatusPayment({orderStatus}) {
+export default function OrderStatusPayment({ orderStatus }) {
   if (orderStatus) {
     return (
       <div className="flex flex-row">

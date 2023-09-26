@@ -1,29 +1,24 @@
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import { useDispatch } from "react-redux";
 import rupiah from "../../helpers/rupiah";
 import { updateCart } from "../../store/reducer/cartSlice";
 import Button from "../Button";
 import Label from "../Label";
 import { addToCart, getCart } from "../../api/transaction";
+import handleImageError from "../../helpers/handleImageError";
 
 const CartItem = ({
   data,
-  onSelect, 
-  selected, 
+  onSelect,
+  selected,
 }) => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
-
-  const handleImageError = (event) => {
-    event.target.src =
-      "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
-  };
 
   const addQuantity = async (productId, currentQuantity, stock) => {
     try {
       if (currentQuantity <= stock) {
         const updatedQuantity = currentQuantity + 1;
-        const response = await addToCart(token, productId, updatedQuantity);
+        await addToCart(token, productId, updatedQuantity);
         const cartResponse = await getCart(token);
         dispatch(updateCart(cartResponse.data.data));
       }
@@ -36,7 +31,7 @@ const CartItem = ({
     try {
       if (currentQuantity >= 0) {
         const updatedQuantity = currentQuantity - 1;
-        const response = await addToCart(token, productId, updatedQuantity);
+        await addToCart(token, productId, updatedQuantity);
         const cartResponse = await getCart(token);
         dispatch(updateCart(cartResponse.data.data));
       }
@@ -50,11 +45,10 @@ const CartItem = ({
       <div className="flex bg-white border-b-2 border-x-lightgrey overflow-hidden items-center justify-start">
         <input
           type="checkbox"
-          checked={selected} // Bind the selected state to the checkbox
-          onChange={() => onSelect(data.id)} // Call the onSelect function when checkbox is clicked
-          className={`rounded-md border-maingreen border-2 p-2 m-2 ${
-            selected ? " text-maingreen" : ""
-          }`}
+          checked={selected}
+          onChange={() => onSelect(data.id)}
+          className={`rounded-md border-maingreen border-2 p-2 m-2 ${selected ? " text-maingreen" : ""
+            }`}
         />
         <div className="relative w-24 sm:w-32 h-24 sm:h-32 flex-shrink-0 hidden sm:block">
           <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center">
@@ -79,7 +73,7 @@ const CartItem = ({
             <div className="flex mx-2 sm:mx-4 justify-between w-full relative content-center">
               <div className="flex flex-col px-2 sm:px-0 justify-center text-center">
                 {data.Branch_Product.discount_id &&
-                data.Branch_Product.Discount?.isExpired === false ? (
+                  data.Branch_Product.Discount?.isExpired === false ? (
                   <>
                     {data.Branch_Product.Discount?.discount_type_id === 1 ? (
                       <div className="text-reddanger font-bold">
@@ -90,9 +84,9 @@ const CartItem = ({
                         <div className="flex justify-start text-reddanger font-bold">
                           {rupiah(
                             data.Branch_Product.Product.basePrice -
-                              (data.Branch_Product.Product.basePrice *
-                                data.Branch_Product.Discount?.amount) /
-                                100
+                            (data.Branch_Product.Product.basePrice *
+                              data.Branch_Product.Discount?.amount) /
+                            100
                           )}
                         </div>
                         <div className="text-xs flex items-center gap-3">
@@ -112,7 +106,7 @@ const CartItem = ({
                         <div className="text-reddanger font-bold">
                           {rupiah(
                             data.Branch_Product.Product.basePrice -
-                              data.Branch_Product.Discount?.amount
+                            data.Branch_Product.Discount?.amount
                           )}
                         </div>
                         <div className="text-xs flex items-center gap-3">

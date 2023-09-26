@@ -3,12 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import rupiah from "../../helpers/rupiah";
 import Modal from "../../component/Modal";
 import AlertPopUp from "../../component/AlertPopUp";
-import {
-  cancelOrderUser,
-  getUserOrders,
-  userConfirmOrder,
-  userPayment,
-} from "../../api/transaction";
+import { cancelOrderUser, getUserOrders, userConfirmOrder, userPayment } from "../../api/transaction";
 import { calculateTotalPrice as calculateSubTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
 import PaymentForm from "./paymentComponent/UserPaymentForm";
 import PaymentTitle from "./paymentComponent/PaymentTitle";
@@ -33,7 +28,6 @@ export default function UserPaymentContent() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const navigate = useNavigate();
-
   const fetchOrder = async () => {
     try {
       const response = await getUserOrders(token, id);
@@ -50,7 +44,6 @@ export default function UserPaymentContent() {
       console.log(error.message);
     }
   };
-
   const handleCancel = async (body, id) => {
     try {
       const response = await cancelOrderUser(token, body, id);
@@ -61,22 +54,16 @@ export default function UserPaymentContent() {
       console.log(error);
     }
   };
-
   const handleShowAlert = () => {
     setShowAlert(true);
     setTimeout(() => {
       setShowAlert(false);
     }, 4000);
   };
-
   const handleHideAlert = () => {
     setShowAlert(false);
   };
-
-  const handleSubmit = async (
-    values,
-    { setSubmitting, resetForm, setStatus }
-  ) => {
+  const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
     const { file } = values;
     const formData = new FormData();
     formData.append("file", file);
@@ -116,7 +103,6 @@ export default function UserPaymentContent() {
       setSubmitting(false);
     }
   };
-
   const handleConfirm = async () => {
     try {
       const response = await userConfirmOrder(token, id);
@@ -127,7 +113,6 @@ export default function UserPaymentContent() {
       console.log(error);
     }
   };
-
   useEffect(() => {
     if (id) {
       fetchOrder();
@@ -173,85 +158,41 @@ export default function UserPaymentContent() {
       {orderData ? (
         <div className="flex flex-col justify-center items-center">
           {showAlert ? (
-            <AlertPopUp
-              condition={errorMessage ? "fail" : "success"}
-              content={errorMessage ? errorMessage : successMessage}
-              setter={handleHideAlert}
-            />
+            <AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />
           ) : null}
           <div className="w-full lg:w-4/6">
             <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
               <PaymentTitle orderData={orderData} />
             </div>
             <div className="mx-4">
-              {orderStatus === "Waiting for payment" && (
-                <TimeRemaining timer={timer} />
-              )}
+              {orderStatus === "Waiting for payment" && (<TimeRemaining timer={timer} />)}
               <OrderStatusPayment orderStatus={orderStatus} />
               <OrderList orderData={orderData} />
               <SubTotal subTotal={subTotal} />
-              {selectedVoucher === "" ? (
-                ""
-              ) : selectedVoucher === null || selectedVoucher === 0 ? (
-                <FreeShipping />
-              ) : (
+              {selectedVoucher === "" ? ("") : selectedVoucher === null || selectedVoucher === 0 ? (<FreeShipping />) : (
                 <div className="flex justify-between">
-                  <span className="font-semibold text-xl text-maingreen">
-                    Voucher
-                  </span>
-                  <span className="text-reddanger text-xl font-bold ">
-                    {rupiah(selectedVoucher)}
-                  </span>
+                  <span className="font-semibold text-xl text-maingreen">Voucher</span>
+                  <span className="text-reddanger text-xl font-bold ">{rupiah(selectedVoucher)}</span>
                 </div>
               )}
               {deliveryFee && (
                 <div className="flex justify-between border-b-2 border-x-lightgrey">
-                  <span className="font-semibold text-xl text-maingreen">
-                    Delivery fee
-                  </span>
-                  <span className="text-reddanger text-xl font-bold ">
-                    {selectedVoucher === null || selectedVoucher === 0 ? (
-                      <s>{rupiah(deliveryFee)}</s>
-                    ) : (
-                      rupiah(deliveryFee)
-                    )}
-                  </span>
+                  <span className="font-semibold text-xl text-maingreen">Delivery fee</span>
+                  <span className="text-reddanger text-xl font-bold ">{selectedVoucher === null || selectedVoucher === 0 ? (<s>{rupiah(deliveryFee)}</s>) : (rupiah(deliveryFee))}</span>
                 </div>
               )}
               <GrandTotal grandTotal={grandTotal} />
               {orderStatus === "Waiting for payment" && (
                 <div>
-                  <div className="border-t-2 border-x-lightgrey mt-6 pt-2 font-semibold text-base">
-                    Please update your payment below to proceed your order
-                  </div>
-                  <PaymentForm
-                    handleSubmit={handleSubmit}
-                    id={id}
-                    handleCancel={handleCancel}
-                  />
+                  <div className="border-t-2 border-x-lightgrey mt-6 pt-2 font-semibold text-base">Please update your payment below to proceed your order</div>
+                  <PaymentForm handleSubmit={handleSubmit} id={id} handleCancel={handleCancel} />
                 </div>
               )}
-              {orderStatus === "Delivering" && (
-                <div className="m-2 ">
-                  <Modal
-                    modalTitle={"Confirm order"}
-                    toggleName={"Confirm order"}
-                    content={"are you sure you want to complete this order?"}
-                    buttonCondition={"positive"}
-                    buttonLabelOne={"Cancel"}
-                    buttonLabelTwo={"Yes"}
-                    buttonTypeOne={"button"}
-                    buttonTypeTwo={"submit"}
-                    onClickButton={handleConfirm}
-                  />
-                </div>
-              )}
+              {orderStatus === "Delivering" && (<div className="m-2 "><Modal modalTitle={"Confirm order"} toggleName={"Confirm order"} content={"are you sure you want to complete this order?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={handleConfirm} /></div>)}
             </div>
           </div>
         </div>
-      ) : (
-        <p>Loading...</p>
-      )}
+      ) : (<p>Loading...</p>)}
     </div>
   );
 }

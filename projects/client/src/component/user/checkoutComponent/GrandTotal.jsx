@@ -1,6 +1,6 @@
 import rupiah from "../../../helpers/rupiah";
 
-export default function GrandTotal({grandTotal}) {
+export default function GrandTotal({ grandTotal }) {
   if (grandTotal) {
     return (
       <div className="flex justify-between ">

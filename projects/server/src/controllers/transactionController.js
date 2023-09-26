@@ -7,16 +7,6 @@ const handlebars = require("handlebars");
 const fs = require("fs");
 const transporter = require("../helpers/transporter");
 
-const handleCatchError = async (res, transaction, error) => {
-  if (transaction) {
-    await transaction.rollback();
-  }
-  console.log(error);
-  return res.status(500).send({
-    message: "Internal Server Error",
-  });
-};
-
 module.exports = {
   async allOrdersByBranch(req, res) {
     const pagination = {
@@ -1288,7 +1278,9 @@ module.exports = {
         .status(201)
         .send({ message: "Successfully upload payment proof" });
     } catch (error) {
-      handleCatchError(res, transaction, error);
+      console.log(error);
+      await transaction.rollback();
+      return res.status(500).send({ message: "Internal Server Error" });
     }
   },
 

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../Button";
 import cartImg from "../../../assets/cart.png"
 export default function EmptyCart() {
-    const navigate=useNavigate()
+  const navigate = useNavigate()
   return (
     <div className="flex flex-col items-center justify-center">
       <img src={cartImg} alt="Empty Cart" />

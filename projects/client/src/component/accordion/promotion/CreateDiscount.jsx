@@ -37,7 +37,7 @@ export default function CreateDiscount() {
       setTotalPage(
         Math.ceil(
           branchProducts.pagination.totalData /
-            branchProducts.pagination.perPage
+          branchProducts.pagination.perPage
         )
       );
     } catch (error) {

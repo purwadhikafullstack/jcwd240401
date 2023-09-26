@@ -117,34 +117,17 @@ export default function UserCartContent() {
       {token && profile.role === "3" ? (
         <>
           <div>
-            <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">
-              Cart
-            </div>
+            <div className="text-3xl lg:text-5xl font-bold text-maingreen py-4 text-center">Cart</div>
             {showAlert ? (
-              <AlertPopUp
-                condition={errorMessage ? "fail" : "success"}
-                content={errorMessage ? errorMessage : successMessage}
-                setter={handleHideAlert}
-              />
+              <AlertPopUp condition={errorMessage ? "fail" : "success"} content={errorMessage ? errorMessage : successMessage} setter={handleHideAlert} />
             ) : null}
             <div className="flex justify-end mx-6 lg:px-20">
               {selectedItems.length === 0 ? (
-                <div className="flex justify-end mx-6 lg:px-20 text-white">
-                  _
-                </div>
+                <div className="flex justify-end mx-6 lg:px-20 text-white">_</div>
               ) : selectedItems.length > 0 ? (
-                <Modal
-                  modalTitle="Delete Cart"
-                  buttonCondition="trash"
-                  content="are you sure you want to remove this from your cart?"
-                  buttonLabelOne="Cancel"
-                  buttonLabelTwo="Yes"
-                  onClickButton={handleDelete}
-                />
+                <Modal modalTitle="Delete Cart" buttonCondition="trash" content="are you sure you want to remove this from your cart?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={handleDelete} />
               ) : (
-                <button disabled>
-                  <BsTrash size={25} color="grey" />
-                </button>
+                <button disabled><BsTrash size={25} color="grey" /></button>
               )}
             </div>
           </div>
@@ -152,19 +135,11 @@ export default function UserCartContent() {
             {cartItems.length !== 0 && (
               <div>
                 {cartItems.map((data) => (
-                  <CartItem
-                    data={data}
-                    onSelect={handleItemSelect}
-                    selected={selectedItems.includes(data.id)}
-                  />
+                  <CartItem data={data} onSelect={handleItemSelect} selected={selectedItems.includes(data.id)} />
                 ))}
                 <div className=" flex flex-row  lg:justify-end lg:mx-16 sm:justify-between">
-                  <span className="font-semibold text-xl text-maingreen mx-10 ">
-                    Total
-                  </span>
-                  <span className="text-reddanger text-xl font-bold ">
-                    {rupiah(totalPrice)}
-                  </span>
+                  <span className="font-semibold text-xl text-maingreen mx-10 ">Total</span>
+                  <span className="text-reddanger text-xl font-bold ">{rupiah(totalPrice)}</span>
                 </div>
                 <div className="flex sm:justify-center lg:justify-end mx-16 mt-2">
                   <div className="w-72">
@@ -185,8 +160,7 @@ export default function UserCartContent() {
                 <UnavailableCartTitle unavailableCart={unavailableCart} />
                 {unavailableCart.map((data) => (
                   <UnavailableCartItem
-                    key={data.id}
-                    quantity={data.quantity}
+                    key={data.id} quantity={data.quantity}
                     name={data.Branch_Product.Product.name}
                     weight={data.Branch_Product.Product.weight}
                     UOM={data.Branch_Product.Product.unitOfMeasurement}

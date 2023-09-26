@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../../Button";
 
-export default function PaymentTitle({orderData}) {
+export default function PaymentTitle({ orderData }) {
   const navigate = useNavigate();
   if (orderData) {
     return (

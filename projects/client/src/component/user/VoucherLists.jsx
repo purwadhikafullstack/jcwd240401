@@ -25,11 +25,10 @@ const VoucherLists = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
   return (
     <div
       key={vouchers.id}
-      className={`border p-4 rounded-lg cursor-pointer ${
-        selectedVoucher.id === vouchers.Voucher.id
+      className={`border p-4 rounded-lg cursor-pointer ${selectedVoucher.id === vouchers.Voucher.id
           ? "border-maingreen bg-greensuccesssurface"
           : "border-gray-300"
-      } ${!vouchers.isEligible ? "opacity-60 pointer-events-none" : ""}`}
+        } ${!vouchers.isEligible ? "opacity-60 pointer-events-none" : ""}`}
       onClick={() => {
         if (vouchers.isEligible) {
           handleVoucherClick(

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 
-import CustomDropDown from "../../../CustomDropdown";
 import CustomDropdownURLSearch from "../../../CustomDropdownURLSearch";
 
 export default function StockReport() {
@@ -21,16 +20,10 @@ export default function StockReport() {
 
   const fetchDataAllBranch = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-all-branch`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-all-branch`, { headers: { Authorization: `Bearer ${token}` } });
       const data = response.data.data.rows;
       if (data) {
-        let options = data.map((d) => ({
-          label: `${d.City?.city_name}, ${d.City?.Province.province_name}`,
-          value: d.id,
-        }));
+        let options = data.map((d) => ({ label: `${d.City?.city_name}, ${d.City?.Province.province_name}`, value: d.id, }));
         setDataAllBranch(options);
       } else {
         setDataAllBranch([]);
@@ -42,16 +35,7 @@ export default function StockReport() {
 
   const fetchDataStockHistory = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/stock-history-sa?page=${
-          params.get("page") || 1
-        }&filterBranch=${params.get("branch_id") || ""}&sortDate=${params.get("sort") || ""}&filterStatus=${
-          params.get("status") || ""
-        }&filterBranchProduct=${params.get("branch_product_id") || ""}&startDate=${
-          params.get("startDate") || ""
-        }&endDate=${params.get("endDate") || ""}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/stock-history-sa?page=${params.get("page") || 1}&filterBranch=${params.get("branch_id") || ""}&sortDate=${params.get("sort") || ""}&filterStatus=${params.get("status") || ""}&filterBranchProduct=${params.get("branch_product_id") || ""}&startDate=${params.get("startDate") || ""}&endDate=${params.get("endDate") || ""}`, { headers: { Authorization: `Bearer ${token}` } });
       if (response.data) {
         const { data: responseData, pagination } = response.data;
         if (responseData) {
@@ -67,20 +51,14 @@ export default function StockReport() {
   };
   const fetchAllBranchProduct = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-branch-products-sa`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/no-pagination-branch-products-sa`, { headers: { Authorization: `Bearer ${token}` } });
       if (response.data) {
         const data = response.data.data;
         if (data) {
           const filteredData = data.filter(
             (d) => d.branch_id === parseInt(params.get("branch_id"))
           );
-          const options = filteredData.map((d) => ({
-            label: `${d.Product?.name} [ ${d.Product?.weight}${d.Product.unitOfMeasurement} / pack ]`,
-            value: d.id,
-          }));
+          const options = filteredData.map((d) => ({ label: `${d.Product?.name} [ ${d.Product?.weight}${d.Product.unitOfMeasurement} / pack ]`, value: d.id, }));
           options.splice(0, 0, { label: "All Product", value: "" });
           setDataAllBranchProduct(options);
         } else {
@@ -96,7 +74,7 @@ export default function StockReport() {
     fetchDataStockHistory();
     fetchAllBranchProduct();
     fetchDataAllBranch();
-    if(params.get("branch_id")) {
+    if (params.get("branch_id")) {
       setSelectedBranch(true)
     }
   }, [currentPage, filter]);
@@ -122,19 +100,12 @@ export default function StockReport() {
   const TableRow = () => {
     dataStockHistory?.forEach((data, index) => {
       arrayData.push(
-        <tr
-          key={data.id}
-          className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-        >
+        <tr key={data.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
           <td className="px-6 py-4">{`${data.Branch_Product.Product.name} [ ${data.Branch_Product.Product?.weight}${data.Branch_Product.Product.unitOfMeasurement} / pack ]`}</td>
           <td className="px-6 py-4">{data.totalQuantity}</td>
-          <td className="px-6 py-4">
-            {renderSwitch(data.status, data.quantity)}
-          </td>
+          <td className="px-6 py-4">{renderSwitch(data.status, data.quantity)}</td>
           <td className="px-6 py-4">{data.status}</td>
-          <td className="px-6 py-4">
-            {new Date(data.createdAt).toLocaleDateString()}
-          </td>
+          <td className="px-6 py-4">{new Date(data.createdAt).toLocaleDateString()}</td>
         </tr>
       );
     });
@@ -168,13 +139,13 @@ export default function StockReport() {
     navigate({ search: params.toString() });
   }
 
-const handleFilterChange = (paramName, paramValue) => {
+  const handleFilterChange = (paramName, paramValue) => {
     const newFilter = new URLSearchParams(filter.toString());
     newFilter.set("page", "1");
     if (paramValue === "") {
-        newFilter.delete(paramName);
+      newFilter.delete(paramName);
     } else {
-        newFilter.set(paramName, paramValue);
+      newFilter.set(paramName, paramValue);
     }
     setFilter(newFilter);
     const params = new URLSearchParams(window.location.search);
@@ -186,17 +157,13 @@ const handleFilterChange = (paramName, paramValue) => {
   return (
     <div>
       <div className="mx-auto py-2 w-5/6">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Branch
-        </label>
-        <CustomDropdownURLSearch id="branch_id" options={dataAllBranch} onChange={(e) => {handleFilterChange(e.target.id, e.target.value); setSelectedBranch(true)}} placeholder={"Select by Branch"} /> 
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
+        <CustomDropdownURLSearch id="branch_id" options={dataAllBranch} onChange={(e) => { handleFilterChange(e.target.id, e.target.value); setSelectedBranch(true) }} placeholder={"Select by Branch"} />
       </div>
       {!selectedBranch ? (
         <div>
           <hr className="m-4" />
-          <div className="font-inter text-center text-maingreen w-11/12 mx-auto">
-            Please select a branch to view stock report
-          </div>
+          <div className="font-inter text-center text-maingreen w-11/12 mx-auto">Please select a branch to view stock report</div>
         </div>
       ) : (
         <div className="w-5/6 mx-auto">
@@ -206,79 +173,36 @@ const handleFilterChange = (paramName, paramValue) => {
             </div>
             <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Start Date
-                </label>
-                <input
-                  id="startDate"
-                  type="date"
-                  className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0 "
-                  value={params.get("startDate") || ""}
-                  onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
-                />
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+                <input id="startDate" type="date" className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0 " value={params.get("startDate") || ""} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  End Date
-                </label>
-                <input
-                  id="endDate"
-                  type="date"
-                  className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0"
-                  value={params.get("endDate") || ""}
-                  onChange={(e) => handleFilterChange(e.target.id, e.target.value)}
-                />
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+                <input id="endDate" type="date" className="w-full mt-1 bg-lightgrey rounded-md border-none border-gray-300 focus:border-maindarkgreen focus:ring-0" value={params.get("endDate") || ""} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} />
               </div>
             </div>
             <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropdownURLSearch id="sort" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Created Date"} />
-          <CustomDropdownURLSearch id="status" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Status"} />
+              <CustomDropdownURLSearch id="sort" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Created Date"} />
+              <CustomDropdownURLSearch id="status" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Status"} />
             </div>
             <div className=" overflow-x-auto w-full">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase border-b-2 border-maingreen ">
                   <tr>
-                    <th scope="col" className="px-6 py-3">
-                      Product
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Total qty.
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Qty.
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      status
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Created date
-                    </th>
+                    <th scope="col" className="px-6 py-3">Product</th>
+                    <th scope="col" className="px-6 py-3"> Total qty.</th>
+                    <th scope="col" className="px-6 py-3">Qty.</th>
+                    <th scope="col" className="px-6 py-3">Status</th>
+                    <th scope="col" className="px-6 py-3">Created date</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {dataStockHistory.length != 0 ? (
-                    <TableRow />
-                  ) : (
-                    <tr>
-                      <td colSpan="7" className="py-4 text-center  text-base">
-                        no stock report found
-                      </td>
-                    </tr>
-                  )}
+                  {dataStockHistory.length != 0 ? (<TableRow />) : (<tr> <td colSpan="7" className="py-4 text-center  text-base">No Stock Report Found</td> </tr>)}
                 </tbody>
               </table>
             </div>
             <div className="flex justify-center">
-              <Pagination
-                currentPage={currentPage}
-                onPageChange={onPageChange}
-                showIcons
-                layout="pagination"
-                totalPages={totalPages}
-                nextLabel="Next"
-                previousLabel="Back"
-                className="mx-auto"
-              />
+              <Pagination currentPage={currentPage} onPageChange={onPageChange} showIcons layout="pagination" totalPages={totalPages} nextLabel="Next" previousLabel="Back" className="mx-auto" />
             </div>
           </div>
         </div>

@@ -57,6 +57,8 @@ const PrivateUserWrapper = ({allowedRoles}) => {
   if (!token) {
     if(location.pathname.includes("my-address") || location.pathname.includes("my-profile")){
       return <Navigate to="/user/account" />
+    } else if(location.pathname.includes("payment") || location.pathname.includes("checkout")){
+      return <Navigate to="/user/orders" />
     } else {
       return <Outlet />;
     }

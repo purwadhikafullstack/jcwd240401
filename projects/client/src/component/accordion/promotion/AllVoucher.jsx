@@ -1,9 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
-import CustomDropdown from "../../CustomDropdown";
 import rupiah from "../../../helpers/rupiah";
 import { getAllVoucher } from "../../../api/promotion";
 import CustomDropdownURLSearch from "../../CustomDropdownURLSearch";
@@ -51,9 +50,9 @@ export default function AllVoucher() {
     const newFilter = new URLSearchParams(filter.toString());
     newFilter.set("page", "1");
     if (paramValue === "") {
-        newFilter.delete(paramName);
+      newFilter.delete(paramName);
     } else {
-        newFilter.set(paramName, paramValue);
+      newFilter.set(paramName, paramValue);
     }
     setFilter(newFilter);
     const params = new URLSearchParams(window.location.search);
@@ -75,8 +74,8 @@ export default function AllVoucher() {
             {data.voucher_type_id == 1
               ? "-"
               : data.voucher_type_id == 2
-              ? `${data.amount}%`
-              : rupiah(data.amount)}
+                ? `${data.amount}%`
+                : rupiah(data.amount)}
           </td>
           <td className="px-6 py-4">{!data.usedLimit && "-"}</td>
           <td className="px-6 py-4">

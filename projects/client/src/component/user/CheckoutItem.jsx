@@ -1,5 +1,6 @@
 import rupiah from "../../helpers/rupiah";
 import Label from "../Label";
+import handleImageError from "../../helpers/handleImageError";
 
 const CheckoutItem = ({
   quantity,
@@ -14,10 +15,6 @@ const CheckoutItem = ({
   discountAmount,
   cartId,
 }) => {
-  const handleImageError = (event) => {
-    event.target.src =
-      "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
-  };
 
   return (
     <div key={cartId} className="mx-auto my-1">

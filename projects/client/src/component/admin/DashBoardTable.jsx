@@ -8,25 +8,18 @@ export default function DashBoardTable({ tableData }) {
       switch (text) {
         case "Waiting for payment":
           return "gray";
-          break;
         case "Waiting for payment confirmation":
           return "purple";
-          break;
         case "Processing":
           return "yellow";
-          break;
         case "Delivering":
           return "blue";
-          break;
         case "Order completed":
           return "green";
-          break;
         case "Canceled":
           return "red";
-          break;
         default:
           return "";
-          break;
       }
     };
     return (

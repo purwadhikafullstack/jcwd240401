@@ -10,7 +10,7 @@ const paymentSchema = yup.object().shape({
 });
 
 
-const PaymentForm = ({ handleSubmit, id , handleCancel}) => {
+const PaymentForm = ({ handleSubmit, id, handleCancel }) => {
   return (
     <Formik
       enableReinitialize

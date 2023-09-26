@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
 import dayjs from "dayjs";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import rupiah from "../../../helpers/rupiah";
 import { getAllDiscount } from "../../../api/promotion";
@@ -54,9 +54,9 @@ export default function AllDiscount() {
     const newFilter = new URLSearchParams(filter.toString());
     newFilter.set("page", "1");
     if (paramValue === "") {
-        newFilter.delete(paramName);
+      newFilter.delete(paramName);
     } else {
-        newFilter.set(paramName, paramValue);
+      newFilter.set(paramName, paramValue);
     }
     setFilter(newFilter);
     const params = new URLSearchParams(window.location.search);
@@ -67,7 +67,6 @@ export default function AllDiscount() {
 
   const arrayData = [];
   const tomorrow = dayjs().add(1, "day");
-  const formattedTomorrow = tomorrow.format("YYYY-MM-DD");
 
   const TableRow = () => {
     dataAllDiscount?.forEach((data, index) => {
@@ -81,8 +80,8 @@ export default function AllDiscount() {
             {data.discount_type_id == 1
               ? "-"
               : data.discount_type_id == 2
-              ? `${data.amount}%`
-              : rupiah(data.amount)}
+                ? `${data.amount}%`
+                : rupiah(data.amount)}
           </td>
           <td className="px-6 py-4">
             {new Date(data.expiredDate).toLocaleDateString()}
@@ -92,7 +91,7 @@ export default function AllDiscount() {
           </td>
           <td className="px-6 py-4">
             {new Date(data.expiredDate).setHours(0, 0, 0, 0) <
-            new Date().setHours(0, 0, 0, 0) ? (
+              new Date().setHours(0, 0, 0, 0) ? (
               <span className=" text-reddanger">expired</span>
             ) : (
               <span className=" text-maingreen">on going</span>
