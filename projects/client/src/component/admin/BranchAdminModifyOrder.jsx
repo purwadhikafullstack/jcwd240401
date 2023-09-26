@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Formik, Form } from 'formik'
 import * as yup from "yup";
-import axios from 'axios'
 import dayjs from 'dayjs'
 import Label from '../Label'
 import rupiah from '../../helpers/rupiah'
@@ -11,6 +10,8 @@ import InputField from '../InputField'
 import Modal from '../Modal';
 import handleImageError from '../../helpers/handleImageError';
 import AlertHelper from '../AlertHelper';
+import { modifyOrderByAdmin, changeOrderStatus, cancelByAdmin } from '../../api/transaction';
+import { orderStatusLabelColor } from '../../helpers/labelColor';
 
 export default function BranchAdminModifyOrder() {
   const [orderData, setOrderData] = useState([])
@@ -18,16 +19,13 @@ export default function BranchAdminModifyOrder() {
   const [successMessage, setSuccessMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [imagePreview, setImagePreview] = useState(null);
-  const [showAlert, setShowAlert] = useState(false)
   const navigate = useNavigate()
   const {id} = useParams()
   const token = localStorage.getItem("token")
 
   const order = async() => {
     try{
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/order?orderId=${id}`, {
-            headers: {'Authorization' : `Bearer ${token}`}
-        })
+        const response = await modifyOrderByAdmin(id, token)
         if(response.data){
             setOrderData(response.data.data)
         } else {
@@ -45,36 +43,9 @@ export default function BranchAdminModifyOrder() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [successMessage, errorMessage])
 
-const labelColor = (text) => {
-  switch(text) {
-      case "Waiting for payment":
-          return "gray";
-          break;
-      case "Waiting for payment confirmation":
-          return "purple";
-          break;
-      case "Processing":
-          return "yellow";
-          break;
-      case "Delivering":
-          return "blue";
-          break;
-      case "Order completed":
-          return "green";
-          break
-      case "Canceled":
-          return "red";
-          break;
-      default:
-          return "";
-          break;
-  }
-}
   const handleChangeStatus = async(action) => {
     try{
-      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/orders/${id}/${action}`, {}, {
-        headers: {"Authorization" : `Bearer ${token}`}
-      })
+      const response = await changeOrderStatus(id, action)
       if(response.status === 200){
         setSuccessMessage(response.data.message)
       }
@@ -94,10 +65,7 @@ const labelColor = (text) => {
     if (file) { formData.append('file', file); }
     
     try{
-      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/orders/${id}`, formData, {
-        headers: {'Authorization' : `Bearer ${token}`}
-      })
-
+      const response = await cancelByAdmin(id, formData, token)
       if(response.status === 200){
         resetForm({ values: initialValues })
         setErrorMessage("")
@@ -131,8 +99,7 @@ const labelColor = (text) => {
   }
 
   return (
-    <div className='w-full min-h-screen flex justify-center'>
-      <div className="w-6/12 h-full my-8 flex flex-col gap-2">
+      <div className="py-4 px-2 flex flex-col font-inter w-full sm:max-w-7xl mx-auto">
         <div className='flex lg:pt-10'>
           <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
           <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify Order</div>
@@ -152,7 +119,7 @@ const labelColor = (text) => {
           </div>
           <div className="text-base flex flex-col justify-start items-start text-darkgrey border-b-2 pb-2">
             Order Status
-            <p className="text-black"><Label text={orderData?.orderStatus} labelColor={labelColor(orderData?.orderStatus)} /></p>
+            <p className="text-black"><Label text={orderData?.orderStatus} labelColor={orderStatusLabelColor(orderData?.orderStatus)} /></p>
           </div>
           <div className="text-base text-darkgrey border-b-2 pb-2">
             Buyer
@@ -291,6 +258,5 @@ const labelColor = (text) => {
         </div>
         </div>
       </div>
-    </div>
   )
 }

@@ -139,3 +139,20 @@ export function addToCart(token, productId, updatedQuantity) {
   );
 }
 
+export function modifyOrderByAdmin(id, token) {
+    return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/order?orderId=${id}`, {
+        headers: {'Authorization' : `Bearer ${token}`}
+    })
+}
+
+export function changeOrderStatus(id, action){
+    return axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/orders/${id}/${action}`, {}, {
+        headers: {"Authorization" : `Bearer ${token}`}
+      })
+}
+
+export function cancelByAdmin(id, formData, token){
+    return axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/orders/${id}`, formData, {
+        headers: {'Authorization' : `Bearer ${token}`}
+      })
+}

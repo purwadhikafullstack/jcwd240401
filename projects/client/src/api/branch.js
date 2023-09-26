@@ -17,3 +17,9 @@ export function getAllBranchesNoPagination (token) {
         headers: {'Authorization' : `Bearer ${token}`}
     })
 }
+
+export function getBranchInfo(token) {
+    return axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch-info`, {
+        headers: { 'Authorization' : `Bearer ${token}`}
+    })
+}

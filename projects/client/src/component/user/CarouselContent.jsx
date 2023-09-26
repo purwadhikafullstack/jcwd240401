@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import axios from 'axios'
 import { Carousel } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import rupiah from '../../helpers/rupiah'

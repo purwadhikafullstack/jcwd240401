@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react'
-import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import adminHomePic from '../../assets/marketPic.png'
+import { getBranchInfo } from '../../api/branch';
 
 export default function AdminHomeContent() {
     const [branchData, setBranchData] = useState([])
@@ -11,10 +11,7 @@ export default function AdminHomeContent() {
 
     const branchLocation = async() => {
         try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch-info`, {
-                headers: { 'Authorization' : `Bearer ${token}`}
-            })
-
+            const response = await getBranchInfo(token)
             if(response.data){
                 if(response.data?.data){
                     setBranchData(response.data?.data)

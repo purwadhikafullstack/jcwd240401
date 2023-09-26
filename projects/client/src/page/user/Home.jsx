@@ -8,6 +8,7 @@ import { keep, remove } from '../../store/reducer/authSlice'
 import LayoutUser from '../../component/user/LayoutUser'
 import HomeContent from '../../component/user/HomeContent'
 import { getMainAddress } from '../../api/profile'
+import { convertCoordinateToPlacename } from '../../api/location'
 
 export default function Home() {
     const [latitude, setLatitude] = useState("")
@@ -22,7 +23,7 @@ export default function Home() {
     const location = useLocation()
 
     const coordinateToPlacename = async () => {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/location?latitude=${latitude}&longitude=${longitude}`)
+        const response = await convertCoordinateToPlacename(latitude, longitude)
         if (response.data) {
             if (response.data.data?.city === "Daerah Khusus Ibukota Jakarta") {
                 setCityAddress(response.data.data?.city_district)
