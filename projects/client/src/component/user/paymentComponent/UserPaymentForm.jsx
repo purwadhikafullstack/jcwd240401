@@ -1,5 +1,3 @@
-// PaymentForm.js
-
 import React from "react";
 import { Formik, Form } from "formik";
 import * as yup from "yup";

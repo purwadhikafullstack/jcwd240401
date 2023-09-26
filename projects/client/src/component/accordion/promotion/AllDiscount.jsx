@@ -32,7 +32,7 @@ export default function AllDiscount() {
         }
       }
     } catch (error) {
-      console.log(error,"ininini");
+      console.log(error.message);
     }
   };
   useEffect(() => {

@@ -63,7 +63,7 @@ export default function UserProfileChangePasswordContent() {
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Change My Password</div>
                 </div>
-                <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
+                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
                 <div className='flex flex-col gap-2 py-6 mx-2 sm:mx-0'>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-full flex flex-col gap-2">
                     <div className="w-full">

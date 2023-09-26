@@ -185,7 +185,7 @@ export default function UserRegister() {
                             <img src={registerPic} alt="register" className="w-full max-h-40 object-cover" />
                         </div>
                         <div className='mt-10 lg:mt-0 flex flex-col items-center gap-2'>
-                            <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
+                            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
                             {isLoading ? (<div className='text-sm text-maingreen font-inter'>Loading...</div>) : null}
                             <Modal isDisabled={!isValid || isSubmitting} modalTitle={"Register"} toggleName={"Register"} content={"Are you sure you have filled the details correctly?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeTwo={"submit"} onClickButton={handleSubmit}/>
                             <Link to="/login" className="font-inter text-sm font-bold text-maingreen">Back To Log In</Link>

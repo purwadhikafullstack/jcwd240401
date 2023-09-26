@@ -8,8 +8,8 @@ import { addToCart, getCart } from "../../api/transaction";
 
 const CartItem = ({
   data,
-  onSelect, // Add onSelect prop
-  selected, // Add selected prop
+  onSelect, 
+  selected, 
 }) => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");

@@ -202,7 +202,6 @@ router.get(
   adminController.allBranchNoPagination
 );
 
-//get all branch product no pagination (SA)
 router.get(
   "/no-pagination-branch-products-sa",
   authMiddleware.verifyToken,
@@ -210,7 +209,6 @@ router.get(
   adminController.allBranchProductNoPaginationSuperAdmin
 );
 
-//get transactions for branch Admin
 router.get(
   "/branch-orders",
   authMiddleware.verifyToken,

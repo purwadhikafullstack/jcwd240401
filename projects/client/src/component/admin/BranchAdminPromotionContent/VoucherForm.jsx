@@ -93,7 +93,7 @@ export default function VoucherForm({
             <div>
               <div>
                 <label htmlFor="amount" className="font-inter">
-                  amount
+                  Amount
                   <span className="text-xs text-reddanger">*</span>
                 </label>
                 <InputField
@@ -111,6 +111,7 @@ export default function VoucherForm({
               <div>
                 <label htmlFor="maxDiscount" className="font-inter">
                   Max Discount
+                  <span className="text-xs text-reddanger">*</span>
                 </label>
                 <InputField
                   value={props.values.maxDiscount}
@@ -130,7 +131,7 @@ export default function VoucherForm({
             <>
               <div>
                 <label htmlFor="minTransaction" className="font-inter">
-                  min. Transaction
+                  Min. transaction
                   <span className="text-xs text-reddanger">*</span>
                 </label>
                 <InputField

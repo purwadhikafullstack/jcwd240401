@@ -70,7 +70,7 @@ export default function ResetPassword() {
                     <img src={setPasswordPic} alt="logo" className="w-52 h-52"/>
                 </div>
                 <div className="w-72">
-                    <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
+                    <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
                 </div>
                 <form onSubmit={handleSubmit} autoComplete="off" className="w-72 flex flex-col gap-2">
                     <div className="w-full">

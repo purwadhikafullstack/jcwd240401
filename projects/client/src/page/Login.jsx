@@ -115,7 +115,7 @@ export default function Login() {
               </div>
             </div>
             <div className="w-72">
-              <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
+              <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
             </div>
             <form
               onSubmit={handleSubmit}

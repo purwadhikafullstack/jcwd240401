@@ -107,7 +107,7 @@ export default function BranchAdminModifyOrder() {
         <div className='w-full'>
         <div className="py-6 space-y-6 px-10 font-inter">
           <div className='w-full flex justify-center'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage}/>
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
           </div>
           <div className="text-base text-darkgrey border-b-2 pb-2">
             Invoice Code

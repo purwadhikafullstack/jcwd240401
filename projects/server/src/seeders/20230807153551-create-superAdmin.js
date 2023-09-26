@@ -24,9 +24,9 @@ module.exports = {
     await queryInterface.bulkInsert("Users", [
       {
         role_id: 1,
-        name: "super admin 1",
-        email: "superadmin1@gmail.com",
-        phone: "0877553377",
+        name: "Super Admin",
+        email: "superadmin@gmail.com",
+        phone: "081234567001",
         password: pw,
         createdAt: new Date(),
         updatedAt: new Date(),

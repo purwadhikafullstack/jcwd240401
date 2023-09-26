@@ -97,7 +97,7 @@ export default function CreateBranch() {
                 <div className='w-full h-full flex justify-center items-center'>
                     <div className="w-full sm:w-8/12 flex flex-col gap-2">
                         <div className="w-full">
-                            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+                            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage}/>
                         </div>
                         <form onSubmit={(e) => {e.preventDefault(); handleSubmit(e)}} autoComplete="off" className="w-full flex flex-col gap-2">
                             <div className="text-xs text-reddanger">* required</div>

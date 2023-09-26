@@ -74,7 +74,7 @@ const createProductSchema = yup.object().shape({
     file: yup.mixed(),
     name: yup.string().trim().required("Product name is required").max(50, "Maximum character is 50").typeError("Name must be a valid text"),
     category_id: yup.string().trim().required("Category is required"),
-    description: yup.string().trim().required("Description is required").max(500, "Maximum character is 500").typeError("Description must be a valid text"),
+    description: yup.string().trim().required("Description is required").max(255, "Maximum character is 255").typeError("Description must be a valid text"),
     weight: yup.number().required("Weight is required").min(5, "Weight must be at least 5").typeError('Weight must be a valid number'),
     unitOfMeasurement: yup.string().trim().required("Unit of measurement is required").oneOf(["gr", "ml"], "Unit of measurement must be 'gr' or 'ml'"),
     basePrice: yup.number().required("Price is required").min(1000, "Weight must be at least Rp 1.000").typeError('Base price must be a valid number'),

@@ -20,7 +20,7 @@ export default function CreateProductForm({ onSubmit, preview, imagePreview, all
                         </div>
                     </div>
                     <div className="flex flex-col gap-2 py-4 font-inter mb-4">
-                        <label htmlFor="description" className="font-medium">Description <span className="text-sm font-normal">(max. 500 characters) </span><span className="text-reddanger">*</span></label>
+                        <label htmlFor="description" className="font-medium">Description <span className="text-sm font-normal">(max. 255 characters) </span><span className="text-reddanger">*</span></label>
                         <div className='relative'>
                             <InputField value={props.values.description} id={"description"} type={"string"} name="description" onChange={props.handleChange} />
                             {props.errors.description && props.touched.description && <div className="text-sm text-reddanger absolute top-12">{props.errors.description}</div>}
