@@ -2,10 +2,14 @@ const db = require("../models");
 const axios = require("axios");
 const refCode = require("referral-codes");
 const {
-  setFromFileNameToDBValueCategory,
+ setFromFileNameToDBValuePayment,
 } = require("../helpers/fileConverter");
 const dayjs = require("dayjs");
 const { setFromFileNameToDBValueRefund } = require("../helpers/fileConverter");
+const handlebars = require("handlebars")
+const fs = require("fs")
+const transporter = require("../helpers/transporter")
+
 
 const handleCatchError = async (res, transaction, error) => {
   if (transaction) {
@@ -278,6 +282,9 @@ module.exports = {
     try {
       const orderData = await db.Order.findOne({
         where: orderId,
+        include: [{
+          model: db.User,
+        }]
       });
 
       if (!orderData) {
@@ -299,6 +306,18 @@ module.exports = {
 
             orderData.orderStatus = "Waiting for payment";
             await orderData.save({ transaction });
+            
+            const template = fs.readFileSync("./src/helpers/template/rejectedpayment.html", "utf-8")
+            const templateCompile = handlebars.compile(template)
+            const rejectedPaymentEmail = templateCompile({name: orderData.User.name, invoiceCode: orderData.invoiceCode})
+            
+            await transporter.sendMail({
+                from: "Groceer-e",
+                to: orderData.User.email,
+                subject: "Update Your Payment",
+                html: rejectedPaymentEmail
+            })
+
             await transaction.commit();
             return res.status(200).send({
               message: "Order status is changed to Waiting for payment",
@@ -338,6 +357,18 @@ module.exports = {
 
             orderData.orderStatus = "Processing";
             await orderData.save({ transaction });
+            
+            const template = fs.readFileSync("./src/helpers/template/confirmedpayment.html", "utf-8")
+            const templateCompile = handlebars.compile(template)
+            const confirmedPaymentEmail = templateCompile({name: orderData.User.name, invoiceCode: orderData.invoiceCode})
+            
+            await transporter.sendMail({
+                from: "Groceer-e",
+                to: orderData.User.email,
+                subject: "Your Order is Being Processed",
+                html: confirmedPaymentEmail
+            })
+
             await transaction.commit();
             return res.status(200).send({
               message: "Order status is changed to Processing",
@@ -422,7 +453,9 @@ module.exports = {
                 model: db.Product,
               },
             ],
-          },
+          },{
+            model: db.User
+          }
         ],
       });
 
@@ -485,7 +518,7 @@ module.exports = {
           {
             where: {
               voucher_id: orderData.voucher_id,
-              user_id: userId,
+              user_id: orderData.user_id,
             },
           },
           { transaction }
@@ -516,6 +549,18 @@ module.exports = {
       orderData.cancelReason = cancelReason;
       orderData.orderStatus = "Canceled";
       await orderData.save({ transaction });
+
+      const template = fs.readFileSync("./src/helpers/template/canceledorder.html", "utf-8")
+            const templateCompile = handlebars.compile(template)
+            const canceledOrderEmail = templateCompile({name: orderData.User.name, invoiceCode: orderData.invoiceCode, cancelReason: cancelReason})
+            
+            await transporter.sendMail({
+                from: "Groceer-e",
+                to: orderData.User.email,
+                subject: "Your Order is Canceled",
+                html: canceledOrderEmail
+            })
+        
       await transaction.commit();
       return res.status(200).send({
         message: "Order successfully canceled",
@@ -1229,7 +1274,7 @@ module.exports = {
       }
       await orderData.update(
         {
-          imgPayment: setFromFileNameToDBValueCategory(imgFileName),
+          imgPayment: setFromFileNameToDBValuePayment(imgFileName),
           orderStatus: "Waiting for payment confirmation",
         },
         { transaction }
