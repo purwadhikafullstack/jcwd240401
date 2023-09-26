@@ -45,7 +45,7 @@ export default function BranchAdminModifyOrder() {
 
   const handleChangeStatus = async(action) => {
     try{
-      const response = await changeOrderStatus(id, action)
+      const response = await changeOrderStatus(id, action, token)
       if(response.status === 200){
         setSuccessMessage(response.data.message)
       }

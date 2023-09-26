@@ -145,7 +145,7 @@ export function modifyOrderByAdmin(id, token) {
     })
 }
 
-export function changeOrderStatus(id, action){
+export function changeOrderStatus(id, action, token){
     return axios.patch(`${process.env.REACT_APP_API_BASE_URL}/admins/orders/${id}/${action}`, {}, {
         headers: {"Authorization" : `Bearer ${token}`}
       })
