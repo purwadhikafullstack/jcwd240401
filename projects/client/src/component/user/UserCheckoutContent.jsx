@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setSelectedCartItems } from "../../store/reducer/cartSlice";
-import CheckoutItem from "./CheckoutItem";
 import rupiah from "../../helpers/rupiah";
 import CustomDropdown from "../CustomDropdown";
 import Modal from "../Modal";
 import { updateCart } from "../../store/reducer/cartSlice";
 import VoucherLists from "./VoucherLists";
 import AlertPopUp from "../AlertPopUp";
-import Button from "../Button";
 import { getUserVouchers } from "../../api/promotion";
 import { getCart, getShippingCost, userCheckout } from "../../api/transaction";
 import { getMainAddress } from "../../api/profile";
 import { calculateTotalPrice as calculateSubTotalPrice } from "../../helpers/transaction/calculateTotalPrice";
 import { calculateTotalWeight } from "../../helpers/transaction/calculateTotalWeight";
+import CheckoutTitle from "./checkoutComponent/CheckoutTitle";
+import CheckoutList from "./checkoutComponent/CheckoutList";
+import SubTotal from "./checkoutComponent/SubTotal";
+import FreeShipping from "./checkoutComponent/FreeShipping";
 
 export default function UserCheckoutContent() {
   const selectedItems = useSelector((state) => state.cart.selectedCartItems);
@@ -111,7 +112,7 @@ export default function UserCheckoutContent() {
     }
   };
 
-  const subTotal = calculateSubTotalPrice(checkoutItems,"cart");
+  const subTotal = calculateSubTotalPrice(checkoutItems, "cart");
   const totalWeight = calculateTotalWeight(checkoutItems);
   useEffect(() => {
     fetchUserAddress();
@@ -225,14 +226,7 @@ export default function UserCheckoutContent() {
         />
       )}
       <div className="w-full sm:w-full lg:w-4/6 mx-auto">
-        <div className="flex sticky top-0 z-10 sm:static bg-white py-3 lg:pt-10">
-          <div className="grid justify-center content-center">
-            <Button condition={"back"} onClick={() => navigate(-1)} />
-          </div>
-          <div className="text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6">
-            Checkout
-          </div>
-        </div>
+        <CheckoutTitle />
         <div className="text-maingreen font-semibold">My Selected Address</div>
         <div>{`${userAddress?.streetName}, ${userAddress?.City?.city_name}`}</div>
 
@@ -273,43 +267,12 @@ export default function UserCheckoutContent() {
           </div>
         </div>
         <div className="text-maingreen font-semibold">My Order Summary</div>
-        {checkoutItems.map((data) => (
-          <CheckoutItem
-            key={data.id}
-            quantity={data.quantity}
-            name={data.Branch_Product.Product.name}
-            weight={data.Branch_Product.Product.weight}
-            UOM={data.Branch_Product.Product.unitOfMeasurement}
-            productImg={data.Branch_Product.Product.imgProduct}
-            discountId={data.Branch_Product.discount_id}
-            discountType={data.Branch_Product.Discount?.discount_type_id}
-            isExpired={data.Branch_Product.Discount?.isExpired}
-            basePrice={data.Branch_Product.Product.basePrice}
-            discountAmount={data.Branch_Product.Discount?.amount}
-            productStock={data.Branch_Product.quantity}
-            cartId={data.id}
-            productId={data.Branch_Product.id}
-          />
-        ))}
-        <div className="flex justify-between">
-          <span className="font-semibold text-xl text-maingreen">
-            Sub total
-          </span>
-          <span className="text-reddanger text-xl font-bold ">
-            {rupiah(subTotal)}
-          </span>
-        </div>
+        <CheckoutList checkoutItems={checkoutItems} />
+        <SubTotal subTotal={subTotal} />
         {selectedVoucher.id === "" ? (
           ""
         ) : selectedVoucher.value === 0 ? (
-          <div className="flex justify-between">
-            <span className="font-semibold text-xl text-maingreen">
-              Voucher
-            </span>
-            <span className="text-reddanger text-xl font-bold ">
-              gratis ongkir
-            </span>
-          </div>
+          <FreeShipping />
         ) : (
           <div className="flex justify-between">
             <span className="font-semibold text-xl text-maingreen">
