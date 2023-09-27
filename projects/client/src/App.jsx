@@ -106,6 +106,7 @@ function App() {
 
         <Route element={<PrivateUserWrapper allowedRoles={[3]} />}>
           <Route path="/" element={<Home />} />
+          <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
           <Route path="/user/cart" element={<Cart />} />
           <Route path="/user/checkout" element={<Checkout />} />
           <Route path="/user/payment/:id" element={<Payment />} />
@@ -119,7 +120,6 @@ function App() {
           <Route path="/user/account/my-address/modify/:name" element={<UserAddressModify />} />
         </Route>
 
-        <Route path="/product/:branchId/:name/:weight/:unitOfMeasurement" element={<SingleProduct />} />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </Router>

@@ -823,6 +823,7 @@ module.exports = {
                 voucher_type_id,
                 minTransaction,
                 usedLimit,
+                isExpired: false
               },
             });
 
@@ -911,6 +912,7 @@ module.exports = {
                 minTransaction,
                 maxDiscount,
                 usedLimit,
+                isExpired: false
               },
             });
 
@@ -1002,6 +1004,7 @@ module.exports = {
                 minTransaction,
                 maxDiscount,
                 usedLimit,
+                isExpired: false
               },
             });
 
