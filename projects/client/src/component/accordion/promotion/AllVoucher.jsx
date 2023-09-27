@@ -1,22 +1,23 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Pagination } from "flowbite-react";
-import CustomDropdown from "../../CustomDropdown";
+import { useNavigate } from "react-router-dom"
+
 import rupiah from "../../../helpers/rupiah";
 import { getAllVoucher } from "../../../api/promotion";
+import CustomDropdownURLSearch from "../../CustomDropdownURLSearch";
 
 export default function AllVoucher() {
   const [dataAllVoucher, setDataAllVoucher] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filter, setFilter] = useState({
-    sort: "",
-    voucher_type_id: "",
-  });
+  const [filter, setFilter] = useState(new URLSearchParams());
+  const params = new URLSearchParams(window.location.search);
+  const navigate = useNavigate();
   const fetchDataAllVoucher = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await getAllVoucher(token, currentPage, filter.sort, filter.voucher_type_id)
+      const response = await getAllVoucher(token, params.get("page") || 1, params.get("sort") || "", params.get("voucher_type_id") || "")
       if (response.data) {
         const { data: responseData, pagination } = response.data;
         if (responseData) {
@@ -37,12 +38,32 @@ export default function AllVoucher() {
   const onPageChange = (page) => {
     setDataAllVoucher([]);
     setCurrentPage(page);
+    const newFilter = new URLSearchParams(filter.toString());
+    newFilter.set("page", page.toString());
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page.toString());
+    navigate({ search: params.toString() });
+  }
+
+  const handleFilterChange = (paramName, paramValue) => {
+    const newFilter = new URLSearchParams(filter.toString());
+    newFilter.set("page", "1");
+    if (paramValue === "") {
+      newFilter.delete(paramName);
+    } else {
+      newFilter.set(paramName, paramValue);
+    }
+    setFilter(newFilter);
+    const params = new URLSearchParams(window.location.search);
+    params.set(paramName, paramValue);
+    params.set("page", "1");
+    navigate({ search: params.toString() });
   };
 
   const arrayData = [];
   const TableRow = () => {
     dataAllVoucher?.forEach((data, index) => {
-
       arrayData.push(
         <tr
           key={data.id}
@@ -53,8 +74,8 @@ export default function AllVoucher() {
             {data.voucher_type_id == 1
               ? "-"
               : data.voucher_type_id == 2
-              ? `${data.amount}%`
-              : rupiah(data.amount)}
+                ? `${data.amount}%`
+                : rupiah(data.amount)}
           </td>
           <td className="px-6 py-4">{!data.usedLimit && "-"}</td>
           <td className="px-6 py-4">
@@ -88,51 +109,36 @@ export default function AllVoucher() {
   };
 
   const options = [
-    { label: "Sort By create date", value: "" },
-    { label: "create date: newest", value: "DESC" },
-    { label: "create date: oldest", value: "ASC" },
+    { label: "Default", value: "" },
+    { label: "Created Oldest", value: "ASC" },
+    { label: "Created Latest", value: "DESC" },
   ];
 
   const options2 = [
     {
-      label: "filter by voucher type",
+      label: "All Voucher Type",
       value: "",
     },
     {
-      label: "free shipping",
+      label: "Free Shipping",
       value: 1,
     },
     {
-      label: "by percentage",
+      label: "Percentage",
       value: 2,
     },
     {
-      label: "by nominal",
+      label: "Nominal",
       value: 3,
     },
   ];
-
-  const handleChangeDropdown = (obj, name) => {
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      [name]: obj.value,
-    }));
-  };
 
   return (
     <div className="w-5/6 mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
-          <CustomDropdown
-            options={options}
-            onChange={(e) => handleChangeDropdown(e, "sort")}
-            placeholder={"Sort by expired date"}
-          />
-          <CustomDropdown
-            options={options2}
-            onChange={(e) => handleChangeDropdown(e, "voucher_type_id")}
-            placeholder={"filter by discount type"}
-          />
+          <CustomDropdownURLSearch id="sort" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Created Date"} />
+          <CustomDropdownURLSearch id="voucher_type_id" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Discount Type"} />
         </div>
         <div className="overflow-x-auto w-full">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">

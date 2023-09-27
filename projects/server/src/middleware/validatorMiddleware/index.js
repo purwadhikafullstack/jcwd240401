@@ -151,8 +151,8 @@ module.exports = {
     body("description")
       .notEmpty()
       .withMessage("Description is required")
-      .isLength({ max: 500 })
-      .withMessage("Maximum character is 500"),
+      .isLength({ max: 255 })
+      .withMessage("Maximum character is 255"),
     body("weight")
       .notEmpty()
       .withMessage("Weight is required")

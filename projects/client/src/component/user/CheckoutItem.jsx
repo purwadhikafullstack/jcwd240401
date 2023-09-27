@@ -1,6 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
 import rupiah from "../../helpers/rupiah";
 import Label from "../Label";
+import handleImageError from "../../helpers/handleImageError";
 
 const CheckoutItem = ({
   quantity,
@@ -14,17 +14,7 @@ const CheckoutItem = ({
   basePrice,
   discountAmount,
   cartId,
-  productStock,
-  productId,
-  onSelect, // Add onSelect prop
-  selected, // Add selected prop
 }) => {
-  const token = localStorage.getItem("token");
-
-  const handleImageError = (event) => {
-    event.target.src =
-      "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
-  };
 
   return (
     <div key={cartId} className="mx-auto my-1">
@@ -35,7 +25,7 @@ const CheckoutItem = ({
               alt="Placeholder Photo"
               className="absolute left-0 top-0 w-full h-full object-cover object-center transition duration-50"
               loading="lazy"
-              src={`http://localhost:8000${productImg}`}
+              src={`${process.env.REACT_APP_BASE_URL}${productImg}`}
               onError={handleImageError}
             />
           </div>
@@ -94,7 +84,7 @@ const CheckoutItem = ({
             </div>
           </div>
           <div className="col-span-1 flex justify-around content-center items-center">
-            qty: {quantity}
+            x {quantity}
           </div>
         </div>
       </div>

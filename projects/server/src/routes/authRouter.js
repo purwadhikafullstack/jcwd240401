@@ -10,8 +10,6 @@ router.post("/admins/set-password", authValidator.validateSetPassword, authContr
 router.get("/all-province", authController.allProvince)
 router.get("/all-city", authController.allCityByProvince)
 
-router.get("/nearest-branch", authController.nearestBranch)
-
 router.get("/keep-login", authMiddleware.verifyToken, authController.keepLogin)
 
 router.post("/users/register", authValidator.validateRegisterUser, openCageMiddleware.addressUserCoordinate, authController.registerUser)

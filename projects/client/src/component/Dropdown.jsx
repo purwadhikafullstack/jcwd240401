@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function Dropdown({ options, onChange, placeholder}) {
+export default function Dropdown({ options, onChange, placeholder }) {
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [isOpen, setIsOpen] = useState(false);
 

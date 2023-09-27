@@ -107,8 +107,8 @@ export default function CreateProduct() {
     }
     return (
         <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
-            <CreateProductForm onSubmit={handleSubmit} preview={preview} imagePreview={imagePreview} allCategory={allCategory} uOMOptions={uOMOptions} fileInputRef={fileInputRef}/>
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
+            <CreateProductForm onSubmit={handleSubmit} preview={preview} imagePreview={imagePreview} allCategory={allCategory} uOMOptions={uOMOptions} fileInputRef={fileInputRef} />
         </div >
     )
 }

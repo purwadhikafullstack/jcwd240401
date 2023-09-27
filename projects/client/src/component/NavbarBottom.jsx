@@ -28,6 +28,7 @@ export default function BottomNavbar() {
       iconActive: HiShoppingCart,
       name: "Cart",
       to: "/user/cart",
+      extra: true,
     },
     {
       iconDefault: HiOutlineUser,
@@ -52,6 +53,7 @@ export default function BottomNavbar() {
                 name,
                 to,
                 isActive,
+                extra,
               },
               index
             ) => (
@@ -63,17 +65,19 @@ export default function BottomNavbar() {
                       : `text-lightgrey`
                   }`}
                 >
+                  {extra && cartItems.length > 0 && (
+                    <div className="relative">
+                      <div className="text-white text-xs w-5 h-5 grid justify-center rounded-full bg-reddanger absolute top-0 left-0">
+                        {cartItems.length}
+                      </div>
+                    </div>
+                  )}
                   {isActive || location.pathname === to ? (
                     <IconActive className="h-6 w-6" />
                   ) : (
                     <IconDefault className="w-6 h-6" />
                   )}
                   <div>{name}</div>
-                  {to === "/user/cart" && cartItems.length > 0 && (
-                    <span className="absolute top-1 text-white text-xs px-1 rounded-full bg-reddanger" style={{left:"230px"}}>
-                      {cartItems.length}
-                    </span>
-                  )}
                 </div>
               </Link>
             )

@@ -10,17 +10,7 @@ const fs = require("fs");
 const geolib = require("geolib");
 
 const validUnitOfMeasurementValues = ["gr", "ml"];
-const handleCatchError = async (res, transaction, error) => {
-  if (transaction) {
-    await transaction.rollback();
-  }
-  console.log(error);
-  return res.status(500).send({
-    message: "Internal Server Error",
-  });
-};
 module.exports = {
-  // create category
   async createCategory(req, res) {
     const { name } = req.body;
     const imgFileName = req.file ? req.file.filename : null;
@@ -43,10 +33,12 @@ module.exports = {
         .status(201)
         .send({ message: "Successfully created new category" });
     } catch (error) {
-      handleCatchError(res, transaction, error);
+      console.log(error);
+      await transaction.rollback();
+      return res.status(500).send({ message: "Internal Server Error" });
     }
   },
-  // get all category
+
   async allCategory(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -101,6 +93,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
+
   async allCategoryNoPagination(req, res) {
     try {
       const results = await db.Category.findAll({
@@ -124,6 +117,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
+
   async allCategoryNoPaginationPerBranch(req, res) {
     try {
       const branchProducts = await db.Branch_Product.findAll({
@@ -163,7 +157,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
-  // get category per id
+
   async oneCategoryById(req, res) {
     try {
       const category = await db.Category.findOne({
@@ -191,7 +185,7 @@ module.exports = {
       });
     }
   },
-  // modify and remove category
+
   async modifyOrRemoveCategory(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -286,7 +280,7 @@ module.exports = {
       });
     }
   },
-  // create product
+
   async createProduct(req, res) {
     const {
       name,
@@ -354,7 +348,7 @@ module.exports = {
       return res.status(500).send({ message: "Internal Server Error" });
     }
   },
-  // modify and remove product
+
   async modifyOrRemoveProduct(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -511,7 +505,7 @@ module.exports = {
       });
     }
   },
-  // get product
+
   async allProduct(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -537,7 +531,7 @@ module.exports = {
         where.category_id = pagination.category;
       }
       if (pagination.name) {
-        order = []
+        order = [];
         if (pagination.name.toUpperCase() === "DESC") {
           order.push(["name", "DESC"]);
         } else {
@@ -545,7 +539,7 @@ module.exports = {
         }
       }
       if (pagination.price) {
-        order = []
+        order = [];
         if (pagination.price.toUpperCase() === "DESC") {
           order.push(["basePrice", "DESC"]);
         } else {
@@ -590,7 +584,7 @@ module.exports = {
       });
     }
   },
-  // get product per id
+
   async oneProductById(req, res) {
     try {
       const product = await db.Product.findOne({
@@ -623,7 +617,7 @@ module.exports = {
       });
     }
   },
-  // get all product exclude branch product per branch
+
   async allUnaddedProducts(req, res) {
     try {
       const user = await db.User.findOne({
@@ -672,6 +666,7 @@ module.exports = {
       });
     }
   },
+
   async productsFromNearestBranch(req, res) {
     const latitude = req.query.latitude ? req.query.latitude : "";
     const longitude = req.query.longitude ? req.query.longitude : "";
@@ -685,7 +680,7 @@ module.exports = {
     };
     try {
       const where = {};
-      const order = [];
+      let order = [["quantity", "DESC"]];
 
       where.isRemoved = 0;
 
@@ -698,6 +693,7 @@ module.exports = {
         where["$Product.category_id$"] = pagination.category;
       }
       if (pagination.name) {
+        order = [];
         if (pagination.name.toUpperCase() === "DESC") {
           order.push([{ model: db.Product, as: "Product" }, "name", "DESC"]);
         } else {
@@ -705,6 +701,7 @@ module.exports = {
         }
       }
       if (pagination.price) {
+        order = [];
         if (pagination.price.toUpperCase() === "DESC") {
           order.push([
             { model: db.Product, as: "Product" },
@@ -767,6 +764,7 @@ module.exports = {
       const branchProductData = await db.Branch_Product.findAndCountAll({
         where: {
           branch_id: nearestBranchId,
+          isRemoved: 0,
         },
         include: [
           {
@@ -807,6 +805,7 @@ module.exports = {
       });
     }
   },
+
   async promotedProducts(req, res) {
     const branchId = req.query.branchId;
     try {

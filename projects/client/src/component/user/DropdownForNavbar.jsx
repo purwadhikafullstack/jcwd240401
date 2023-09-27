@@ -5,10 +5,7 @@ import { HiOutlineUser } from "react-icons/hi";
 import { remove } from "../../store/reducer/authSlice";
 import Modal from "../Modal";
 import { clearLocation } from "../../store/reducer/locationSlice";
-import {
-  clearCart,
-  clearSelectedCartItems,
-} from "../../store/reducer/cartSlice";
+import { clearCart, clearSelectedCartItems } from "../../store/reducer/cartSlice";
 import handleImageError from "../../helpers/handleImageError";
 
 export default function DropdownForNavbar() {
@@ -60,7 +57,6 @@ export default function DropdownForNavbar() {
             <Link to="/user/account">
               <li
                 className={`p-2 font-inter hover:bg-maingreen hover:text-white cursor-pointer ${location.pathname.startsWith("/user/account") ? `text-maingreen font-bold` : `text-darkgrey`}`}
-              //   onClick={(event) => handleMyAccount( event)}
               >
                 My Account
               </li>

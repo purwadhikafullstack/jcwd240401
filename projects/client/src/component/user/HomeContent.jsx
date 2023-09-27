@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { Pagination } from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { HiOutlineLocationMarker } from 'react-icons/hi'
+import { HiOutlineLocationMarker, HiOutlineInformationCircle, HiX } from 'react-icons/hi'
+
 import { keepLocation } from '../../store/reducer/locationSlice'
 import ProductCard from '../../component/user/ProductCard'
 import CarouselContent from '../../component/user/CarouselContent'
 import SearchInputBar from '../../component/SearchInputBar'
 import CustomDropdownURLSearch from '../../component/CustomDropdownURLSearch'
+import { productsForUser } from '../../api/product'
+import { categoryForUserByBranchId } from '../../api/category'
 
 export default function HomeContent({ cityAddress, provinceAddress, latitude, longitude }) {
     const [categories, setCategories] = useState([])
@@ -17,15 +19,17 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
     const [totalPages, setTotalPages] = useState(1)
     const [branchId, setBranchId] = useState("");
     const [branchCity, setBranchCity] = useState("")
+    const [info, setInfo] = useState(false)
     const [branchProvince, setBranchProvince] = useState("")
     const [filter, setFilter] = useState(new URLSearchParams());
     const params = new URLSearchParams(window.location.search);
     const navigate = useNavigate();
     const dispatch = useDispatch()
+    const token = localStorage.getItem("token")
 
     const getProducts = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branch-products?latitude=${latitude}&longitude=${longitude}&page=${params.get("page") || 1}&search=${params.get("search") || ""}&filterCategory=${params.get("category_id") || ""}&sortName=${params.get("sortName") || ""}&sortPrice=${params.get("sortPrice") || ""}`)
+            const response = await productsForUser(latitude, longitude, params.get("page") || 1, params.get("search") || "", params.get("category_id") || "", params.get("sortName") || "", params.get("sortPrice") || "")
             if (response.data) {
                 setProductData(response.data)
                 setBranchId(response.data.branchData.id)
@@ -47,7 +51,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
 
     const getCategory = async (id) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branchs/${id}/categories`);
+            const response = await categoryForUserByBranchId(id)
             if (response) {
                 const data = response.data.data;
                 if (data) {
@@ -112,7 +116,16 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
     return (
         <div className="w-full flex flex-col items-center">
             <div className='relative mb-64 flex flex-col items-center w-full lg:flex lg:flex-col lg:static lg:my-10'>
-                <div className="hidden lg:block font-inter text-sm w-full mb-2">Showing products from <span className='text-maingreen font-medium'>{`${branchCity}, ${branchProvince}`}</span> branch</div>
+                <div className='hidden lg:flex lg:items-center lg:w-full lg:gap-2 font-inter text-sm mb-2 '>
+                    <div className="">Showing products from <span className='text-maingreen font-medium'>{`${branchCity}, ${branchProvince}`}</span> branch</div>
+                    {token ? info ? <HiX className='h-6 w-6 text-blue-500' onClick={() => { setInfo(false) }} /> : <HiOutlineInformationCircle className='h-6 w-6 text-blue-500' onClick={() => setInfo(true)} /> : null}
+                </div>
+                {info ? (
+                    <div className='hidden lg:flex sm:items-center sm:justify-between sm:text-sm sm:w-full font-inter py-2 px-4 rounded-lg bg-blue-100 mb-2'>
+                        <div>Products are shown from the nearest branch of your main address</div>
+                        <Link to="/user/account/my-address" className="text-sm text-maingreen font-inter font-medium hover:font-bold">Change Address</Link>
+                    </div>
+                ) : (null)}
                 <div className="w-screen relative z-10 lg:hidden flex justify-center items-center h-10 min-h-max mb-2" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 50%, transparent 100%)' }}>
                     <div className='w-11/12 flex gap-2'>
                         <HiOutlineLocationMarker className='w-6 h-6 text-white' />
@@ -120,7 +133,16 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
                     </div>
                 </div>
                 <div className="w-11/12 gap-2 lg:w-full mb-10 relative z-10">
-                    <div className="lg:hidden bg-white px-2 rounded-md font-inter text-sm mb-2">Showing products from <span className='text-maingreen font-medium'>{`${branchCity}, ${branchProvince}`}</span> branch</div>
+                    <div className='lg:hidden bg-white px-2 rounded-md font-inter text-sm mb-2 w-full flex gap-2 items-center'>
+                        <div className="">Showing products from <span className='text-maingreen font-medium'>{`${branchCity}, ${branchProvince}`}</span> branch</div>
+                        {token ? info ? <HiX className='h-6 w-6 text-blue-500' onClick={() => { setInfo(false) }} /> : <HiOutlineInformationCircle className='h-6 w-6 text-blue-500' onClick={() => setInfo(true)} /> : null}
+                    </div>
+                    {info ? (
+                        <div className='lg:hidden absolute z-50 flex items-center justify-between text-sm w-full font-inter py-2 px-4 rounded-lg bg-blue-100 mb-2'>
+                            <div>Products are shown from the nearest branch of your main address</div>
+                            <Link to="/user/account/my-address" className="text-sm text-maingreen font-inter font-medium hover:font-bold">Change Address</Link>
+                        </div>
+                    ) : (null)}
                     <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search product by name..." />
                 </div>
                 <div className="w-full gap-2 lg:w-full h-96 lg:h-64 absolute top-0 lg:static">
@@ -138,7 +160,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
                 <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
                 <CustomDropdownURLSearch id="sortPrice" options={priceOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Price"} />
             </div>
-            <div className='w-11/12 gap-2 sm:w-9/12 lg:w-full grid grid-cols-2  2xl:grid-cols-4 sm:gap-10 2xl:gap-2 mb-10 justify-center'>
+            <div className='w-11/12 gap-2 sm:w-9/12 lg:w-full grid grid-cols-2 lg:grid-cols-4 sm:gap-1 mb-10 justify-center'>
                 {productData?.data?.rows ? (productData?.data?.rows.map((product, index) => (
                     <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} key={index}><div className='flex justify-center mb-2 sm:mb-0'>
                         <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} />

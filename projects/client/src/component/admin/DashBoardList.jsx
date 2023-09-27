@@ -9,7 +9,6 @@ export default function DashBoardList({ listData }) {
           {listData.map((product) => (
             <div className="flex" key={product.productId}>
               <div className="w-10 h-10 min-w-10 bg-gray-200 rounded-sm">
-                {/* You can include the product image here if available */}
                 {product.productImg && (
                   <img
                     src={`${process.env.REACT_APP_BASE_URL}${product.productImg}`}

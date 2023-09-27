@@ -15,7 +15,6 @@ const registerAdminSchema = yup.object().shape({
 })
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/
-// password must be at least 6 characters, 1 lowercase, 1 uppercase, 1 digit
 
 const setPasswordSchema = yup.object().shape({
     password: yup.string().min(8).matches(passwordRules, {message: "Password must be at least 8 characterts with 1 lowercase, 1 uppercase, and 1 number"}).required("Password is required"),
@@ -75,7 +74,7 @@ const createProductSchema = yup.object().shape({
     file: yup.mixed(),
     name: yup.string().trim().required("Product name is required").max(50, "Maximum character is 50").typeError("Name must be a valid text"),
     category_id: yup.string().trim().required("Category is required"),
-    description: yup.string().trim().required("Description is required").max(500, "Maximum character is 500").typeError("Description must be a valid text"),
+    description: yup.string().trim().required("Description is required").max(255, "Maximum character is 255").typeError("Description must be a valid text"),
     weight: yup.number().required("Weight is required").min(5, "Weight must be at least 5").typeError('Weight must be a valid number'),
     unitOfMeasurement: yup.string().trim().required("Unit of measurement is required").oneOf(["gr", "ml"], "Unit of measurement must be 'gr' or 'ml'"),
     basePrice: yup.number().required("Price is required").min(1000, "Weight must be at least Rp 1.000").typeError('Base price must be a valid number'),

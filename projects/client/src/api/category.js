@@ -59,3 +59,7 @@ export function modifyCategory(token, id, formData) {
     }
   );
 }
+
+export function categoryForUserByBranchId(id) {
+  return axios.get(`${process.env.REACT_APP_API_BASE_URL}/users/branchs/${id}/categories`);
+}

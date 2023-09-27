@@ -4,7 +4,7 @@ export const cartSlice = createSlice({
   name: "cart",
   initialState: {
     cart: [],
-    selectedCartItems: [], // Add selectedCartItems to the initial state
+    selectedCartItems: [], 
   },
   reducers: {
     updateCart: (state, action) => {

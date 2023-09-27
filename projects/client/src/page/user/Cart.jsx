@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from "react";
-import NavbarTop from "../../component/NavbarTop";
-import NavbarBottom from "../../component/NavbarBottom";
+import React from "react";
 import UserCartContent from "../../component/user/UserCartContent";
+import LayoutUser from '../../component/user/LayoutUser'
+
 
 export default function Cart() {
   return (
-    <div>
-      <NavbarTop />
-      <div>
-        <UserCartContent />
-      </div>
-      <NavbarBottom />
-    </div>
+    <LayoutUser>
+      <UserCartContent />
+    </LayoutUser>
   );
 }

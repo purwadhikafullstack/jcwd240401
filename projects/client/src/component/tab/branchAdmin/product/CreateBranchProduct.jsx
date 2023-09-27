@@ -6,6 +6,7 @@ import InputField from '../../../InputField';
 import { createBranchProductSchema } from '../../../../helpers/validationSchema';
 import AlertHelper from '../../../AlertHelper';
 import { createBranchProduct } from '../../../../api/branchProduct';
+import { getUnaddedProducts } from '../../../../api/product';
 
 export default function CreateBranchProduct() {
     const [errorMessage, setErrorMessage] = useState("")
@@ -16,7 +17,7 @@ export default function CreateBranchProduct() {
     const token = localStorage.getItem("token")
     const getUnaddedProduct = async () => {
         try {
-            const response = await getUnaddedProduct(token)
+            const response = await getUnaddedProducts(token)
             if (response.data) {
                 const data = response.data.data;
                 if (data) {
@@ -30,13 +31,14 @@ export default function CreateBranchProduct() {
                 }
             }
         } catch (error) {
-            console.log("ini error", error);
+            console.log(error.message);
         }
     }
 
     const handleSubmit = async (values, { setSubmitting, resetForm, setStatus }) => {
+        const { product_id, origin, quantity } = values
         try {
-            const response = await createBranchProduct(token, values)
+            const response = await createBranchProduct(token, { product_id, origin, quantity })
             if (response.status === 201) {
                 resetForm()
                 setErrorMessage("")
@@ -75,7 +77,7 @@ export default function CreateBranchProduct() {
 
     return (
         <div className='w-full sm:w-8/12 mx-auto flex flex-col justify-center font-inter'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <Formik initialValues={{ product_id: "", origin: "", quantity: "" }} validationSchema={createBranchProductSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form>
@@ -112,7 +114,7 @@ export default function CreateBranchProduct() {
                                     </div>
                                 </div>
                                 <div className="mt-8">
-                                    <Modal isDisabled={!props.dirty || !props.isValid} modalTitle={"Create New Branch Product"} toggleName={"Create Branch Product"} content={"By creating this branch product, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} buttonTypeToggle={"button"} />
+                                    <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !props.isValid} modalTitle={"Create New Branch Product"} toggleName={"Create Branch Product"} content={"By creating this branch product, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                                 </div>
                             </>
                         )}

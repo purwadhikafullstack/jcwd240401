@@ -2,7 +2,7 @@ import rupiah from "../../helpers/rupiah";
 import Label from "../Label";
 import Modal from "../Modal";
 import axios from "axios";
-
+import handleImageError from "../../helpers/handleImageError";
 
 const UnavailableCartItem = ({
   name,
@@ -20,13 +20,7 @@ const UnavailableCartItem = ({
 }) => {
   const token = localStorage.getItem("token");
 
-  const handleImageError = (event) => {
-    event.target.src =
-      "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
-  };
-
   const handleDelete = async () => {
-    const token = localStorage.getItem("token");
     try {
       await axios.delete(
         `${process.env.REACT_APP_API_BASE_URL}/users/unavailable-carts/${cartId}`,
@@ -50,7 +44,7 @@ const UnavailableCartItem = ({
               alt="Placeholder Photo"
               className="absolute left-0 top-0 w-full h-full object-cover object-center transition duration-50"
               loading="lazy"
-              src={`http://localhost:8000${productImg}`}
+              src={`${process.env.REACT_APP_BASE_URL}${productImg}`}
               onError={handleImageError}
             />
           </div>

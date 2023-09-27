@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Label from "./Label";
 import rupiah from "../helpers/rupiah";
+import { getBranchProductById } from "../api/branchProduct";
+import handleImageError from "../helpers/handleImageError";
 
 export default function ModalBranchProduct({ branchProductId, onClose }) {
     const [selectedProduct, setSelectedProduct] = useState({})
     const token = localStorage.getItem("token")
     const getProductDetails = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products/${branchProductId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await getBranchProductById(token, branchProductId)
             if (response.data) {
                 setSelectedProduct(response.data.data)
             }
@@ -39,9 +38,7 @@ export default function ModalBranchProduct({ branchProductId, onClose }) {
     return (
         <div id="staticModal" tabIndex={-1} aria-hidden="true" className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-opacity-50 bg-gray-900 z-50" >
             <div className="relative w-full max-w-2xl max-h-full mx-3">
-                {/* Modal content */}
                 <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                    {/* Modal header */}
                     <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                             Branch Product Details
@@ -70,8 +67,16 @@ export default function ModalBranchProduct({ branchProductId, onClose }) {
                             <span className="sr-only">Close modal</span>
                         </button>
                     </div>
-                    {/* Modal body */}
                     <div className="py-6 space-y-6 px-10 max-h-[500px] overflow-y-auto">
+                        <div className="text-base text-darkgrey border-b-2 pb-2 md:hidden">
+                            Image:
+                            <img
+                                className="w-28 h-28 justify-center mx-auto m-2 object-cover border-2 border-maingreen p-1"
+                                src={`${process.env.REACT_APP_BASE_URL}${selectedProduct?.Product?.imgProduct}`}
+                                onError={handleImageError}
+                                alt="/"
+                            />
+                        </div>
                         <div className="text-sm text-darkgrey border-b-2 pb-2">
                             Stock:
                             <p className="text-black text-base">{selectedProduct?.quantity}</p>

@@ -19,7 +19,6 @@ export default function BranchAdminModifyBranchProduct() {
                 const data = response.data.data;
                 if (data) {
                     setBranchProductDetails(data)
-                    console.log("ini data", data)
                 } else {
                     setBranchProductDetails([]);
                 }

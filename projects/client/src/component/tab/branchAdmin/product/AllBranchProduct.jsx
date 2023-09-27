@@ -36,7 +36,7 @@ export default function AllBranchProduct() {
                 const data = response.data.data;
                 if (data) {
                     const optionOne = { label: "All Category", value: "" }
-                    let options = data.map((d) => ({label: d.name,value: d.id,}));
+                    let options = data.map((d) => ({ label: d.name, value: d.id, }));
                     options.unshift(optionOne)
                     setAllCategory(options);
                 } else {
@@ -131,7 +131,7 @@ export default function AllBranchProduct() {
 
     return (
         <div className='w-full flex flex-col justify-center gap-4 font-inter'>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6'>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Enter here to search product by name..." />
                 <CustomDropdownURLSearch id="sortName" options={nameOptions} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Name"} />
@@ -177,10 +177,10 @@ export default function AllBranchProduct() {
                                     </td>
                                     <td className="py-2 px-4 text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> <Label labelColor={getLabelColor(item?.status)} text={item?.status} /> </td>
                                     <td className="py-2 px-4 hidden xl:table-cell text-center cursor-pointer" style={{ width: '7.5%' }} onClick={() => setSelectedProduct(item.id)}> {item?.quantity} </td>
-                                    <td className="py-2 sm:px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid grid-rows-2 justify-center gap-2'><Link to={`branch-product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
+                                    <td className="py-2 sm:px-4 text-center" style={{ width: '5%' }}><div className='px-4 text-reddanger grid grid-rows-2 justify-center gap-2'><Link to={`branch-product/${item.id}/modify`}><LuEdit className="text-maingreen text-base sm:text-xl mx-auto" /></Link><Modal buttonTypeToggle={"button"} modalTitle="Delete Product" buttonCondition="trash" content="Deleting this product will permanently remove its access for future use. Are you sure?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={() => handleRemove(item.id)} /></div></td>
                                 </tr>
                             ))}
-                            {allBranchProduct.length === 0 && ( <tr><td colSpan="4" className="py-4 text-center">No Branch Product Found</td></tr>)}
+                            {allBranchProduct.length === 0 && (<tr><td colSpan="4" className="py-4 text-center">No Branch Product Found</td></tr>)}
                         </tbody>
                     </table>
                 </div>

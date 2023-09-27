@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useDispatch } from "react-redux";
 import { keep } from "../store/reducer/authSlice";
 import { remove } from "../store/reducer/authSlice";
+import { keepLoginAccount } from '../api/auth'
 
 function PrivateAdminWrapper({allowedRoles}) {
     const token = localStorage.getItem("token");
@@ -15,15 +16,7 @@ function PrivateAdminWrapper({allowedRoles}) {
     let token = localStorage.getItem("token");
     if (token) {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+        const response = await keepLoginAccount(token)
         if(response.status === 200){
           if (response.data.userId) {
           localStorage.setItem("token", response.data.refreshToken);

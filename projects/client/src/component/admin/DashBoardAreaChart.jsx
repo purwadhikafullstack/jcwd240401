@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import ApexCharts from "apexcharts";
 
-const DashBoardAreaChart = ({areaChartData}) => {
+const DashBoardAreaChart = ({ areaChartData }) => {
   const options = {
     chart: {
       height: "100%",
@@ -17,12 +17,12 @@ const DashBoardAreaChart = ({areaChartData}) => {
       },
     },
     xaxis: {
-      type: "datetime", // Set x-axis type to datetime
+      type: "datetime",
       labels: {
-        format: "dd/MM", // Customize date format as needed
+        format: "dd/MM",
       },
     },
-    // Add your other options here...
+
   };
 
   const series = [
@@ -63,7 +63,6 @@ const DashBoardAreaChart = ({areaChartData}) => {
           height={350}
         />
       </div>
-      {/* Other content */}
     </div>
   );
 };

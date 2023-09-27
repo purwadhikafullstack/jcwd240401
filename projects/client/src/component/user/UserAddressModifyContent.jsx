@@ -133,7 +133,7 @@ export default function UserAddressModifyContent() {
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate("/user/account/my-address")} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6'>Modify My Address</div>
             </div>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <Formik enableReinitialize initialValues={{ receiver: addressDetails.receiver, contact: addressDetails.contact, streetName: addressDetails.streetName, province: addressDetails.province, city: addressDetails.city, addressLabel: addressDetails.addressLabel }} validationSchema={modifyAddressSchema} onSubmit={handleSubmit}>
                 {(props) => (
                     <Form className='mx-4 pb-6 sm:py-6'>

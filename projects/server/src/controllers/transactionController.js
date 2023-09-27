@@ -1,21 +1,11 @@
 const db = require("../models");
 const axios = require("axios");
 const refCode = require("referral-codes");
-const {
-  setFromFileNameToDBValueCategory,
-} = require("../helpers/fileConverter");
-const dayjs = require("dayjs");
+const { setFromFileNameToDBValuePayment } = require("../helpers/fileConverter");
 const { setFromFileNameToDBValueRefund } = require("../helpers/fileConverter");
-
-const handleCatchError = async (res, transaction, error) => {
-  if (transaction) {
-    await transaction.rollback();
-  }
-  console.log(error);
-  return res.status(500).send({
-    message: "Internal Server Error",
-  });
-};
+const handlebars = require("handlebars");
+const fs = require("fs");
+const transporter = require("../helpers/transporter");
 
 module.exports = {
   async allOrdersByBranch(req, res) {
@@ -122,6 +112,7 @@ module.exports = {
       });
     }
   },
+
   async allOrders(req, res) {
     const pagination = {
       page: Number(req.query.page) || 1,
@@ -217,6 +208,7 @@ module.exports = {
       });
     }
   },
+
   async orderById(req, res) {
     const orderId = req.query.orderId;
     try {
@@ -271,6 +263,7 @@ module.exports = {
       });
     }
   },
+
   async changeStatus(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -278,6 +271,11 @@ module.exports = {
     try {
       const orderData = await db.Order.findOne({
         where: orderId,
+        include: [
+          {
+            model: db.User,
+          },
+        ],
       });
 
       if (!orderData) {
@@ -299,6 +297,24 @@ module.exports = {
 
             orderData.orderStatus = "Waiting for payment";
             await orderData.save({ transaction });
+
+            const template = fs.readFileSync(
+              "./src/helpers/template/rejectedpayment.html",
+              "utf-8"
+            );
+            const templateCompile = handlebars.compile(template);
+            const rejectedPaymentEmail = templateCompile({
+              name: orderData.User.name,
+              invoiceCode: orderData.invoiceCode,
+            });
+
+            await transporter.sendMail({
+              from: "Groceer-e",
+              to: orderData.User.email,
+              subject: "Update Your Payment",
+              html: rejectedPaymentEmail,
+            });
+
             await transaction.commit();
             return res.status(200).send({
               message: "Order status is changed to Waiting for payment",
@@ -338,6 +354,24 @@ module.exports = {
 
             orderData.orderStatus = "Processing";
             await orderData.save({ transaction });
+
+            const template = fs.readFileSync(
+              "./src/helpers/template/confirmedpayment.html",
+              "utf-8"
+            );
+            const templateCompile = handlebars.compile(template);
+            const confirmedPaymentEmail = templateCompile({
+              name: orderData.User.name,
+              invoiceCode: orderData.invoiceCode,
+            });
+
+            await transporter.sendMail({
+              from: "Groceer-e",
+              to: orderData.User.email,
+              subject: "Your Order is Being Processed",
+              html: confirmedPaymentEmail,
+            });
+
             await transaction.commit();
             return res.status(200).send({
               message: "Order status is changed to Processing",
@@ -403,6 +437,7 @@ module.exports = {
       });
     }
   },
+
   async cancelOrderByAdmin(req, res) {
     const orderId = Number(req.params.id);
     const { cancelReason } = req.body;
@@ -422,6 +457,9 @@ module.exports = {
                 model: db.Product,
               },
             ],
+          },
+          {
+            model: db.User,
           },
         ],
       });
@@ -479,6 +517,31 @@ module.exports = {
         }
       }
 
+      if (orderData.voucher_id) {
+        await db.User_Voucher.update(
+          { isUsed: false },
+          {
+            where: {
+              voucher_id: orderData.voucher_id,
+              user_id: orderData.user_id,
+            },
+          },
+          { transaction }
+        );
+
+        const voucher = await db.Voucher.findByPk(orderData.voucher_id);
+        if (!voucher.isReferral) {
+          await db.Voucher.increment(
+            "usedLimit",
+            {
+              by: 1,
+              where: { id: orderData.voucher_id },
+            },
+            { transaction }
+          );
+        }
+      }
+
       if (!cancelReason || !imgFileName) {
         await transaction.rollback();
         return res.status(400).send({
@@ -491,6 +554,25 @@ module.exports = {
       orderData.cancelReason = cancelReason;
       orderData.orderStatus = "Canceled";
       await orderData.save({ transaction });
+
+      const template = fs.readFileSync(
+        "./src/helpers/template/canceledorder.html",
+        "utf-8"
+      );
+      const templateCompile = handlebars.compile(template);
+      const canceledOrderEmail = templateCompile({
+        name: orderData.User.name,
+        invoiceCode: orderData.invoiceCode,
+        cancelReason: cancelReason,
+      });
+
+      await transporter.sendMail({
+        from: "Groceer-e",
+        to: orderData.User.email,
+        subject: "Your Order is Canceled",
+        html: canceledOrderEmail,
+      });
+
       await transaction.commit();
       return res.status(200).send({
         message: "Order successfully canceled",
@@ -503,6 +585,7 @@ module.exports = {
       });
     }
   },
+
   async addToCart(req, res) {
     const productId = req.params.id;
     const quantity = Number(req.body.quantity);
@@ -548,7 +631,6 @@ module.exports = {
       if (!user) {
         return res.status(401).send({ message: "User not found" });
       }
-      // Check if the product exists
       const product = await db.Branch_Product.findByPk(productId);
       if (!product) {
         return res.status(404).send({ message: "Product not found" });
@@ -564,7 +646,7 @@ module.exports = {
       });
     }
   },
-  //delete cart
+
   async deleteCart(req, res) {
     const { cartList } = req.body;
     const transaction = await db.sequelize.transaction();
@@ -596,6 +678,7 @@ module.exports = {
       res.status(500).send({ error: "Internal Server Error" });
     }
   },
+
   async deleteCartById(req, res) {
     const { id } = req.params;
     const transaction = await db.sequelize.transaction();
@@ -622,7 +705,7 @@ module.exports = {
         .send({ error: "Internal Server Error", error: error.message });
     }
   },
-  //empty cart
+
   async emptyCart(req, res) {
     const transaction = await db.sequelize.transaction();
     try {
@@ -651,7 +734,7 @@ module.exports = {
       res.status(500).send({ error: "Internal Server Error" });
     }
   },
-  // user get all cart
+
   async getCart(req, res) {
     try {
       const user = await db.User.findByPk(req.user.id);
@@ -732,7 +815,7 @@ module.exports = {
       });
     }
   },
-  // user get unavailable cart
+
   async getUnavailableCart(req, res) {
     try {
       const user = await db.User.findByPk(req.user.id);
@@ -813,7 +896,7 @@ module.exports = {
       });
     }
   },
-  // user shipping method
+
   async getCost(req, res) {
     const { origin, destination, weight, courier } = req.body;
     const body = {
@@ -828,7 +911,7 @@ module.exports = {
         body,
         {
           headers: {
-            key: "14f19958df605a9797c11f3eb17bffb9",
+            key: `${process.env.RAJAONGKIR_API_KEY}`,
             "content-type": "application/x-www-form-urlencoded",
           },
         }
@@ -841,11 +924,11 @@ module.exports = {
     } catch (err) {
       return res.status(500).send({
         message: "fatal error on server",
-        error: err.message,
+        error: err,
       });
     }
   },
-  // user checkout
+
   async checkout(req, res) {
     const userId = req.user.id;
     const transaction = await db.sequelize.transaction();
@@ -863,14 +946,12 @@ module.exports = {
     const invoiceNumber = `INV/${date}${month}${year}/${randomCode}`;
 
     try {
-      // Check user
       const user = await db.User.findByPk(userId);
       if (!user) {
         await transaction.rollback();
         return res.status(401).send({ message: "User not found" });
       }
 
-      // Check address
       const address = await db.Address.findOne({
         where: {
           user_id: userId,
@@ -894,7 +975,6 @@ module.exports = {
         return res.status(401).send({ message: "Address not found" });
       }
 
-      // Selected items on cart
       const cart = await db.Cart.findAll({
         where: {
           user_id: userId,
@@ -925,7 +1005,6 @@ module.exports = {
           .send({ message: "No items selected for checkout" });
       }
 
-      // Create order
       const checkoutData = await db.Order.create(
         {
           user_id: userId,
@@ -943,7 +1022,7 @@ module.exports = {
           shippingMethod,
           shippingCost,
           shippingDate: fullDate,
-          voucher_id: voucher_id || null, // Use the provided voucher_id or null
+          voucher_id: voucher_id || null,
           createdAt: fullDate.toLocaleString("en-US", {
             timeZone: "Asia/Jakarta",
           }),
@@ -954,18 +1033,13 @@ module.exports = {
         { transaction: transaction }
       );
 
-      // Create order items
       for (const item of selectedItem) {
         let price;
 
-        // Check if the discount is not expired
         if (!item.Branch_Product?.Discount?.isExpired) {
-          // Check the discount type
           if (item.Branch_Product?.Discount?.discount_type_id === 1) {
-            // Discount type 1: No discount, price is equal to basePrice * quantity
             price = item.Branch_Product?.Product?.basePrice;
           } else if (item.Branch_Product?.Discount?.discount_type_id === 2) {
-            // Discount type 2: Percentage discount
             const percentageAmount = item.Branch_Product.Discount.amount;
             price =
               ((item.Branch_Product.Product.basePrice *
@@ -973,14 +1047,12 @@ module.exports = {
                 100) *
               item.quantity;
           } else if (item.Branch_Product?.Discount?.discount_type_id === 3) {
-            // Discount type 3: Nominal discount
             const nominalAmount = item.Branch_Product.Discount.amount;
             price =
               (item.Branch_Product.Product.basePrice - nominalAmount) *
               item.quantity;
           } else {
-            // Handle other discount types if needed
-            price = item.Branch_Product.Product.basePrice * item.quantity; // Default to basePrice * quantity
+            price = item.Branch_Product.Product.basePrice * item.quantity;
           }
 
           const orderList = await db.Order_Item.create(
@@ -994,30 +1066,28 @@ module.exports = {
             { transaction: transaction }
           );
         } else {
-          // If the discount is expired, create the order item without a discount
           const orderList = await db.Order_Item.create(
             {
               order_id: checkoutData?.id,
               branch_product_id: item.branch_product_id,
-              discount_id: null, // No discount
+              discount_id: null,
               quantity: item.quantity,
-              price: item.Branch_Product.Product.basePrice * item.quantity, // Default to basePrice * quantity
+              price: item.Branch_Product.Product.basePrice * item.quantity,
             },
             { transaction: transaction }
           );
         }
-        // Create stock history entry
+
         await db.Stock_History.create(
           {
             branch_product_id: item.branch_product_id,
             totalQuantity: item.Branch_Product.quantity,
-            quantity: item.quantity, // Negative quantity indicates a deduction
+            quantity: item.quantity,
             status: "purchased by user",
           },
           { transaction }
         );
 
-        // Update stock
         await db.Branch_Product.update(
           { quantity: db.sequelize.literal(`quantity - ${item.quantity}`) },
           {
@@ -1031,6 +1101,30 @@ module.exports = {
 
         await item.destroy({ transaction: transaction });
       }
+      if (checkoutData.voucher_id) {
+        await db.User_Voucher.update(
+          { isUsed: true },
+          {
+            where: {
+              voucher_id: checkoutData.voucher_id,
+              user_id: userId,
+            },
+          },
+          { transaction }
+        );
+
+        const voucher = await db.Voucher.findByPk(checkoutData.voucher_id);
+        if (!voucher.isReferral) {
+          await db.Voucher.decrement(
+            "usedLimit",
+            {
+              by: 1,
+              where: { id: checkoutData.voucher_id },
+            },
+            { transaction }
+          );
+        }
+      }
 
       await transaction.commit();
       return res.status(200).send({
@@ -1039,7 +1133,7 @@ module.exports = {
       });
     } catch (error) {
       await transaction.rollback();
-      console.error(error); // Log the error for debugging purposes
+      console.error(error);
       return res.status(500).send({
         message: "Internal server error",
         error: error.message,
@@ -1047,7 +1141,6 @@ module.exports = {
     }
   },
 
-  //get user Voucher
   async getUserVoucher(req, res) {
     const userId = req.user.id;
     const grandTotal = req.params.grandTotal;
@@ -1075,7 +1168,6 @@ module.exports = {
         });
       }
 
-      // Calculate isEligible for each user voucher
       const vouchersWithEligibility = userVoucher.map((voucher) => ({
         ...voucher.toJSON(),
         isEligible: grandTotal >= voucher.Voucher.minTransaction,
@@ -1093,7 +1185,6 @@ module.exports = {
     }
   },
 
-  //get user order by id
   async userOrderById(req, res) {
     const userId = req.user.id;
     const orderId = req.params.id;
@@ -1152,7 +1243,6 @@ module.exports = {
     }
   },
 
-  // user payment
   async updatePayment(req, res) {
     const userId = req.user.id;
     const orderId = req.params.id;
@@ -1178,7 +1268,7 @@ module.exports = {
       }
       await orderData.update(
         {
-          imgPayment: setFromFileNameToDBValueCategory(imgFileName),
+          imgPayment: setFromFileNameToDBValuePayment(imgFileName),
           orderStatus: "Waiting for payment confirmation",
         },
         { transaction }
@@ -1188,10 +1278,12 @@ module.exports = {
         .status(201)
         .send({ message: "Successfully upload payment proof" });
     } catch (error) {
-      handleCatchError(res, transaction, error);
+      console.log(error);
+      await transaction.rollback();
+      return res.status(500).send({ message: "Internal Server Error" });
     }
   },
-  // user cancel order
+
   async cancelOrder(req, res) {
     const userId = req.user.id;
     const orderId = req.params.id;
@@ -1224,7 +1316,6 @@ module.exports = {
         orderData.orderStatus === "Waiting for payment" ||
         orderData.orderStatus === "Waiting for payment confirmation"
       ) {
-        // Update order status to "Canceled"
         await orderData.update(
           {
             orderStatus: "Canceled",
@@ -1233,11 +1324,9 @@ module.exports = {
           { transaction }
         );
 
-        // Return the stock and update stock history
         for (const orderItem of orderData.Branch_Products) {
           const { branch_product_id, quantity } = orderItem.Order_Item;
 
-          // Get the current stock quantity
           const branchProduct = await db.Branch_Product.findOne({
             where: { id: branch_product_id },
             transaction,
@@ -1246,18 +1335,16 @@ module.exports = {
           if (branchProduct) {
             const currentStockQuantity = branchProduct.quantity;
 
-            // Increment the stock
             await db.Branch_Product.increment("quantity", {
               by: quantity,
               where: { id: branch_product_id },
               transaction,
             });
 
-            // Create a stock history entry for the return
             await db.Stock_History.create(
               {
                 branch_product_id,
-                totalQuantity: currentStockQuantity + quantity, // Update totalQuantity
+                totalQuantity: currentStockQuantity + quantity,
                 quantity: orderItem.Order_Item.quantity,
                 status: "canceled by user",
               },
@@ -1286,7 +1373,6 @@ module.exports = {
     }
   },
 
-  // user confirm order
   async confirmOrder(req, res) {
     const userId = req.user.id;
     const orderId = req.params.id;
@@ -1322,7 +1408,6 @@ module.exports = {
       }
 
       if (orderData.orderStatus === "Delivering") {
-        // Complete order
         await orderData.update(
           {
             orderStatus: "Order completed",
@@ -1330,7 +1415,6 @@ module.exports = {
           { transaction }
         );
 
-        // Check vouchers available
         if (orderData.totalPrice >= 200000) {
           const vouchers = await db.Voucher.findAll({
             where: {
@@ -1350,29 +1434,6 @@ module.exports = {
               isUsed: false,
             });
           }
-        }
-        // update used voucher
-        if (orderData.voucher_id) {
-          await db.User_Voucher.update(
-            { isUsed: true },
-            {
-              where: {
-                voucher_id: orderData.voucher_id,
-                user_id: userId,
-              },
-            },
-            { transaction }
-          );
-
-          //update available vouchers on branch
-          await db.Voucher.decrement(
-            "usedLimit",
-            {
-              by: 1,
-              where: { id: orderData.voucher_id },
-            },
-            { transaction }
-          );
         }
       } else {
         await transaction.rollback();

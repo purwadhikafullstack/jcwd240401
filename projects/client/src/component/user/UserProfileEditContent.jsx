@@ -77,7 +77,7 @@ export default function UserProfileEditContent() {
                 setErrorMessage(`${errMsg}`);
             }
             if (response?.status === 500) {
-                setErrorMessage("Modify Product failed: Server error")
+                setErrorMessage("Modify Profile failed: Server error")
             }
             resetForm()
         } finally {
@@ -98,7 +98,7 @@ export default function UserProfileEditContent() {
                     <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                     <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen sm:mx-auto px-6'>Edit My Profile</div>
                 </div>
-                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+                <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
                 <div className='flex flex-col gap-2 pb-6 sm:py-6 mx-2 sm:mx-0'>
                     <Formik enableReinitialize initialValues={{ name: profileDetails.name, email: profileDetails.email, phone: profileDetails.phone, birthdate: profileDetails.birthdate ?? "", gender: profileDetails.gender ?? "" }} validationSchema={modifyProfileSchema} onSubmit={handleSubmit}>
                         {(props) => (

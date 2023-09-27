@@ -38,6 +38,7 @@ module.exports = {
       });
     }
   },
+
   async getMainAddress(req, res) {
     const userId = req.user.id;
 
@@ -79,6 +80,7 @@ module.exports = {
       });
     }
   },
+
   async getAllAddress(req, res) {
     const userId = req.user.id;
     try {
@@ -124,6 +126,7 @@ module.exports = {
       });
     }
   },
+
   async getAddressByName(req, res) {
     try {
       console.log(decodeURIComponent(req.params.name));
@@ -167,6 +170,7 @@ module.exports = {
       });
     }
   },
+
   async createAddress(req, res) {
     const transaction = await db.sequelize.transaction();
     const {
@@ -268,6 +272,7 @@ module.exports = {
       });
     }
   },
+
   async setMainOrRemoveAddress(req, res) {
     const transaction = await db.sequelize.transaction();
     const action = req.params.action;
@@ -278,12 +283,16 @@ module.exports = {
           user_id: req.user.id,
           isRemoved: 0,
         },
-        include: [{
-          model: db.City,
-          include: [{
-            model: db.Province
-          }]
-        }],
+        include: [
+          {
+            model: db.City,
+            include: [
+              {
+                model: db.Province,
+              },
+            ],
+          },
+        ],
         transaction,
       });
       if (!getAddress) {
@@ -359,6 +368,7 @@ module.exports = {
       });
     }
   },
+
   async modifyAddress(req, res) {
     const transaction = await db.sequelize.transaction();
     const { province, city, streetName, receiver, contact, addressLabel } =
@@ -443,6 +453,7 @@ module.exports = {
       });
     }
   },
+
   async branchProductByName(req, res) {
     try {
       const result = await db.Branch_Product.findOne({
@@ -482,6 +493,7 @@ module.exports = {
       });
     }
   },
+
   async modifyCredential(req, res) {
     const { name, email, phone, gender, birthdate } = req.body;
     let message;
@@ -561,6 +573,7 @@ module.exports = {
       });
     }
   },
+
   async modifyImgProfile(req, res) {
     const transaction = await db.sequelize.transaction();
     try {
@@ -607,6 +620,7 @@ module.exports = {
       });
     }
   },
+
   async getProfile(req, res) {
     try {
       const myProfile = await db.User.findOne({
@@ -632,6 +646,7 @@ module.exports = {
       });
     }
   },
+
   async getOrderList(req, res) {
     const userId = req.user.id;
     const pagination = {
@@ -648,28 +663,28 @@ module.exports = {
       const order = [];
       if (pagination.startDate && pagination.endDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(23, 59, 59, 999); // Set the time to end of the day in UTC
+        endDateUTC.setUTCHours(23, 59, 59, 999);
 
         where["orderDate"] = {
           [db.Sequelize.Op.between]: [startDateUTC, endDateUTC],
         };
       } else if (pagination.startDate) {
         const startDateUTC = new Date(pagination.startDate);
-        startDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
+        startDateUTC.setUTCHours(0, 0, 0, 0);
 
         where["orderDate"] = {
           [db.Sequelize.Op.gte]: startDateUTC,
         };
       } else if (pagination.endDate) {
         const endDateUTC = new Date(pagination.endDate);
-        endDateUTC.setUTCHours(0, 0, 0, 0); // Set the time to start of the day in UTC
-        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1); // Add 1 day
+        endDateUTC.setUTCHours(0, 0, 0, 0);
+        endDateUTC.setUTCDate(endDateUTC.getUTCDate() + 1);
 
         where["orderDate"] = {
-          [db.Sequelize.Op.lt]: endDateUTC, // Use less than operator to filter until the end of the previous day
+          [db.Sequelize.Op.lt]: endDateUTC,
         };
       }
       if (pagination.search) {
@@ -722,8 +737,3 @@ module.exports = {
     }
   },
 };
-
-// get profile (all account)
-
-// modify password
-// modify img profile

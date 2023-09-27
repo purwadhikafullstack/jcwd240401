@@ -16,8 +16,7 @@ export default function Button({
   isDisabled,
   condition,
   buttonType,
-  size,
-  backColor
+  size
 }) {
   let mainButtonClass, hoverClass, icon, iconClass, disabledStyle;
 
@@ -88,9 +87,9 @@ export default function Button({
         "px-2 w-fit border border-maingreen text-maingreen text-sm mt-2 mb-1";
       break;
     case "back":
-      mainButtonClass = `grid text-xl sm:text-2xl w-fit h-[24px] px-2 ${backColor}`;
+      mainButtonClass = `grid text-xl sm:text-2xl w-fit h-[24px] px-2`;
       hoverClass = !isDisabled && "hover:bg-slate-100";
-      icon = <HiOutlineChevronLeft size={22} className="" />;
+      icon = <HiOutlineChevronLeft size={22} className="rounded-md" style={{ backgroundColor: "rgba(255,255,255,0.8" }} />;
       iconClass = "grid justify-center";
       break;
     case "editImgProfile":

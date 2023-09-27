@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import {RiFolderChartLine, RiFolderHistoryLine} from "react-icons/ri"
+import { RiFolderChartLine, RiFolderHistoryLine } from "react-icons/ri"
 
 import CustomHeader from "../CustomHeader";
 import SalesReport from "../tab/superAdmin/report/SalesReport";
@@ -13,9 +13,9 @@ export default function SuperAdminReportContent() {
 
   const [content, setContent] = useState(() => {
     if (activeTabParam === "sales-report") {
-        return <SalesReport />;
+      return <SalesReport />;
     } else {
-        return <StockReport />;
+      return <StockReport />;
     }
   });
 
@@ -23,14 +23,14 @@ export default function SuperAdminReportContent() {
   const tabList = [
     {
       name: "Sales Report",
-      icon: <RiFolderChartLine size={25}/>,
+      icon: <RiFolderChartLine size={25} />,
       isActive: false,
       param: "sales-report",
       tab: <SalesReport />,
     },
     {
       name: "Stock History",
-      icon: <RiFolderHistoryLine size={25}/>,
+      icon: <RiFolderHistoryLine size={25} />,
       isActive: false,
       param: "stock-report",
       tab: <StockReport />,

@@ -14,7 +14,7 @@ const job = schedule.scheduleJob("1 0 * * *", async () => {
         expiredDate: {
           [db.Sequelize.Op.lt]: now.toDate(),
         },
-        isExpired: false, 
+        isExpired: false,
       },
     }
   );

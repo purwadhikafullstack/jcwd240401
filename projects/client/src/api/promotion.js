@@ -12,13 +12,13 @@ export function getAllDiscountType() {
 
 export const getAllDiscount = async (
   token,
-  currentPage,
-  filterSort,
-  filterType
+  paramPage,
+  paramSort,
+  paramType
 ) => {
   try {
     const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${currentPage}&sortDiscount=${filterSort}&filterDiscountType=${filterType}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admins/discounts?page=${paramPage}&sortDiscount=${paramSort}&filterDiscountType=${paramType}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response;
@@ -27,15 +27,10 @@ export const getAllDiscount = async (
   }
 };
 
-export const getAllVoucher = async (
-  token,
-  currentPage,
-  filterSort,
-  filterType
-) => {
+export const getAllVoucher = async (token, paramPage, paramSort, paramType) => {
   try {
     const response = await axios.get(
-      `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${currentPage}&sortVoucher=${filterSort}&filterVoucherType=${filterType}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admins/vouchers?page=${paramPage}&sortVoucher=${paramSort}&filterVoucherType=${paramType}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response;
@@ -89,6 +84,13 @@ export const handleSubmitVoucher = async (values, token) => {
     );
     return response;
   } catch (error) {
-    throw error
+    throw error;
   }
 };
+
+export function getUserVouchers(token, subTotal) {
+  return axios.get(
+    `${process.env.REACT_APP_API_BASE_URL}/users/vouchers/${subTotal}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}

@@ -77,7 +77,7 @@ export default function ModifyProductStocks({ branchProductId }) {
 
   return (
     <div className="w-5/6 mx-auto flex flex-col justify-center font-inter">
-      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
       <div className='flex flex-col gap-2 py-6'>
         <div className="font-semibold">
           Stock: {branchProductDetails.quantity} Qty
@@ -124,7 +124,7 @@ export default function ModifyProductStocks({ branchProductId }) {
                 </div>
               </div>
               <div className="mt-8">
-                <Modal isDisabled={!props.dirty || !props.isValid} modalTitle={"Modify Product's Stock"} toggleName={"Modify Stock"} content={"Editing this branch product's stock will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !props.isValid} modalTitle={"Modify Product's Stock"} toggleName={"Modify Stock"} content={"Editing this branch product's stock will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
               </div>
             </Form>
           )}

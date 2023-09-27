@@ -72,7 +72,7 @@ export default function SuperAdminModifyCategory() {
                 setErrorMessage("Category not found")
             }
             if (response?.status === 500) {
-                setErrorMessage("Create category failed: Server error")
+                setErrorMessage("Modify category failed: Server error")
             }
             resetForm()
         } finally {
@@ -102,7 +102,7 @@ export default function SuperAdminModifyCategory() {
                 <div className="grid justify-center content-center"><Button condition={"back"} onClick={() => navigate(-1)} /></div>
                 <div className='text-xl sm:text-3xl sm:font-bold sm:text-maingreen px-6 sm:mx-auto'>Modify My Category</div>
             </div>
-            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+            <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
             <div className='grid grid-cols-1 lg:grid-cols-2 h-full justify-center content-center gap-4'>
                 <div className='hidden lg:grid content-center justify-center p-4'>
                     <img src={FarmersMarket} alt="illustration" className='w-full h-full object-cover' />
@@ -144,7 +144,7 @@ export default function SuperAdminModifyCategory() {
                                     </div>
                                 </div>
                                 <div className="mt-8">
-                                    <Modal isDisabled={!props.dirty} modalTitle={"Modify Category"} toggleName={"Modify Category"} content={"Editing this category will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                                    <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty} modalTitle={"Modify Category"} toggleName={"Modify Category"} content={"Editing this category will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
                                 </div>
                             </Form>
                         )}

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
 import { Pagination } from "flowbite-react";
 import { useNavigate } from 'react-router-dom'
 import SearchInputBar from '../../../SearchInputBar';
 import CustomDropdownURLSearch from '../../../CustomDropdownURLSearch';
+import { getAllBranches } from '../../../../api/branch'
+
 
 export default function AllBranch() {
     const [branchData, setBranchData] = useState([])
@@ -15,25 +16,20 @@ export default function AllBranch() {
     const token = localStorage.getItem("token")
     const navigate = useNavigate()
 
-    const getAllBranch = async() => {
-        try{
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admins/branch?page=${params.get("page") || 1}&search=${params.get("search") || ""}&sortOrder=${params.get("sort") || ""}`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if(response.data){
+    const getAllBranch = async () => {
+        try {
+            const response = await getAllBranches(token, params.get("page") || 1, params.get("search") || "", params.get("sort") || "")
+            if (response.data) {
                 setBranchData(response.data.data?.rows)
                 setTotalData(response.data.data?.count)
-                if(response.data.pagination) {
+                if (response.data.pagination) {
                     setTotalPages(Math.ceil(response.data?.pagination?.totalData / response.data?.pagination?.perPage))
                 }
             } else {
                 setBranchData([])
             }
-        }catch(error){
-            if(error.response){
+        } catch (error) {
+            if (error.response) {
                 console.log(error.response.message)
             }
         }
@@ -95,35 +91,35 @@ export default function AllBranch() {
                     options={options}
                     onChange={handleDropdownChange}
                     placeholder={"Sort by city"}
-                />            
+                />
             </div>
             <div className="w-full text-left">Total: <span className="font-bold text-maingreen">{`${totalData}`}</span> branch locations</div>
-            <div className='w-72 overflow-x-auto lg:w-full'>
-            <table className="border-collapse w-full text-xs sm:text-base">
-                <thead className="border-b-2 border-maingreen text-maingreen uppercase">
-                    <tr>
-                        <th className="py-2 px-4" style={{ width: '25%' }}>City</th>
-                        <th className="py-2 px-4" style={{ width: '25%' }}>Province</th>
-                        <th className="py-2 px-4" style={{ width: '25%' }}>Branch Admin</th>
-                        <th className="py-2 px-4" style={{ width: '25%' }}>Contact</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {branchData ? branchData.map((data) => (
+            <div className='overflow-x-auto w-full'>
+                <table className="border-collapse w-full text-xs sm:text-base">
+                    <thead className="border-b-2 border-maingreen text-maingreen uppercase">
                         <tr>
-                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.City?.city_name}</td>
-                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.City?.Province?.province_name}</td>
-                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.User?.name}</td>
-                            <td className="py-2 px-4" style={{ width: '25%'}}>{data.User?.phone}</td>
+                            <th className="py-2 px-4" style={{ width: '25%' }}>City</th>
+                            <th className="py-2 px-4" style={{ width: '25%' }}>Province</th>
+                            <th className="py-2 px-4" style={{ width: '25%' }}>Branch Admin</th>
+                            <th className="py-2 px-4" style={{ width: '25%' }}>Contact</th>
                         </tr>
-                )) : (
-                <tr>
-                    <td colSpan="5" className='py-4 text-center'>No Branch Found</td>
-                </tr>
-                )}
-                </tbody>
-            </table>
-            </div>                        
+                    </thead>
+                    <tbody>
+                        {branchData ? branchData.map((data) => (
+                            <tr>
+                                <td className="py-2 px-4" style={{ width: '25%' }}>{data.City?.city_name}</td>
+                                <td className="py-2 px-4" style={{ width: '25%' }}>{data.City?.Province?.province_name}</td>
+                                <td className="py-2 px-4" style={{ width: '25%' }}>{data.User?.name}</td>
+                                <td className="py-2 px-4" style={{ width: '25%' }}>{data.User?.phone}</td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan="5" className='py-4 text-center'>No Branch Found</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
             <div className='flex justify-center'>
                 <Pagination
                     currentPage={currentPage}

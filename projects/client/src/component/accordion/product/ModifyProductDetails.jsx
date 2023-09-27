@@ -68,10 +68,11 @@ export default function ModifyProductDetails({ branchProductId }) {
 
   useEffect(() => {
     getOneBranchProduct()
-  }, [successMessage, errorMessage,])
+  }, [successMessage, errorMessage])
+
   return (
     <div className="w-5/6 mx-auto flex flex-col justify-center font-inter">
-      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} />
+      <AlertHelper successMessage={successMessage} errorMessage={errorMessage} setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
       <div className="flex flex-col gap-2 py-6">
         <div className=''>
           Modify Below:
@@ -87,7 +88,7 @@ export default function ModifyProductDetails({ branchProductId }) {
                 </div>
               </div>
               <div className="mt-8">
-                <Modal isDisabled={!props.dirty} modalTitle={"Modify Product's Detail"} toggleName={"Modify Details"} content={"Editing this branch product's detail will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+                <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty} modalTitle={"Modify Product's Detail"} toggleName={"Modify Details"} content={"Editing this branch product's detail will permanently change it. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
               </div>
             </Form>
           )}
