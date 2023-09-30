@@ -55,6 +55,8 @@ export default function Home() {
                 setLongitude(position.coords.longitude);
                 setError(null);
             } catch (error) {
+                setLatitude("")
+                setLongitude("")
                 console.error("Error getting geolocation:", error.message);
                 setError("Error getting geolocation. Please allow location access.");
             }

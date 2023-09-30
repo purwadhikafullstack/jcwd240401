@@ -14,7 +14,9 @@ export default function CarouselContent({ branchId }) {
       const response = await getPromotedProducts(branchId)
       if (response.data) {
         setPromotedProducts(response.data?.data)
-      }
+      } else (
+        setPromotedProducts([])
+      )
       if (response.data?.data.length === 0) {
         setPromotedProducts([])
       }
@@ -31,7 +33,7 @@ export default function CarouselContent({ branchId }) {
 
   return (
     <Carousel>
-      {promotedProducts.length !== 0 ? (
+      {promotedProducts && promotedProducts.length !== 0 ? (
         promotedProducts.map((product, index) => (
           <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} className='w-full h-full relative overflow-y-hidden' key={index}>
             <div className="w-full h-full flex flex-col lg:flex-row justify-center px-20 py-10 items-center relative overflow-y-hidden">
