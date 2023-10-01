@@ -43,7 +43,7 @@ const VoucherLists = ({ vouchers, selectedVoucher, handleVoucherClick }) => {
           {label(vouchers.Voucher.voucher_type_id)}
         </div>
         <div className="ml-4">
-          <h4>{vouchers.Voucher.Voucher_Type.type}</h4>
+          <h4>{vouchers.Voucher.voucher_type_id===1?`${vouchers.Voucher.Voucher_Type.type }`:vouchers.Voucher.voucher_type_id===2?`Discount ${vouchers.Voucher.amount} %`:`Discount ${rupiah(vouchers.Voucher.amount)}`}</h4>
           {vouchers.Voucher.expiredDate !== null ? (
             <div>
               <p>Min Transaction: {rupiah(vouchers.Voucher.minTransaction)}</p>

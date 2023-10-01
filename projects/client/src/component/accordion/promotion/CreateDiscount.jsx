@@ -33,11 +33,11 @@ export default function CreateDiscount() {
   const fetchDataAllBranchProduct = async () => {
     try {
       const branchProducts = await getDataAllBranchProduct(token, currentPage);
-      setDataBranchProduct(branchProducts.rows);
+      setDataBranchProduct(branchProducts.data?.rows);
       setTotalPage(
         Math.ceil(
-          branchProducts.pagination.totalData /
-          branchProducts.pagination.perPage
+          branchProducts.pagination?.totalData /
+          branchProducts.pagination?.perPage
         )
       );
     } catch (error) {

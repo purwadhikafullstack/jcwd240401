@@ -77,7 +77,7 @@ export default function AllVoucher() {
                 ? `${data.amount}%`
                 : rupiah(data.amount)}
           </td>
-          <td className="px-6 py-4">{!data.usedLimit && "-"}</td>
+          <td className="px-6 py-4">{!data.usedLimit ? "-":`${data.usedLimit}`}</td>
           <td className="px-6 py-4">
             {data.minTransaction ? rupiah(data.minTransaction) : "-"}
           </td>

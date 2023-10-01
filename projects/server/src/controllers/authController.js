@@ -7,6 +7,7 @@ const handlebars = require("handlebars");
 const fs = require("fs");
 const geolib = require("geolib");
 const refCode = require("referral-codes");
+const { join } = require("path");
 
 const secretKey = process.env.JWT_SECRET_KEY;
 
@@ -202,18 +203,29 @@ module.exports = {
       );
 
       const link = `${process.env.BASE_PATH_FE}/set-password/${verificationToken}`;
+      const templatePath = join(
+        __dirname,
+        "../helpers/template/setaccount.html"
+      );
       const template = fs.readFileSync(
-        "./src/helpers/template/setaccount.html",
+        templatePath,
         "utf-8"
       );
       const templateCompile = handlebars.compile(template);
       const registerEmail = templateCompile({ name: newAdmin.name, link });
 
-      await transporter.sendMail({
+      const nodemailerEmail = {
         from: "Groceer-e",
         to: email,
         subject: "Set Your Account Password",
         html: registerEmail,
+      }
+
+      transporter.sendMail(nodemailerEmail, (error) => {
+        if (error) {
+          transaction.rollback();
+          return res.status(500).json({ error: "Error sending email" });
+        }
       });
 
       await transaction.commit();
@@ -536,18 +548,28 @@ module.exports = {
       }
 
       const link = `${process.env.BASE_PATH_FE}/verify-account/${verificationToken}`;
+      const templatePath = join(
+        __dirname,
+        "../helpers/template/verifyaccount.html"
+      );
       const template = fs.readFileSync(
-        "./src/helpers/template/verifyaccount.html",
+        templatePath,
         "utf-8"
       );
       const templateCompile = handlebars.compile(template);
       const registerEmail = templateCompile({ name: newUser.name, link });
-
-      await transporter.sendMail({
+      
+      const nodemailerEmail = {
         from: "Groceer-e",
         to: email,
         subject: "Verify Your Groceer-e Account",
         html: registerEmail,
+      }
+      transporter.sendMail(nodemailerEmail, (error) => {
+        if(error){
+          transaction.rollback()
+          return res.status(500).json({error: "Error sending email"})
+        }
       });
 
       await transaction.commit();
@@ -627,18 +649,29 @@ module.exports = {
       await userData.save();
 
       const link = `${process.env.BASE_PATH_FE}/reset-password/${token}`;
+      const templatePath = join(
+        __dirname,
+        "../helpers/template/resetpassword.html"
+      );
       const template = fs.readFileSync(
-        "./src/helpers/template/resetpassword.html",
+        templatePath,
         "utf-8"
       );
       const templateCompile = handlebars.compile(template);
       const resetPasswordEmail = templateCompile({ name: userData.name, link });
 
-      await transporter.sendMail({
+      const nodemailerEmail = {
         from: "Groceer-e",
         to: email,
         subject: "Reset Your Groceer-e Account Password",
         html: resetPasswordEmail,
+      }
+
+      transporter.sendMail(nodemailerEmail, (error) => {
+        if (error) {
+          transaction.rollback();
+          return res.status(500).json({ error: "Error sending email" });
+        }
       });
 
       await transaction.commit();

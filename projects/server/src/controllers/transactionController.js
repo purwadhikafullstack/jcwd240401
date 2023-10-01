@@ -6,6 +6,7 @@ const { setFromFileNameToDBValueRefund } = require("../helpers/fileConverter");
 const handlebars = require("handlebars");
 const fs = require("fs");
 const transporter = require("../helpers/transporter");
+const { join } = require("path");
 
 module.exports = {
   async allOrdersByBranch(req, res) {
@@ -297,9 +298,13 @@ module.exports = {
 
             orderData.orderStatus = "Waiting for payment";
             await orderData.save({ transaction });
-
+            
+            const templatePath = join(
+              __dirname,
+              "../helpers/template/rejectedpayment.html"
+            );
             const template = fs.readFileSync(
-              "./src/helpers/template/rejectedpayment.html",
+              templatePath,
               "utf-8"
             );
             const templateCompile = handlebars.compile(template);
@@ -308,11 +313,18 @@ module.exports = {
               invoiceCode: orderData.invoiceCode,
             });
 
-            await transporter.sendMail({
+            const nodemailerEmail = {
               from: "Groceer-e",
               to: orderData.User.email,
               subject: "Update Your Payment",
               html: rejectedPaymentEmail,
+            }
+
+            transporter.sendMail(nodemailerEmail, (error) => {
+              if (error) {
+                transaction.rollback();
+                return res.status(500).json({ error: "Error sending email" });
+              }
             });
 
             await transaction.commit();
@@ -355,8 +367,12 @@ module.exports = {
             orderData.orderStatus = "Processing";
             await orderData.save({ transaction });
 
+            const templatePath = join(
+              __dirname,
+              "../helpers/template/confirmedpayment.html"
+            );
             const template = fs.readFileSync(
-              "./src/helpers/template/confirmedpayment.html",
+              templatePath,
               "utf-8"
             );
             const templateCompile = handlebars.compile(template);
@@ -365,11 +381,17 @@ module.exports = {
               invoiceCode: orderData.invoiceCode,
             });
 
-            await transporter.sendMail({
+            const nodemailerEmail = {
               from: "Groceer-e",
               to: orderData.User.email,
               subject: "Your Order is Being Processed",
               html: confirmedPaymentEmail,
+            }
+            transporter.sendMail(nodemailerEmail, (error) => {
+              if (error) {
+                transaction.rollback();
+                return res.status(500).json({ error: "Error sending email" });
+              }
             });
 
             await transaction.commit();
@@ -555,8 +577,12 @@ module.exports = {
       orderData.orderStatus = "Canceled";
       await orderData.save({ transaction });
 
+      const templatePath = join(
+        __dirname,
+        "../helpers/template/canceledorder.html"
+      );
       const template = fs.readFileSync(
-        "./src/helpers/template/canceledorder.html",
+        templatePath,
         "utf-8"
       );
       const templateCompile = handlebars.compile(template);
@@ -566,11 +592,17 @@ module.exports = {
         cancelReason: cancelReason,
       });
 
-      await transporter.sendMail({
+      const nodemailerEmail = {
         from: "Groceer-e",
         to: orderData.User.email,
         subject: "Your Order is Canceled",
         html: canceledOrderEmail,
+      }
+      transporter.sendMail(nodemailerEmail, (error) => {
+        if (error) {
+          transaction.rollback();
+          return res.status(500).json({ error: "Error sending email" });
+        }
       });
 
       await transaction.commit();
@@ -1357,6 +1389,31 @@ module.exports = {
         return res.status(400).send({
           message: "You can't cancel this order",
         });
+      }
+
+      if (orderData.voucher_id) {
+        await db.User_Voucher.update(
+          { isUsed: false },
+          {
+            where: {
+              voucher_id: orderData.voucher_id,
+              user_id: orderData.user_id,
+            },
+          },
+          { transaction }
+        );
+
+        const voucher = await db.Voucher.findByPk(orderData.voucher_id);
+        if (!voucher.isReferral) {
+          await db.Voucher.increment(
+            "usedLimit",
+            {
+              by: 1,
+              where: { id: orderData.voucher_id },
+            },
+            { transaction }
+          );
+        }
       }
 
       await transaction.commit();

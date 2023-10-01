@@ -84,7 +84,7 @@ export default function OrderList() {
   };
 
   return (
-    <div className="w-5/6 mx-auto">
+    <div className="w-full mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
           <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Search by Invoice Code" />

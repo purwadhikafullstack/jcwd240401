@@ -33,6 +33,31 @@ const job = schedule.scheduleJob(rule, async () => {
             transaction,
           }
         );
+        if (order.voucher_id) {
+          await db.User_Voucher.update(
+            { isUsed: false },
+            {
+              where: {
+                voucher_id: order.voucher_id,
+                user_id: order.user_id,
+              },
+            },
+            { transaction }
+          );
+  
+          const voucher = await db.Voucher.findByPk(order.voucher_id);
+          if (!voucher.isReferral) {
+            await db.Voucher.increment(
+              "usedLimit",
+              {
+                by: 1,
+                where: { id: order.voucher_id },
+              },
+              { transaction }
+            );
+          }
+        }
+      
 
         for (const orderItem of order.Branch_Products) {
           const { branch_product_id, quantity } = orderItem.Order_Item;

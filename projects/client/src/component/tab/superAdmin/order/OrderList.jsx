@@ -110,7 +110,7 @@ export default function OrderList() {
     branchLabel = getBranchLabel(params.get("branchId"));
   }, [filter])
   return (
-    <div className="w-5/6 mx-auto">
+    <div className="w-full mx-auto">
       <div className="relative">
         <div className="mx-auto py-2 w-5/6">
           <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={(searchValue) => handleFilterChange("search", searchValue)} placeholder="Search by invoice code" />

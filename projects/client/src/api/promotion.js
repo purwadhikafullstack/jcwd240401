@@ -55,7 +55,7 @@ export const getDataAllBranchProduct = async (token, currentPage) => {
       `${process.env.REACT_APP_API_BASE_URL}/admins/my-branch/branch-products?page=${currentPage}&sortName=ASC`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error(error);
   }

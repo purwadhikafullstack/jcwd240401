@@ -84,7 +84,7 @@ export default function AllBranch() {
 
     return (
         <div className="w-full flex flex-col justify-center items-center gap-4 font-inter">
-            <div className='flex flex-col gap-2 w-72 lg:flex-row lg:gap-4 lg:w-10/12 lg:mx-auto lg:my-6 '>
+            <div className='flex flex-col lg:grid lg:grid-cols-2 gap-4 w-10/12 mx-auto my-6 '>
                 <SearchInputBar id="search" value={params.get("search") || ""} onSubmit={handleSearchSubmit} placeholder="Search by city or province" />
                 <CustomDropdownURLSearch
                     id="sort"
