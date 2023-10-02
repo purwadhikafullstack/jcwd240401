@@ -85,7 +85,8 @@ export default function BranchAdminModifyOrder() {
   }
 
   const cancelationSchema = yup.object().shape({
-    cancelReason: yup.string().required("Cancelation reason is required")
+    cancelReason: yup.string().required("Cancelation reason is required"),
+    file: fileMaxSize(1024 * 1024).required("Refund proof is required"),
   })
 
   function preview(event) {
@@ -240,7 +241,7 @@ export default function BranchAdminModifyOrder() {
                     </div>
                     <div className='flex mt-4 w-3/4'>
                       <Button condition={"negative"} label={"Continue Processing"} onClick={() => { setCancel(false) }} />
-                      <Button condition={"positive"} label={"Cancel Order"} onClick={props.handleSubmit} />
+                      <Button condition={"positive"} label={"Cancel Order"} onClick={props.handleSubmit} isDisabled={!props.dirty || !props.isValid} />
                     </div>
                   </div>
                 </Form>

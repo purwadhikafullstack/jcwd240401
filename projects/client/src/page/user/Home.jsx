@@ -67,7 +67,7 @@ export default function Home() {
         }
     }
     useEffect(() => {
-        if (!token && profile.role !== "3") {
+        if (!token) {
             if ("geolocation" in navigator) {
                 askForLocationPermission();
             } else {
@@ -96,54 +96,54 @@ export default function Home() {
     const keepLogin = async () => {
         let token = localStorage.getItem("token");
         if (token) {
-          try {
-            const response = await axios.get(
-              `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-    
-            if(response.status === 200){
-              if (response.data.userId) {
-              localStorage.setItem("token", response.data.refreshToken);
-              const decoded = jwtDecode(token);
-              dispatch(keep(decoded));
+            try {
+                const response = await axios.get(
+                    `${process.env.REACT_APP_API_BASE_URL}/auth/keep-login`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (response.status === 200) {
+                    if (response.data.userId) {
+                        localStorage.setItem("token", response.data.refreshToken);
+                        const decoded = jwtDecode(token);
+                        dispatch(keep(decoded));
+                    }
+                }
+            } catch (error) {
+                if (error.response.status === 401) {
+                    dispatch(remove())
+                    localStorage.removeItem("token")
+                    console.log(error)
+                    navigate("/login", { state: { from: location } })
+                } else {
+                    console.log(error)
+                }
             }
-          }
-          } catch (error) {
-            if(error.response.status === 401) {
-              dispatch(remove())
-              localStorage.removeItem("token")
-              console.log(error)
-              navigate("/login", { state: {from: location} })
-            } else {
-              console.log(error)
-            }
-          }
         }
-      };
+    };
 
     useEffect(() => {
-        if(!token || profile.role !== "3"){
+        if (!token) {
             coordinateToPlacename()
         } else {
             getAddress()
         }
-        dispatch(keepLocation({city: cityAddress, province: provinceAddress, latitude: latitude, longitude: longitude}))
+        dispatch(keepLocation({ city: cityAddress, province: provinceAddress, latitude: latitude, longitude: longitude }))
     }, [token, latitude, longitude, cityAddress, provinceAddress])
 
     useEffect(() => {
-        if(token){
+        if (token) {
             keepLogin()
         }
     }, [token])
 
     return (
         <LayoutUser>
-            <HomeContent cityAddress={cityAddress} provinceAddress={provinceAddress} latitude={latitude} longitude={longitude}/>
+            <HomeContent cityAddress={cityAddress} provinceAddress={provinceAddress} latitude={latitude} longitude={longitude} />
         </LayoutUser>
     )
 }

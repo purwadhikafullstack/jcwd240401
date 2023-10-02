@@ -1,4 +1,5 @@
-import * as yup from 'yup'
+import * as yup from 'yup';
+import { fileMaxSize } from './fileMaxSize';
 
 const loginSchema = yup.object().shape({
     email: yup.string().email("Invalid email format").required("Email is required"),
@@ -71,7 +72,7 @@ const modifyAddressSchema = yup.object().shape({
 });
 
 const createProductSchema = yup.object().shape({
-    file: yup.mixed(),
+    file: fileMaxSize(1024 * 1024).required("Product image is required"),
     name: yup.string().trim().required("Product name is required").max(50, "Maximum character is 50").typeError("Name must be a valid text"),
     category_id: yup.string().trim().required("Category is required"),
     description: yup.string().trim().required("Description is required").max(255, "Maximum character is 255").typeError("Description must be a valid text"),
@@ -88,7 +89,7 @@ const createCategorySchema = yup.object().shape({
       .max(50, "Category name must not exceed 50 characters")
       .required("Category name is required")
       .typeError("Name must be a valid text"),
-    file: yup.mixed().required("Category image is required"),
+    file: fileMaxSize(1024 * 1024).required("Category image is required"),
 });
 
 const createBranchProductSchema = yup.object().shape({
@@ -110,10 +111,12 @@ const modifyProductSchema = yup.object().shape({
         }),
     storageInstruction: yup.string().trim().max(255, "Maximum character is 255").typeError("Storage instruction must be a valid text"),
     storagePeriod: yup.string().trim().max(255, "Maximum character is 255").typeError("Storage period must be a valid text"),
+    file: fileMaxSize(1024 * 1024)
 });
 
 const modifyCategorySchema = yup.object().shape({
     name: yup.string().max(50, 'Category name must not exceed 50 characters').typeError("Name must be a valid text"),
+    file: fileMaxSize(1024 * 1024)
 });
 
 const modifyBranchProductQuantitySchema = yup.object().shape({

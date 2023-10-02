@@ -22,10 +22,8 @@ export default function UserProfileContent() {
         if (file) {
             formData.append("file", file)
         }
-        console.log(values)
         try {
             const response = await modifyImageProfile(token, formData)
-            console.log(response)
             if (response.status === 200) {
                 resetForm({ values: initialValues })
                 setErrorMessage("")
@@ -43,7 +41,6 @@ export default function UserProfileContent() {
             }
             if (response?.data?.error) {
                 const errMsg = response.data.error;
-                console.log(errMsg)
                 setStatus({ success: false, errors: errMsg });
                 setErrorMessage(`${errMsg}`);
             }
