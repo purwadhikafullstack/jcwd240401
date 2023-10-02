@@ -1267,7 +1267,7 @@ module.exports = {
       perPage: 12,
       search: req.query.search || "",
       status: req.query.filterStatus || "",
-      date: req.query.sortDate,
+      date: req.query.sortDate || "DESC",
       branch_product_id: req.query.filterBranchProduct || "",
       branch_id: req.query.filterBranch || "1",
       startDate: req.query.startDate || "",
