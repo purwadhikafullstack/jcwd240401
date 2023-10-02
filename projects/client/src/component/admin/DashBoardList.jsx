@@ -21,7 +21,7 @@ export default function DashBoardList({ listData }) {
                 <span className="text-sm font-semibold text-gray-800">
                   {product.productName}
                 </span>
-                <span className="text-sm">total sales: {product.sales}</span>
+                <span className="text-sm">Avl. Stock: {product.sales}</span>
               </div>
             </div>
           ))}

@@ -125,7 +125,7 @@ export default function UserCartContent() {
               {selectedItems.length === 0 ? (
                 <div className="flex justify-end mx-6 lg:px-20 text-white">_</div>
               ) : selectedItems.length > 0 ? (
-                <Modal modalTitle="Delete Cart" buttonCondition="trash" content="are you sure you want to remove this from your cart?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={handleDelete} />
+                <Modal modalTitle="Delete Cart" buttonCondition="trash" content="Are you sure you want to remove this from your cart?" buttonLabelOne="Cancel" buttonLabelTwo="Yes" onClickButton={handleDelete} />
               ) : (
                 <button disabled><BsTrash size={25} color="grey" /></button>
               )}

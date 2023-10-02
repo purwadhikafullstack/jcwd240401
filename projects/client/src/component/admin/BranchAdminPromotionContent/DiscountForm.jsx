@@ -100,7 +100,7 @@ export default function DiscountForm({
               <span className="text-xs text-reddanger">*</span>
             </label>
             <br />
-            <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="">
               {dataBranchProduct.map((data) => (
                 <div role="group" aria-labelledby="checkbox-group">
                   <label>
@@ -132,7 +132,7 @@ export default function DiscountForm({
                 </div>
               )}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center m-2">
               <Pagination
                 currentPage={currentPage}
                 onPageChange={onPageChange}

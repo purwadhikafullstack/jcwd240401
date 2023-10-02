@@ -106,7 +106,7 @@ const UnavailableCartItem = ({
             <Modal
               modalTitle="Delete Cart"
               buttonCondition="trash"
-              content="are you sure you want to remove this from your cart?"
+              content="Are you sure you want to remove this from your cart?"
               buttonLabelOne="Cancel"
               buttonLabelTwo="Yes"
               onClickButton={handleDelete}
