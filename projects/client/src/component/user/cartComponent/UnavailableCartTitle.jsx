@@ -16,7 +16,6 @@ export default function UnavailableCartTitle({ unavailableCart }) {
             </span>
           </div>
         </div>
-        ;
       </>
     );
   }

@@ -26,7 +26,7 @@ export default function Label({ text, labelColor }) {
             break;
         case "gray":
             style =
-                "bg-[#EDEDED] px-3 rounded-md text-[#757575] text-xs w-fit mb-1 mt-2";
+                "bg-[#EDEDED] px-3 rounded-md text-[#757575] text-xs w-fit mb-1 mt-2 mx-auto";
             break;
         default:
             style = "";

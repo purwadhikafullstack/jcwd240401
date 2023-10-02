@@ -49,9 +49,12 @@ export default function CreateCategory() {
       }
       if (response?.data.error) {
         const errMsg = response?.data.error;
-        console.log(errMsg);
         setStatus({ success: false, errors: errMsg });
         setErrorMessage(`${errMsg}`);
+      }
+      if (response?.status === 413) {
+        setStatus({ success: false, errors: "File size exceeded the limit" });
+        setErrorMessage(`File size exceeded the limit`);
       }
       if (response.status === 500) {
         setErrorMessage("Create category failed: Server error");

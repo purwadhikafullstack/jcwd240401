@@ -163,7 +163,7 @@ export default function StockReport() {
         </div>
         <div className="mx-auto py-2 w-5/6 grid grid-cols-1 lg:grid-cols-2 gap-2">
           <CustomDropdownURLSearch id="sort" options={options} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Sort by Created Date"} />
-          <CustomDropdownURLSearch id="status" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"FIlter by Status"} />
+          <CustomDropdownURLSearch id="status" options={options2} onChange={(e) => handleFilterChange(e.target.id, e.target.value)} placeholder={"Filter by Status"} />
         </div>
         <div className="overflow-x-auto w-full">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">

@@ -1,13 +1,48 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import jwtDecode from 'jwt-decode'
+import { keep, remove } from '../store/reducer/authSlice'
+import { keepLoginAccount } from '../api/auth'
 import background from '../assets/BackgroundLeaves.jpg'
 import notFound from '../assets/NotFound.png'
 import Button from '../component/Button'
 
 export default function NotFound() {
+    const token = localStorage.getItem("token")
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const location = useLocation()
     const profile = useSelector((state) => state.auth.profile)
+
+    const keepLogin = async () => {
+        let token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const response = await keepLoginAccount(token)
+            if(response.status === 200){
+              if (response.data.userId) {
+              localStorage.setItem("token", response.data.refreshToken);
+              const decoded = jwtDecode(token);
+              dispatch(keep(decoded));
+            }
+          }
+          } catch (error) {
+            if(error.response.status === 401) {
+              dispatch(remove())
+              localStorage.removeItem("token")
+              console.log(error)
+              navigate("/login", { state: {from: location} })
+            } else {
+              console.log(error)
+            }
+          }
+        }
+      };
+
+      if(token){
+        keepLogin()
+      }
 
     const goToHome = () => {
         if (profile.role === '1' || profile.role === '2') {
