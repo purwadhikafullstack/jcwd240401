@@ -861,7 +861,12 @@ module.exports = {
         include: [
           {
             model: db.Branch_Product,
-            where: { quantity: { [db.Sequelize.Op.eq]: 0 } },
+            where: {
+              [db.Sequelize.Op.or]: [
+                { quantity: { [db.Sequelize.Op.eq]: 0 } },
+                { isRemoved: true },
+              ],
+            },
             attributes: [
               "id",
               "product_id",

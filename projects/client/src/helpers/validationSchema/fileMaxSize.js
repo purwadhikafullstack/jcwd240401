@@ -5,3 +5,9 @@ export const fileMaxSize = (maxSize) => {
         return value.size <= maxSize;
     });
 };
+
+export const fileMaxSizeNull = (maxSize) => {
+    return yup.mixed().test('fileSize', 'File size is too large', (value) => {
+        return !value || value.size <= maxSize;
+    });
+};

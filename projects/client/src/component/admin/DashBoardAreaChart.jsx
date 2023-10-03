@@ -22,14 +22,17 @@ const DashBoardAreaChart = ({ areaChartData }) => {
         format: "dd/MM",
       },
     },
-
   };
 
   const series = [
     {
       name: "Total Sales",
       data: areaChartData?.map((dataPoint) => [
-        new Date(dataPoint.date).getTime(),
+        Date.UTC(
+          new Date(dataPoint.date).getFullYear(),
+          new Date(dataPoint.date).getMonth(),
+          new Date(dataPoint.date).getDate()
+        ),
         dataPoint.totalPrice,
       ]),
       color: "#2E6930",

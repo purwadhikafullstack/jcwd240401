@@ -823,7 +823,7 @@ module.exports = {
                 voucher_type_id,
                 minTransaction,
                 usedLimit,
-                isExpired: false
+                isExpired: false,
               },
             });
 
@@ -912,7 +912,7 @@ module.exports = {
                 minTransaction,
                 maxDiscount,
                 usedLimit,
-                isExpired: false
+                isExpired: false,
               },
             });
 
@@ -1004,7 +1004,7 @@ module.exports = {
                 minTransaction,
                 maxDiscount,
                 usedLimit,
-                isExpired: false
+                isExpired: false,
               },
             });
 
@@ -1531,21 +1531,31 @@ module.exports = {
 
       const courierUsage = {};
 
+      const currentDate = new Date();
+
       orderData.rows.forEach((order) => {
         if (order.orderStatus === "Order completed") {
           const orderDate = new Date(order.orderDate).toLocaleDateString();
 
-          const dayTotalPrice = totalPriceByDay.find(
-            (item) => item.date === orderDate
+          const timeDifferenceInDays = Math.floor(
+            (currentDate - new Date(order.orderDate)) / (1000 * 60 * 60 * 24)
           );
 
-          if (dayTotalPrice) {
-            dayTotalPrice.totalPrice += order.totalPrice;
-          } else {
-            totalPriceByDay.push({
-              date: orderDate,
-              totalPrice: order.totalPrice,
-            });
+          if (timeDifferenceInDays <= 15 && timeDifferenceInDays >= -15) {
+            if (totalPriceByDay.length < 30) {
+              const dayTotalPrice = totalPriceByDay.find(
+                (item) => item.date === orderDate
+              );
+
+              if (dayTotalPrice) {
+                dayTotalPrice.totalPrice += order.totalPrice;
+              } else {
+                totalPriceByDay.push({
+                  date: orderDate,
+                  totalPrice: order.totalPrice,
+                });
+              }
+            }
           }
 
           totalAllTransactions += order.totalPrice;
@@ -1716,21 +1726,31 @@ module.exports = {
 
       const courierUsage = {};
 
+      const currentDate = new Date();
+
       orderData.rows.forEach((order) => {
         if (order.orderStatus === "Order completed") {
           const orderDate = new Date(order.orderDate).toLocaleDateString();
 
-          const dayTotalPrice = totalPriceByDay.find(
-            (item) => item.date === orderDate
+          const timeDifferenceInDays = Math.floor(
+            (currentDate - new Date(order.orderDate)) / (1000 * 60 * 60 * 24)
           );
 
-          if (dayTotalPrice) {
-            dayTotalPrice.totalPrice += order.totalPrice;
-          } else {
-            totalPriceByDay.push({
-              date: orderDate,
-              totalPrice: order.totalPrice,
-            });
+          if (timeDifferenceInDays <= 15 && timeDifferenceInDays >= -15) {
+            if (totalPriceByDay.length < 30) {
+              const dayTotalPrice = totalPriceByDay.find(
+                (item) => item.date === orderDate
+              );
+
+              if (dayTotalPrice) {
+                dayTotalPrice.totalPrice += order.totalPrice;
+              } else {
+                totalPriceByDay.push({
+                  date: orderDate,
+                  totalPrice: order.totalPrice,
+                });
+              }
+            }
           }
 
           totalAllTransactions += order.totalPrice;
