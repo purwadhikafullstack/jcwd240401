@@ -156,7 +156,7 @@ export default function StockReport() {
 
   return (
     <div>
-      <div className="mx-auto py-2 w-5/6">
+      <div className="mx-auto w-5/6">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Branch</label>
         <CustomDropdownURLSearch id="branch_id" options={dataAllBranch} onChange={(e) => { handleFilterChange(e.target.id, e.target.value); setSelectedBranch(true) }} placeholder={"Select by Branch"} />
       </div>

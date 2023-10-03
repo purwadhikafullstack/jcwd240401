@@ -12,6 +12,7 @@ import handleImageError from '../../helpers/handleImageError';
 import AlertHelper from '../AlertHelper';
 import { modifyOrderByAdmin, changeOrderStatus, cancelByAdmin } from '../../api/transaction';
 import { orderStatusLabelColor } from '../../helpers/labelColor';
+import { fileMaxSize } from "../../helpers/validationSchema/fileMaxSize";
 
 export default function BranchAdminModifyOrder() {
   const [orderData, setOrderData] = useState([])
