@@ -164,7 +164,7 @@ export default function SingleProductContent() {
                             <Button condition={"plus"} size={"3xl"} onClick={(e) => updateQuantity("add")} />
                         </div>
                         <div className="basis-1/2 p-4">
-                            <Button condition={"positive"} label={isProductInCart && quantity === 0 ? "Remove from Cart" : "Add to Cart"} onClick={(e) => handleSubmit(branchProductData.id)} isDisabled={!isProductInCart && quantity === 0 ? true : false} />
+                            <Button condition={"positive"} label={isProductInCart && quantity === 0 ? (<div className="text-sm md:text-base">Remove from Cart</div>) : "Add to Cart"} onClick={(e) => handleSubmit(branchProductData.id)} isDisabled={!isProductInCart && quantity === 0 ? true : false} />
                             {branchProductData.Discount?.isExpired === false && branchProductData.Discount?.discount_type_id === 1 && quantity >= 2 ? (<div className="text-sm text-reddanger"> you can only add 2 for buy on get one product </div>) : (
                                 quantity >= branchProductData.quantity && branchProductData.quantity !== 0 && (<div className="text-sm text-reddanger"> insufficient stock available</div>)
                             )}

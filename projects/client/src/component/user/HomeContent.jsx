@@ -165,7 +165,7 @@ export default function HomeContent({ cityAddress, provinceAddress, latitude, lo
                     <Link to={`/product/${branchId}/${product.Product?.name}/${product.Product?.weight}/${product.Product?.unitOfMeasurement}`} key={index}><div className='flex justify-center mb-2 sm:mb-0'>
                         <ProductCard key={index} product={product} productImg={`${process.env.REACT_APP_BASE_URL}${product.Product?.imgProduct}`} />
                     </div> </Link>))
-                ) : (<div className='font-inter col-span-2  2xl:col-span-4 text-center text-maingreen'>No Product Found</div>)}
+                ) : (<div className='font-inter col-span-2 lg:col-span-4 text-center text-maingreen'>No Product Found</div>)}
             </div>
             <div className='flex justify-center'>
                 <Pagination

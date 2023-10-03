@@ -54,7 +54,7 @@ export default function NavbarTop({ city, province }) {
             {routes.map(({ menu, to }, idx) => (
               <Link
                 to={to}
-                className={`h-10 flex items-center justify-center ${location.pathname === to
+                className={`px-4 h-10 flex items-center justify-center ${location.pathname === to
                   ? `text-maingreen font-bold border-b-2 border-maingreen`
                   : `text-darkgrey`
                   }`}
@@ -65,7 +65,7 @@ export default function NavbarTop({ city, province }) {
             ))}
             {token && cartItems.length > 0 && (
               <span
-                className="absolute top-7 right-28 text-white text-xs px-1 rounded-full bg-reddanger"
+                className="absolute top-7 right-[144px] text-white w-5 h-5 grid justify-center text-xs px-1 rounded-full bg-reddanger"
 
               >
                 {cartItems.length}
