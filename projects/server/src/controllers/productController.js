@@ -399,6 +399,7 @@ module.exports = {
                   name,
                   weight,
                   unitOfMeasurement,
+                  isRemoved: false
                 },
               });
               if (isExist) {
