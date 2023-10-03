@@ -3,6 +3,7 @@ import Button from './Button';
 import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import handleImageError from '../helpers/handleImageError';
+import { fileMaxSize } from '../helpers/validationSchema/fileMaxSize';
 
 export default function ModalImageProfile({ onSubmit }) {
     const [openModal, setOpenModal] = useState(false);
@@ -19,7 +20,7 @@ export default function ModalImageProfile({ onSubmit }) {
     };
 
     const validationSchema = yup.object().shape({
-        file: yup.mixed().required('File is required')
+        file: fileMaxSize(1024 * 1024).required('File is required')
     });
 
     function preview(event) {

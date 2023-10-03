@@ -4,9 +4,10 @@ import * as yup from "yup";
 
 import ModalCancelOrder from "../../ModalCancelOrder";
 import Modal from "../../Modal";
+import { fileMaxSize } from "../../../helpers/validationSchema/fileMaxSize";
 
 const paymentSchema = yup.object().shape({
-  file: yup.mixed().required("Category image is required"),
+  file: fileMaxSize(1024 * 1024).required("payment proof is required"),
 });
 
 
@@ -21,10 +22,10 @@ const PaymentForm = ({ handleSubmit, id, handleCancel }) => {
       {(props) => (
         <Form>
           <div className="flex flex-col gap-2 py-4 mb-4">
-            <label htmlFor="file" className="">
+            <label htmlFor="file" className="font-medium">
               Payment Proof
-              <span className="text-sm font-normal"> (.jpg, .jpeg, .png) </span>
-              <span className="text-reddanger font-normal text-xs">*required</span>
+              <span className="text-sm font-normal"> (.jpg, .jpeg, .png) max. 1MB </span>
+              <span className="text-reddanger font-normal">*required</span>
             </label>
             <div className="relative">
               <input
@@ -47,7 +48,7 @@ const PaymentForm = ({ handleSubmit, id, handleCancel }) => {
           <div className="flex flex-row">
             <ModalCancelOrder onSubmit={(e) => handleCancel(e, id)} />
             <Modal
-              isDisabled={!props.dirty || !props.values.file}
+              isDisabled={!props.dirty || !props.values.file || !props.isValid}
               modalTitle={"Confirm Payment"}
               toggleName={"Confirm Payment"}
               content={

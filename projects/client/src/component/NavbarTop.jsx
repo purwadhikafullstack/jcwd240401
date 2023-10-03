@@ -55,15 +55,15 @@ export default function NavbarTop({ city, province }) {
               <Link
                 to={to}
                 className={`h-10 flex items-center justify-center ${location.pathname === to
-                    ? `text-maingreen font-bold border-b-2 border-maingreen`
-                    : `text-darkgrey`
+                  ? `text-maingreen font-bold border-b-2 border-maingreen`
+                  : `text-darkgrey`
                   }`}
                 key={idx}
               >
                 <div>{menu}</div>
               </Link>
             ))}
-            {cartItems.length > 0 && (
+            {token && cartItems.length > 0 && (
               <span
                 className="absolute top-7 right-28 text-white text-xs px-1 rounded-full bg-reddanger"
 

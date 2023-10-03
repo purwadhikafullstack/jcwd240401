@@ -21,15 +21,15 @@ export default function DiscountForm({
       onSubmit={onSubmit}
     >
       {(props) => (
-        <form id="myDiscountForm">
+        <form id="myDiscountForm" className="font-inter">
           <div>
-            <div className="flex flex-col gap-2 py-4 font-inter mb-4">
+            <div className="flex flex-col gap-2 py-4 mb-4">
               <div>
                 <span className="text-xs text-reddanger">* required</span>
               </div>
-              <label htmlFor="discount_type_id" className="">
+              <label htmlFor="discount_type_id" className="font-medium">
                 Select discount type:
-                <span className="text-xs text-reddanger">*</span>
+                <span className="font-normal text-reddanger">*</span>
               </label>
               <div className="relative">
                 <Field
@@ -57,9 +57,9 @@ export default function DiscountForm({
           </div>
           {props.values.discount_type_id == 2 || props.values.discount_type_id == 3 ? (
             <div>
-              <label htmlFor="amount" className="font-inter">
+              <label htmlFor="amount" className="font-medium">
                 Discount amount:
-                <span className="text-xs text-reddanger">*</span>
+                <span className="font-normal text-reddanger">*</span>
               </label>
               <InputField
                 value={props.values.amount}
@@ -76,11 +76,10 @@ export default function DiscountForm({
           ) : (
             ""
           )}
-
           <div>
-            <label htmlFor="expiredDate" className="font-inter">
+            <label htmlFor="expiredDate" className="font-medium">
               Expired date
-              <span className="text-xs text-reddanger">*</span>
+              <span className="font-normal text-reddanger">*</span>
             </label>
             <Field
               type="date"
@@ -94,13 +93,13 @@ export default function DiscountForm({
               </div>
             )}
           </div>
-          <div>
-            <label htmlFor="products" className="font-inter">
-              choose products
-              <span className="text-xs text-reddanger">*</span>
+          <div className="mt-6">
+            <label htmlFor="products" className="font-medium">
+              Choose product(s)
+              <span className="font-normal text-reddanger">*</span>
             </label>
             <br />
-            <div className="">
+            <div className="mt-2">
               {dataBranchProduct.map((data) => (
                 <div role="group" aria-labelledby="checkbox-group">
                   <label>
@@ -145,7 +144,7 @@ export default function DiscountForm({
               />
             </div>
           </div>
-          <Modal modalTitle={"Create Discount"} toggleName={"Create Discount"} content={`Are you sure to create this voucher?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+          <div className="mt-6"><Modal modalTitle={"Create Discount"} toggleName={"Create Discount"} content={`Are you sure to create this voucher?`} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} /></div>
         </form>
       )}
     </Formik>

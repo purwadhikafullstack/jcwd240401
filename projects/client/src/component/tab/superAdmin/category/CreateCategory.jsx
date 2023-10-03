@@ -38,7 +38,6 @@ export default function CreateCategory() {
         setSuccessMessage(response.data?.message);
       }
     } catch (error) {
-      console.log(error)
       const response = error.response;
       if (response.data.message === "An error occurs") {
         const { msg } = response.data?.errors[0];
@@ -127,7 +126,7 @@ export default function CreateCategory() {
               </div>
             </div>
             <div className="mt-20">
-              <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !(props.values.name && props.values.file)} modalTitle={"Create New Category"} toggleName={"Create Category"} content={"By creating this category, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
+              <Modal buttonTypeToggle={"button"} isDisabled={!props.dirty || !(props.values.name && props.values.file) || !props.isValid} modalTitle={"Create New Category"} toggleName={"Create Category"} content={"By creating this category, you're adding content for future accessibility. Are you sure?"} buttonCondition={"positive"} buttonLabelOne={"Cancel"} buttonLabelTwo={"Yes"} buttonTypeOne={"button"} buttonTypeTwo={"submit"} onClickButton={props.handleSubmit} />
             </div>
           </Form>
         )}
