@@ -13,6 +13,7 @@ import FreeShipping from "./checkoutComponent/FreeShipping";
 import TimeRemaining from "./paymentComponent/TimeRemaining";
 import SubTotal from "./checkoutComponent/SubTotal";
 import GrandTotal from "./checkoutComponent/GrandTotal";
+import CanceledDetails from "./paymentComponent/CanceledDetails";
 
 export default function UserPaymentContent() {
   const { id } = useParams();
@@ -167,6 +168,7 @@ export default function UserPaymentContent() {
             <div className="mx-4">
               {orderStatus === "Waiting for payment" && (<TimeRemaining timer={timer} />)}
               <OrderStatusPayment orderStatus={orderStatus} />
+              <CanceledDetails orderStatus={orderStatus} orderData={orderData} />
               <OrderList orderData={orderData} />
               <SubTotal subTotal={subTotal} />
               {selectedVoucher === "" ? ("") : selectedVoucher === null || selectedVoucher === 0 ? (<FreeShipping />) : (
